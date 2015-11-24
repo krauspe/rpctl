@@ -38,15 +38,14 @@ def Quit():
 
 explanation = """ 2Step Remote Pilot Control \n Mega Advanced (unregistered) """
 about = """ 
-2StepControl 0.7 (c) Peter Krauspe DFS 2015
-The expert Tool for
+2Step Remote Pilot Control 0.8 (c) Peter Krauspe DFS 11/2015
+The expert tool for
 Remote Piloting
 """
 
-label_textcol = { "available" : "blue", "occupied" : "red"}
-
 # app settings
 subtype = "psp"
+# translate status string for GUI
 
 basedir = ".."
 bindir  = os.path.join(basedir,"bin")
@@ -67,24 +66,22 @@ subtype = "psp"
 ##target_config_list = ()
 ##nsc_status_list = ()
 
-    
+
 class MainApp(Frame):
+
     def __init__(self, root, *args, **kwargs):
-
+        self.choosen = {}
+        self.var = {}
         Frame.__init__(self, *args, **kwargs)
-        self.logo = PhotoImage(file="../images/dfs.gif")
-        
-        Label(self, image=self.logo).grid(row=0,column=0)
-        Label(self,  
-               fg = "dark blue",
-               bg = "dark grey",
-               font = "Helvetica 13 bold italic", 
-               text=explanation).grid(row=0,column=1)
         frame = Frame(self)
-        frame.grid(row=1,column=3)
-        
+        frame.grid(row=0,column=5)
 
-        # self.button = Button(frame,text="QUIT", fg="red",command=frame.quit).grid(row=10,column=5)
+        self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE"}
+        self.label_textcol = { "available" : "blue", "occupied" : "red"}
+
+        self.logo = PhotoImage(file="../images/dfs.gif")
+        Label(self, image=self.logo).grid(row=0,column=0)
+        # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.WriteSlogan).grid(row=0,column=2)
 
         Label(self, text="Resource %s " % subtype,width=25, relief=GROOVE, highlightthickness=2).grid(row=1,column=0)
@@ -92,9 +89,12 @@ class MainApp(Frame):
         Label(self, text="Status",width=25, relief=GROOVE).grid(row=1,column=2)
         Label(self, text="Choose Remote  %s "  % subtype,width=25, relief=GROOVE).grid(row=1,column=3)
 
-        Button(self,text="Get Remote Pilot Status", command=self.UpdateLists).grid(row=0,column=3)
+        Button(self, text="Update Remote Pilot Status", command=self.UpdateStatus).grid(row=0, column=2)
+        Button(self,text="Start Reconfiguration", bg="red", command=self.StartReconfiguration).grid(row=0,column=3)
+        Button(frame,text="QUIT", fg="red",command=frame.quit).grid(row=0,column=5)
+
         self.BuildMenu(root)
-        self.UpdateLists()
+        self.UpdateStatus()
 
     def DisplayLists(self):
         print "Display Lists..."
@@ -104,27 +104,33 @@ class MainApp(Frame):
             print resfqdn,curfqdn,status
             Label(self, text=resfqdn,width=25, bd=2, relief=GROOVE).grid(row=self.r1,column=0)
             Label(self, text=curfqdn,width=25, relief=SUNKEN).grid(row=self.r1,column=1)
-            Label(self, text=status,width=25, fg=label_textcol[status], relief=SUNKEN).grid(row=self.r1,column=2)
-            self.r1 +=1
-            
-        self.r1 = 2
-        var = StringVar(self)
-        var.set('default')
-        
-        for fqdn in self.resource_nsc_list:
-            option = OptionMenu(self, var, *self.max_target_fqdn_list)
-            option.grid(row=self.r1,column=3)
-            #Label(self, text=fqdn,width=25, relief=SUNKEN).grid(row=self.r1,column=3)
+            Label(self, text=self.label_txt_trans[status], width=25, fg=self.label_textcol[status], relief=SUNKEN).grid(row=self.r1, column=2)
             self.r1 +=1
 
-    def UpdateLists(self):
+        self.r1 = 2
+        # var.set('default')
+
+        for fqdn,mac in self.resource_nsc_list:
+            self.var[fqdn] = StringVar(self)
+            # self.choosen[fqdn] = self.var
+            option = OptionMenu(self, self.var[fqdn], *self.max_target_fqdn_list)
+            option.grid(row=self.r1,column=3)
+            self.r1 +=1
+
+    def UpdateStatus(self):
         self.r1 = 1
         self.LoadLists()
         self.DisplayLists()
-        
+        for fqdn,mac in self.resource_nsc_list:
+            # print(fqdn, ": " , self.var[fqdn].get())
+            print fqdn, mac
+
+    def StartReconfiguration(self):
+         print "\nStarting reconfiguraiton of NSCs ....\n"
+
 
     def LoadLists(self):
-        print "Loading Lists ..." 
+        print "Loading Lists ..."
         self.nsc_status_list = GetFileAsTuple(nsc_status_list_file)
         self.resource_nsc_list = GetFileAsTuple(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
@@ -135,7 +141,7 @@ class MainApp(Frame):
 
     def WriteSlogan(self):
         print "Alles geht !"
-    
+
     def BuildMenu(self, root):
         self.menu = Menu(self)
         root.config(menu=self.menu)
@@ -156,9 +162,9 @@ class MainApp(Frame):
         self.menu.add_cascade(label="Help", menu=help_menu)
         help_menu.add_command(label="Register", command=self.InputRegistrationKey)
         help_menu.add_command(label="About...", command=About)
-          
-            
-            
+
+
+
     def InputRegistrationKey(self):
         '''InputRegistrationKey'''
         print("Open InputRegistrationKey Dialog")
@@ -187,6 +193,7 @@ class MainApp(Frame):
 
 if __name__ == "__main__":
     root = Tk()
+    root.title("2Step Remote Pilot Control Mega Advanced (unregistered)")
     main = MainApp(root)
     main.grid(row=0,column=0)
     root.mainloop()
