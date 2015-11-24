@@ -2,7 +2,7 @@
 
 from Tkinter import *
 from tkFileDialog import askopenfilename
-import tkMessageBox
+#import tkMessageBox
 
 import os
 
@@ -84,12 +84,8 @@ class MainApp(Frame):
         frame.grid(row=1,column=3)
         
 
-        self.button = Button(frame,text="QUIT", fg="red",command=frame.quit).grid(row=0,column=5)
-##        
-##        self.slogan = Button(frame,
-##                             text="MachDasEsGeht",
-##                             command=self.write_slogan)
-##        self.slogan.grid(row=0,column=2)
+        # self.button = Button(frame,text="QUIT", fg="red",command=frame.quit).grid(row=10,column=5)
+        # self.slogan = Button(frame, text="MachDasEsGeht", command=self.WriteSlogan).grid(row=0,column=2)
 
         Label(self, text="Resource %s " % subtype,width=25, relief=GROOVE, highlightthickness=2).grid(row=1,column=0)
         Label(self, text="Current %s "  % subtype,width=25, relief=GROOVE).grid(row=1,column=1)
@@ -97,8 +93,8 @@ class MainApp(Frame):
         Label(self, text="Choose Remote  %s "  % subtype,width=25, relief=GROOVE).grid(row=1,column=3)
 
         Button(self,text="Get Remote Pilot Status", command=self.UpdateLists).grid(row=0,column=3)
-        self.build_menu(root)
-        
+        self.BuildMenu(root)
+        self.UpdateLists()
 
     def DisplayLists(self):
         print "Display Lists..."
@@ -115,7 +111,7 @@ class MainApp(Frame):
         var = StringVar(self)
         var.set('default')
         
-        for fqdn in self.max_target_fqdn_list:
+        for fqdn in self.resource_nsc_list:
             option = OptionMenu(self, var, *self.max_target_fqdn_list)
             option.grid(row=self.r1,column=3)
             #Label(self, text=fqdn,width=25, relief=SUNKEN).grid(row=self.r1,column=3)
@@ -137,11 +133,10 @@ class MainApp(Frame):
         self.target_config_list = GetFileAsTuple(target_config_list_file)
 
 
-        
-    def write_slogan(self):
+    def WriteSlogan(self):
         print "Alles geht !"
     
-    def build_menu(self, root):
+    def BuildMenu(self, root):
         self.menu = Menu(self)
         root.config(menu=self.menu)
 
@@ -165,26 +160,28 @@ class MainApp(Frame):
             
             
     def InputRegistrationKey(self):
-        t = Toplevel(self)
-        t.wm_title("Register")
-        l = Label(t, text="Type in your registration keys").pack()
-     
-    
-        self.entrytext = StringVar()
-        Entry(self.root, textvariable=self.entrytext).pack()
+        '''InputRegistrationKey'''
+        print("Open InputRegistrationKey Dialog")
+        # t = Toplevel(self)
+        # t.wm_title("Register")
+        # l = Label(t, text="Type in your registration keys").pack()
+        #
+        #
+        # self.entrytext = StringVar()
+        # Entry(self.root, textvariable=self.entrytext).pack()
+        #
+        # self.buttontext = StringVar()
+        # self.buttontext.set("Check")
+        # Button(self.root, textvariable=self.buttontext, command=self.clicked1).pack()
+        #
+        # self.label = Label(self.root, text="")
+        # self.label.pack()
 
-        self.buttontext = StringVar()
-        self.buttontext.set("Check")
-        Button(self.root, textvariable=self.buttontext, command=self.clicked1).pack()
 
-        self.label = Label(self.root, text="")
-        self.label.pack()
-
-
-    def clicked1(self):
-        self.input = self.entrytext.get()
-        self.label.configure(text=self.input)
-        print "Print: ", self.input
+    # def clicked1(self):
+    #     self.input = self.entrytext.get()
+    #     self.label.configure(text=self.input)
+    #     print "Print: ", self.input
 
 
 
