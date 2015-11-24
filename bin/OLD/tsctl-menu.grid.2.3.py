@@ -91,7 +91,7 @@ class MainApp(Frame):
 ##        
 ##        self.slogan = Button(frame,
 ##                             text="MachDasEsGeht",
-##                             command=self.write_slogan)
+##                             command=self.WriteSlogan)
 ##        self.slogan.grid(row=0,column=2)
 
         Label(self, text="Resource %s " % subtype,width=25, relief=GROOVE, highlightthickness=2).grid(row=1,column=0)

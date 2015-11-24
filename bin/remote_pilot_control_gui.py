@@ -2,6 +2,7 @@
 
 from Tkinter import *
 from tkFileDialog import askopenfilename
+import subprocess as sub
 #import tkMessageBox
 
 import os
@@ -33,6 +34,23 @@ def GetFileAsTuple(file):
 def Quit():
         print "Quit"
         root.quit()
+
+def RunShell(cmd):
+    # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
+    # output, errors = p.communicate()
+    # return output, errors
+
+    p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+    while True:
+        out = p.stderr.read(1)
+        if out == '' and p.poll() != None:
+            break
+        if out != '':
+            return out
+            # sys.stdout.write(out)
+            # sys.stdout.flush()
+
+
 
 # settings
 
@@ -74,7 +92,7 @@ class MainApp(Frame):
         self.var = {}
         Frame.__init__(self, *args, **kwargs)
         frame = Frame(self)
-        frame.grid(row=0,column=5)
+        frame.grid(row=0,column=6)
 
         self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE"}
         self.label_textcol = { "available" : "blue", "occupied" : "red"}
@@ -95,6 +113,7 @@ class MainApp(Frame):
 
         self.BuildMenu(root)
         self.UpdateStatus()
+
 
     def DisplayLists(self):
         print "Display Lists..."
@@ -126,7 +145,13 @@ class MainApp(Frame):
             print fqdn, mac
 
     def StartReconfiguration(self):
-         print "\nStarting reconfiguraiton of NSCs ....\n"
+        print "\nStarting reconfiguraiton of NSCs ....\n"
+        self.output = RunShell("ls -la")
+        self.console = Text(self)
+        self.console.grid(row=0, column=1)
+
+        self.console.insert(END, self.output)
+        print ("output : ", output)
 
 
     def LoadLists(self):
