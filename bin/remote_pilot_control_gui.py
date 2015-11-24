@@ -3,15 +3,20 @@
 from Tkinter import *
 from tkFileDialog import askopenfilename
 import subprocess as sub
-#import tkMessageBox
-
 import os
+
+
+resource_nsc_list = ()
+resource_nsc_list_dict = {}
+remote_nsc_list = ()
+target_config_list = ()
+nsc_status_list = ()
 
 def NewFile():
     name = askopenfilename()
     name = askopenfilename
     print "open: ", name
-    
+
 def OpenFile():
     name = askopenfilename()
     print "open: ", name
@@ -22,7 +27,7 @@ def About():
 def ListTargetConfig():
     for line in target_config_list:
         print line
-    
+
 def ListStatus():
     for line in nsc_status_list:
         print line
@@ -30,7 +35,7 @@ def ListStatus():
 def GetFileAsTuple(file):
     return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
 
-  
+
 def Quit():
         print "Quit"
         root.quit()
@@ -55,7 +60,7 @@ def RunShell(cmd):
 # settings
 
 explanation = """ 2Step Remote Pilot Control \n Mega Advanced (unregistered) """
-about = """ 
+about = """
 2Step Remote Pilot Control 0.8 (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
@@ -78,11 +83,6 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 #source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
 subtype = "psp"
 
-##resource_nsc_list = ()
-##resource_nsc_list_dict = {}
-##remote_nsc_list = ()
-##target_config_list = ()
-##nsc_status_list = ()
 
 
 class MainApp(Frame):
@@ -130,7 +130,7 @@ class MainApp(Frame):
         # var.set('default')
 
         for fqdn,mac in self.resource_nsc_list:
-            self.var[fqdn] = StringVar(self)
+            self.var[fqdn] = StringVar()
             # self.choosen[fqdn] = self.var
             option = OptionMenu(self, self.var[fqdn], *self.max_target_fqdn_list)
             option.grid(row=self.r1,column=3)
@@ -141,8 +141,8 @@ class MainApp(Frame):
         self.LoadLists()
         self.DisplayLists()
         for fqdn,mac in self.resource_nsc_list:
-            # print(fqdn, ": " , self.var[fqdn].get())
-            print fqdn, mac
+            print fqdn, ": " , self.var[fqdn].get()
+            #print fqdn, mac
 
     def StartReconfiguration(self):
         print "\nStarting reconfiguraiton of NSCs ....\n"
