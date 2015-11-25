@@ -109,7 +109,7 @@ class MainApp(Frame):
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
 
         # CONSOLE
-        self.con_frame = Frame(root, bg="white", pady=10)
+        self.con_frame = Frame(root, bg="white")
         self.con_frame.grid(row=1, column=0)
         self.console = ScrolledText.ScrolledText(self.con_frame, bg="white")
         self.console.grid(row=1, column=0)
@@ -119,11 +119,15 @@ class MainApp(Frame):
         self.console.insert(END, self.output)
 
         # BUTTONS
+        n=0
         self.con_and_button_frame = Frame(root, bg="lightgrey")
-        self.con_and_button_frame.grid(row=1, column=3)
-        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=1, column=1, sticky=W)
-        Button(self.con_and_button_frame, text="Start Reconfiguration", bg="red", command=self.startReconfiguration).grid(row=2, column=1, sticky=W)
-        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=3,column=1, sticky=W)
+        self.con_and_button_frame.grid(row=1, column=3, sticky=W+E+N+S)
+        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Start reconfiguration", bg="red", command=self.startReconfiguration).grid(row=2, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="print resource NSC list", command=self.printResourceNscList).grid(row=3, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="print remote NSC list", command=self.printRemoteNscList).grid(row=4, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="print status list", command=self.printNscStatusList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=6,column=1, sticky=W+E)
 
         self.list_frame = Frame(root, bg="grey")
         self.list_frame.grid(row=4, column=0)
@@ -137,11 +141,11 @@ class MainApp(Frame):
 
 
     def displayLists(self):
-        print "Display Lists..."
+        print "Display lists...\n"
 
         self.r1 = 3
         for resfqdn,curfqdn,status in self.nsc_status_list:
-            print resfqdn,curfqdn,status
+            #print resfqdn,curfqdn,status
             Label(self.list_frame, text=resfqdn, width=25, bd=2, relief=GROOVE).grid(row=self.r1, column=0)
             Label(self.list_frame, text=curfqdn, width=25, relief=SUNKEN).grid(row=self.r1, column=1)
             Label(self.list_frame, text=self.label_txt_trans[status], width=25, fg=self.label_textcol[status], relief=SUNKEN).grid(row=self.r1, column=2)
@@ -158,20 +162,30 @@ class MainApp(Frame):
             self.r1 +=1
 
     def updateStatus(self):
+        print "\nprint choosen fqdn assignment...\n"
         self.r1 = 1
-        self.LoadLists()
+        self.loadLists()
         self.displayLists()
         for fqdn,mac in self.resource_nsc_list:
             print fqdn, ": " , self.var[fqdn].get()
             #print fqdn, mac
 
-    def listTargetConfig(self):
-        print "target config list:\n"
+    def printTargetConfigList(self):
+        print "\nTarget config list:\n"
         for line in self.target_config_list:
             print line
 
-    def listStatus(self):
-        print "Status list:\n"
+    def printResourceNscList(self):
+        print "\nResource nsc list:\n"
+        for line in self.resource_nsc_list:
+            print line
+    def printRemoteNscList(self):
+        print "\nRemote nsc list:\n"
+        for line in self.remote_nsc_list:
+            print line
+
+    def printNscStatusList(self):
+        print "\nStatus list:\n"
         for line in self.nsc_status_list:
             print line
 
@@ -180,7 +194,7 @@ class MainApp(Frame):
         self.output = runShell("ls -la")
 
 
-    def LoadLists(self):
+    def loadLists(self):
         print "Loading Lists ..."
         self.nsc_status_list = getFileAsTuple(nsc_status_list_file)
         self.resource_nsc_list = getFileAsTuple(resource_nsc_list_file)
@@ -206,8 +220,8 @@ class MainApp(Frame):
 
         list_menu = Menu(self.menu)
         self.menu.add_cascade(label="List", menu=list_menu)
-        list_menu.add_command(label="Target Config", command=self.listTargetConfig)
-        list_menu.add_command(label="Status", command=self.listStatus)
+        list_menu.add_command(label="Target Config", command=self.printTargetConfigList)
+        list_menu.add_command(label="Status", command=self.printNscStatusList)
 
         help_menu = Menu(self.menu)
         self.menu.add_cascade(label="Help", menu=help_menu)
