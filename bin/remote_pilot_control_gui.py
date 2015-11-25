@@ -48,13 +48,6 @@ def OpenFile():
 def About():
     print about
 
-def ListTargetConfig():
-    for line in target_config_list:
-        print line
-
-def ListStatus():
-    for line in nsc_status_list:
-        print line
 
 def GetFileAsTuple(file):
     return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
@@ -89,43 +82,55 @@ class RedirectText(object):
     def write(self, string):
         """"""
         self.output.insert(END, string)
+        self.output.see("end")
 
 
 class MainApp(Frame):
 
-    def __init__(self, root, *args, **kwargs):
+    #def __init__(self, root, *args, **kwargs):
+    def __init__(self, root=None ):
         self.choosen = {}
         self.var = {}
-        self.output = "text fuer die console\n 2. zeile\n 3.Zeile \n etc ..."
-        Frame.__init__(self, *args, **kwargs)
-        self.frame = Frame(self)
-        self.frame.grid(row=0,column=6)
-
+        self.output = "Console output initialized.\n\n"
+        self.r1 = 0
         self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE"}
         self.label_textcol = { "available" : "blue", "occupied" : "red"}
 
+        #Frame.__init__(self, master=None,*args, **kwargs)
+        Frame.__init__(self, root)
+
+        # LOGO
+        self.frame = Frame(root, bg="lightblue")
+        #self.frame.grid(row=0,column=6)
+        self.frame.grid(row=0,column=0)
         self.logo = PhotoImage(file="../images/dfs.gif")
-        Label(self, image=self.logo).grid(row=0,column=0)
+        Label(self.frame, image=self.logo).grid(row=0,column=0)
         # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.WriteSlogan).grid(row=0,column=2)
 
-        Label(self, text="Resource %s " % subtype,width=25, relief=GROOVE, highlightthickness=2).grid(row=1,column=0)
-        Label(self, text="Current %s "  % subtype,width=25, relief=GROOVE).grid(row=1,column=1)
-        Label(self, text="Status",width=25, relief=GROOVE).grid(row=1,column=2)
-        Label(self, text="Choose Remote  %s "  % subtype,width=25, relief=GROOVE).grid(row=1,column=3)
-
-        Button(self, text="Update Remote Pilot Status", command=self.UpdateStatus).grid(row=0, column=2)
-        Button(self,text="Start Reconfiguration", bg="red", command=self.StartReconfiguration).grid(row=0,column=3)
-        Button(self.frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=0,column=5)
-
-        self.console = ScrolledText.ScrolledText(self.frame)
-        self.console.grid(row=0, column=1)
+        # CONSOLE
+        self.con_frame = Frame(root, bg="white")
+        self.con_frame.grid(row=1, column=0)
+        self.console = ScrolledText.ScrolledText(self.con_frame)
+        self.console.grid(row=1, column=0)
         # redirect stdout
         redir = RedirectText(self.console)
         sys.stdout = redir
-
         self.console.insert(END, self.output)
-        print ("output : ", self.output)
+
+        # BUTTONS
+        self.con_and_button_frame = Frame(root, bg="lightgrey")
+        self.con_and_button_frame.grid(row=1, column=3)
+        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.UpdateStatus).grid(row=1, column=1,sticky=W)
+        Button(self.con_and_button_frame,text="Start Reconfiguration", bg="red", command=self.StartReconfiguration).grid(row=2,column=1, sticky=W)
+        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=3,column=1, sticky=W)
+
+        self.list_frame = Frame(root, bg="grey")
+        self.list_frame.grid(row=4, column=0)
+        Label(self.list_frame, text="Resource %s " % subtype, width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
+        Label(self.list_frame, text="Current %s " % subtype, width=25, relief=GROOVE).grid(row=2, column=1)
+        Label(self.list_frame, text="Status", width=25, relief=GROOVE).grid(row=2, column=2)
+        Label(self.list_frame, text="Choose Remote  %s " % subtype, width=25, relief=GROOVE).grid(row=2, column=3)
 
         self.BuildMenu(root)
         self.UpdateStatus()
@@ -134,21 +139,21 @@ class MainApp(Frame):
     def DisplayLists(self):
         print "Display Lists..."
 
-        self.r1 = 2
+        self.r1 = 3
         for resfqdn,curfqdn,status in self.nsc_status_list:
             print resfqdn,curfqdn,status
-            Label(self, text=resfqdn,width=25, bd=2, relief=GROOVE).grid(row=self.r1,column=0)
-            Label(self, text=curfqdn,width=25, relief=SUNKEN).grid(row=self.r1,column=1)
-            Label(self, text=self.label_txt_trans[status], width=25, fg=self.label_textcol[status], relief=SUNKEN).grid(row=self.r1, column=2)
+            Label(self.list_frame, text=resfqdn, width=25, bd=2, relief=GROOVE).grid(row=self.r1, column=0)
+            Label(self.list_frame, text=curfqdn, width=25, relief=SUNKEN).grid(row=self.r1, column=1)
+            Label(self.list_frame, text=self.label_txt_trans[status], width=25, fg=self.label_textcol[status], relief=SUNKEN).grid(row=self.r1, column=2)
             self.r1 +=1
 
-        self.r1 = 2
+        self.r1 = 3
         # var.set('default')
 
         for fqdn,mac in self.resource_nsc_list:
             self.var[fqdn] = StringVar()
             # self.choosen[fqdn] = self.var
-            option = OptionMenu(self, self.var[fqdn], *self.max_target_fqdn_list)
+            option = OptionMenu(self.list_frame, self.var[fqdn], *self.max_target_fqdn_list)
             option.grid(row=self.r1,column=3)
             self.r1 +=1
 
@@ -159,6 +164,14 @@ class MainApp(Frame):
         for fqdn,mac in self.resource_nsc_list:
             print fqdn, ": " , self.var[fqdn].get()
             #print fqdn, mac
+
+    def ListTargetConfig(self):
+        for line in self.target_config_list:
+            print line
+
+    def ListStatus(self):
+        for line in self.nsc_status_list:
+            print line
 
     def StartReconfiguration(self):
         print "\nStarting reconfiguraiton of NSCs ....\n"
@@ -191,8 +204,8 @@ class MainApp(Frame):
 
         list_menu = Menu(self.menu)
         self.menu.add_cascade(label="List", menu=list_menu)
-        list_menu.add_command(label="Target Config", command=ListTargetConfig)
-        list_menu.add_command(label="Status", command=ListStatus)
+        list_menu.add_command(label="Target Config", command=self.ListTargetConfig)
+        list_menu.add_command(label="Status", command=self.ListStatus)
 
         help_menu = Menu(self.menu)
         self.menu.add_cascade(label="Help", menu=help_menu)
@@ -231,7 +244,8 @@ if __name__ == "__main__":
     root = Tk()
     root.title(main_window_title)
     main = MainApp(root)
-    main.grid(row=0,column=0)
+    #main.grid(row=0,column=0)
+    main.grid()
     root.mainloop()
     root.destroy()
 
