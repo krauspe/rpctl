@@ -2,8 +2,32 @@
 
 from Tkinter import *
 from tkFileDialog import askopenfilename
+import ScrolledText
 import subprocess as sub
 import os
+
+# settings
+
+main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
+about = """
+2Step Remote Pilot Control 0.8 (c) Peter Krauspe DFS 11/2015
+The expert tool for
+Remote Piloting
+"""
+
+basedir = ".."
+bindir  = os.path.join(basedir,"bin")
+confdir = os.path.join(basedir,"config")
+vardir  = os.path.join(basedir, "var")
+resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
+target_config_list_file = os.path.join(vardir,"target_config.list")
+remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
+nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
+
+# todo: einlesen und auswerten
+#source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
+# app settings
+subtype = "psp"
 
 
 resource_nsc_list = ()
@@ -56,33 +80,15 @@ def RunShell(cmd):
             # sys.stdout.flush()
 
 
+class RedirectText(object):
+    """"""
+    def __init__(self, outtext):
+        """Constructor"""
+        self.output = outtext
 
-# settings
-
-explanation = """ 2Step Remote Pilot Control \n Mega Advanced (unregistered) """
-about = """
-2Step Remote Pilot Control 0.8 (c) Peter Krauspe DFS 11/2015
-The expert tool for
-Remote Piloting
-"""
-
-# app settings
-subtype = "psp"
-# translate status string for GUI
-
-basedir = ".."
-bindir  = os.path.join(basedir,"bin")
-confdir = os.path.join(basedir,"config")
-vardir  = os.path.join(basedir, "var")
-resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
-target_config_list_file = os.path.join(vardir,"target_config.list")
-remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
-nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
-
-# todo: einlesen und auswerten
-#source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
-subtype = "psp"
-
+    def write(self, string):
+        """"""
+        self.output.insert(END, string)
 
 
 class MainApp(Frame):
@@ -90,9 +96,10 @@ class MainApp(Frame):
     def __init__(self, root, *args, **kwargs):
         self.choosen = {}
         self.var = {}
+        self.output = "text fuer die console\n 2. zeile\n 3.Zeile \n etc ..."
         Frame.__init__(self, *args, **kwargs)
-        frame = Frame(self)
-        frame.grid(row=0,column=6)
+        self.frame = Frame(self)
+        self.frame.grid(row=0,column=6)
 
         self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE"}
         self.label_textcol = { "available" : "blue", "occupied" : "red"}
@@ -109,7 +116,16 @@ class MainApp(Frame):
 
         Button(self, text="Update Remote Pilot Status", command=self.UpdateStatus).grid(row=0, column=2)
         Button(self,text="Start Reconfiguration", bg="red", command=self.StartReconfiguration).grid(row=0,column=3)
-        Button(frame,text="QUIT", fg="red",command=frame.quit).grid(row=0,column=5)
+        Button(self.frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=0,column=5)
+
+        self.console = ScrolledText.ScrolledText(self.frame)
+        self.console.grid(row=0, column=1)
+        # redirect stdout
+        redir = RedirectText(self.console)
+        sys.stdout = redir
+
+        self.console.insert(END, self.output)
+        print ("output : ", self.output)
 
         self.BuildMenu(root)
         self.UpdateStatus()
@@ -147,11 +163,6 @@ class MainApp(Frame):
     def StartReconfiguration(self):
         print "\nStarting reconfiguraiton of NSCs ....\n"
         self.output = RunShell("ls -la")
-        self.console = Text(self)
-        self.console.grid(row=0, column=1)
-
-        self.console.insert(END, self.output)
-        print ("output : ", output)
 
 
     def LoadLists(self):
@@ -218,7 +229,7 @@ class MainApp(Frame):
 
 if __name__ == "__main__":
     root = Tk()
-    root.title("2Step Remote Pilot Control Mega Advanced (unregistered)")
+    root.title(main_window_title)
     main = MainApp(root)
     main.grid(row=0,column=0)
     root.mainloop()
