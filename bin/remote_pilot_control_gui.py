@@ -36,12 +36,12 @@ remote_nsc_list = ()
 target_config_list = ()
 nsc_status_list = ()
 
-def NewFile():
+def newFile():
     name = askopenfilename()
     name = askopenfilename
     print "open: ", name
 
-def OpenFile():
+def openFile():
     name = askopenfilename()
     print "open: ", name
 
@@ -49,7 +49,7 @@ def About():
     print about
 
 
-def GetFileAsTuple(file):
+def getFileAsTuple(file):
     return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
 
 
@@ -57,7 +57,7 @@ def Quit():
         print "Quit"
         root.quit()
 
-def RunShell(cmd):
+def runShell(cmd):
     # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
     # output, errors = p.communicate()
     # return output, errors
@@ -73,7 +73,7 @@ def RunShell(cmd):
             # sys.stdout.flush()
 
 
-class RedirectText(object):
+class redirectText(object):
     """"""
     def __init__(self, outtext):
         """Constructor"""
@@ -106,23 +106,23 @@ class MainApp(Frame):
         self.logo = PhotoImage(file="../images/dfs.gif")
         Label(self.frame, image=self.logo).grid(row=0,column=0)
         # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
-        # self.slogan = Button(frame, text="MachDasEsGeht", command=self.WriteSlogan).grid(row=0,column=2)
+        # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
 
         # CONSOLE
-        self.con_frame = Frame(root, bg="white")
+        self.con_frame = Frame(root, bg="white", pady=10)
         self.con_frame.grid(row=1, column=0)
-        self.console = ScrolledText.ScrolledText(self.con_frame)
+        self.console = ScrolledText.ScrolledText(self.con_frame, bg="white")
         self.console.grid(row=1, column=0)
         # redirect stdout
-        redir = RedirectText(self.console)
+        redir = redirectText(self.console)
         sys.stdout = redir
         self.console.insert(END, self.output)
 
         # BUTTONS
         self.con_and_button_frame = Frame(root, bg="lightgrey")
         self.con_and_button_frame.grid(row=1, column=3)
-        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.UpdateStatus).grid(row=1, column=1,sticky=W)
-        Button(self.con_and_button_frame,text="Start Reconfiguration", bg="red", command=self.StartReconfiguration).grid(row=2,column=1, sticky=W)
+        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=1, column=1, sticky=W)
+        Button(self.con_and_button_frame, text="Start Reconfiguration", bg="red", command=self.startReconfiguration).grid(row=2, column=1, sticky=W)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=3,column=1, sticky=W)
 
         self.list_frame = Frame(root, bg="grey")
@@ -132,11 +132,11 @@ class MainApp(Frame):
         Label(self.list_frame, text="Status", width=25, relief=GROOVE).grid(row=2, column=2)
         Label(self.list_frame, text="Choose Remote  %s " % subtype, width=25, relief=GROOVE).grid(row=2, column=3)
 
-        self.BuildMenu(root)
-        self.UpdateStatus()
+        self.buildMenu(root)
+        self.updateStatus()
 
 
-    def DisplayLists(self):
+    def displayLists(self):
         print "Display Lists..."
 
         self.r1 = 3
@@ -157,66 +157,68 @@ class MainApp(Frame):
             option.grid(row=self.r1,column=3)
             self.r1 +=1
 
-    def UpdateStatus(self):
+    def updateStatus(self):
         self.r1 = 1
         self.LoadLists()
-        self.DisplayLists()
+        self.displayLists()
         for fqdn,mac in self.resource_nsc_list:
             print fqdn, ": " , self.var[fqdn].get()
             #print fqdn, mac
 
-    def ListTargetConfig(self):
+    def listTargetConfig(self):
+        print "target config list:\n"
         for line in self.target_config_list:
             print line
 
-    def ListStatus(self):
+    def listStatus(self):
+        print "Status list:\n"
         for line in self.nsc_status_list:
             print line
 
-    def StartReconfiguration(self):
+    def startReconfiguration(self):
         print "\nStarting reconfiguraiton of NSCs ....\n"
-        self.output = RunShell("ls -la")
+        self.output = runShell("ls -la")
 
 
     def LoadLists(self):
         print "Loading Lists ..."
-        self.nsc_status_list = GetFileAsTuple(nsc_status_list_file)
-        self.resource_nsc_list = GetFileAsTuple(resource_nsc_list_file)
+        self.nsc_status_list = getFileAsTuple(nsc_status_list_file)
+        self.resource_nsc_list = getFileAsTuple(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
-        self.remote_nsc_list = GetFileAsTuple(remote_nsc_list_file)
+        self.remote_nsc_list = getFileAsTuple(remote_nsc_list_file)
         self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default"]
-        self.target_config_list = GetFileAsTuple(target_config_list_file)
+        self.target_config_list = getFileAsTuple(target_config_list_file)
 
 
-    def WriteSlogan(self):
+    def writeSlogan(self):
         print "Alles geht !"
 
-    def BuildMenu(self, root):
+    def buildMenu(self, root):
         self.menu = Menu(self)
         root.config(menu=self.menu)
 
         file_menu = Menu(self.menu)
         self.menu.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="New", command=NewFile)
-        file_menu.add_command(label="Open...", command=OpenFile)
+        file_menu.add_command(label="New", command=newFile)
+        file_menu.add_command(label="Open...", command=openFile)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=Quit)
 
         list_menu = Menu(self.menu)
         self.menu.add_cascade(label="List", menu=list_menu)
-        list_menu.add_command(label="Target Config", command=self.ListTargetConfig)
-        list_menu.add_command(label="Status", command=self.ListStatus)
+        list_menu.add_command(label="Target Config", command=self.listTargetConfig)
+        list_menu.add_command(label="Status", command=self.listStatus)
 
         help_menu = Menu(self.menu)
         self.menu.add_cascade(label="Help", menu=help_menu)
-        help_menu.add_command(label="Register", command=self.InputRegistrationKey)
+        help_menu.add_command(label="Register", command=self.inputRegistrationKey)
         help_menu.add_command(label="About...", command=About)
 
 
 
-    def InputRegistrationKey(self):
-        '''InputRegistrationKey'''
-        print("Open InputRegistrationKey Dialog")
+    def inputRegistrationKey(self):
+        '''inputRegistrationKey'''
+        print("Open inputRegistrationKey Dialog")
         # t = Toplevel(self)
         # t.wm_title("Register")
         # l = Label(t, text="Type in your registration keys").pack()
