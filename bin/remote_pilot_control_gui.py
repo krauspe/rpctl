@@ -58,6 +58,7 @@ def Quit():
         root.quit()
 
 def runShell(cmd):
+    # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
     # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
     # output, errors = p.communicate()
     # return output, errors
@@ -74,7 +75,9 @@ def runShell(cmd):
 
 
 class redirectText(object):
-    """"""
+    """http://stackoverflow.com/questions/24707308/get-command-window-output-to-display-in-widget-with-tkinter
+    http://stackoverflow.com/questions/30669015/autoscroll-of-text-and-scrollbar-in-python-text-box"""
+
     def __init__(self, outtext):
         """Constructor"""
         self.output = outtext
@@ -89,6 +92,7 @@ class MainApp(Frame):
 
     #def __init__(self, root, *args, **kwargs):
     def __init__(self, root=None ):
+        """http://stackoverflow.com/questions/6129899/python-multiple-frames-with-grid-manager"""
         self.choosen = {}
         self.var = {}
         self.output = "Console output initialized.\n\n"
@@ -157,6 +161,7 @@ class MainApp(Frame):
         for fqdn,mac in self.resource_nsc_list:
             self.var[fqdn] = StringVar()
             # self.choosen[fqdn] = self.var
+            # http://effbot.org/tkinterbook/optionmenu.htm
             option = OptionMenu(self.list_frame, self.var[fqdn], *self.max_target_fqdn_list)
             option.grid(row=self.r1,column=3)
             self.r1 +=1
