@@ -30,13 +30,6 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 subtype = "psp"
 
 
-# resource_nsc_list = []
-# resource_nsc_list_dict = {}
-# remote_nsc_list = []
-# target_config_list = []
-# new_target_config_list = []
-# nsc_status_list = []
-
 def newFile():
     name = askopenfilename()
     name = askopenfilename
@@ -157,39 +150,44 @@ class MainApp(Frame):
 
         # LIST | OptionMenu
 
-        self.resfqdns = {}
-        self.curfqdns = {}
-        self.Status   = {}
-        self.newfqdn   = {}
+        self.lt_resfqdns = {}
+        self.lt_curfqdns = {}
+        self.lt_Status   = {}
+        self.lt_newfqdn   = {}
         self.label_resfqdn = {}
         self.label_curfqdn = {}
         self.label_status = {}
+
+        self.new_target_config_list   = []
 
 
         self.r1 = 3
         for resfqdn,curfqdn,status in self.nsc_status_list:
 
+            # wenn sich die Anzahl der resfqdns erhoeht fehlen hierfuer labels, daher Neustart noetig !
+            # Loesung: weitere Lables fuer neue Eintrage erzeugen (nicht in init)
+
             # define tkinter vars
-            self.resfqdns[resfqdn] = StringVar()
-            self.curfqdns[resfqdn] = StringVar()
-            self.Status[resfqdn]   = StringVar()
-            self.newfqdn[resfqdn]  = StringVar()
+            self.lt_resfqdns[resfqdn] = StringVar()
+            self.lt_curfqdns[resfqdn] = StringVar()
+            self.lt_Status[resfqdn]   = StringVar()
+            self.lt_newfqdn[resfqdn]  = StringVar()
 
             # set initial values
-            self.resfqdns[resfqdn].set(resfqdn)
-            self.curfqdns[resfqdn].set(curfqdn)
-            self.Status[resfqdn].set(self.label_txt_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
+            self.lt_resfqdns[resfqdn].set(resfqdn)
+            self.lt_curfqdns[resfqdn].set(curfqdn)
+            self.lt_Status[resfqdn].set(self.label_txt_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
 
-            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.resfqdns[resfqdn], width=25, bd=2, relief=GROOVE)
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], width=25, bd=2, relief=GROOVE)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0)
 
-            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.curfqdns[resfqdn], width=25, relief=SUNKEN)
+            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], width=25, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=1)
 
-            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=2)
 
-            OptionMenu(self.list_frame, self.newfqdn[resfqdn], *self.max_target_fqdn_list).grid(row=self.r1,column=3)
+            OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list).grid(row=self.r1, column=3)
 
             self.r1 +=1
 
@@ -209,10 +207,19 @@ class MainApp(Frame):
         print "\nprint assignment...\n"
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
-            self.resfqdns[resfqdn].set(resfqdn)
-            self.curfqdns[resfqdn].set(curfqdn)
-            self.Status[resfqdn].set(self.label_txt_trans[status])
+            self.lt_resfqdns[resfqdn].set(resfqdn) # eigentlich ueberfluessig
+            self.lt_curfqdns[resfqdn].set(curfqdn)
+            self.lt_Status[resfqdn].set(self.label_txt_trans[status])
             self.label_status[resfqdn].config(fg=self.label_textcol[status])
+        self.printNewTargetConfigList()
+
+    def printNewTargetConfigList(self):
+        print "\nTarget config list:\n"
+        for resfqdn,mac in self.resource_nsc_list:
+            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get()))
+            newfqdn = self.lt_newfqdn[resfqdn].get()
+            # newfqdn seems to be a tuple, but is actually a string !!!?? WHY ?
+            print '%s %s' % (resfqdn, newfqdn)
 
     def printTargetConfigList(self):
         print "\nTarget config list:\n"
