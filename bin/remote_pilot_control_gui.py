@@ -30,11 +30,12 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 subtype = "psp"
 
 
-resource_nsc_list = ()
-resource_nsc_list_dict = {}
-remote_nsc_list = ()
-target_config_list = ()
-nsc_status_list = ()
+# resource_nsc_list = []
+# resource_nsc_list_dict = {}
+# remote_nsc_list = []
+# target_config_list = []
+# new_target_config_list = []
+# nsc_status_list = []
 
 def newFile():
     name = askopenfilename()
@@ -49,8 +50,16 @@ def About():
     print about
 
 
-def getFileAsTuple(file):
+def getFileAsList(file):
     return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
+
+def saveListAsFile(list,filepath):
+    line = ''
+    f = open(filepath, 'w')
+    for tup in list:
+        for element in tup:
+            line += element
+        print f.write(line)
 
 
 def Quit():
@@ -97,8 +106,8 @@ class MainApp(Frame):
         self.var = {}
         self.output = "Console output initialized.\n\n"
         self.r1 = 0
-        self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE"}
-        self.label_textcol = { "available" : "blue", "occupied" : "red"}
+        self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE", None:""}
+        self.label_textcol = { "available" : "blue", "occupied" : "red", None:"lightgrey"}
 
         #Frame.__init__(self, master=None,*args, **kwargs)
         Frame.__init__(self, root)
@@ -133,6 +142,8 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="print status list", command=self.printNscStatusList).grid(row=5, column=1, sticky=W+E)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=6,column=1, sticky=W+E)
 
+
+        # LIST HEADER
         self.list_frame = Frame(root, bg="grey")
         self.list_frame.grid(row=4, column=0)
         Label(self.list_frame, text="Resource %s " % subtype, width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
@@ -141,39 +152,67 @@ class MainApp(Frame):
         Label(self.list_frame, text="Choose Remote  %s " % subtype, width=25, relief=GROOVE).grid(row=2, column=3)
 
         self.buildMenu(root)
-        self.updateStatus()
+        self.loadLists()
+        #self.updateStatus()
 
+        # LIST | OptionMenu
 
-    def displayLists(self):
-        print "Display lists...\n"
+        self.resfqdns = {}
+        self.curfqdns = {}
+        self.Status   = {}
+        self.newfqdn   = {}
+        self.label_resfqdn = {}
+        self.label_curfqdn = {}
+        self.label_status = {}
+
 
         self.r1 = 3
         for resfqdn,curfqdn,status in self.nsc_status_list:
-            #print resfqdn,curfqdn,status
-            Label(self.list_frame, text=resfqdn, width=25, bd=2, relief=GROOVE).grid(row=self.r1, column=0)
-            Label(self.list_frame, text=curfqdn, width=25, relief=SUNKEN).grid(row=self.r1, column=1)
-            Label(self.list_frame, text=self.label_txt_trans[status], width=25, fg=self.label_textcol[status], relief=SUNKEN).grid(row=self.r1, column=2)
+
+            # define tkinter vars
+            self.resfqdns[resfqdn] = StringVar()
+            self.curfqdns[resfqdn] = StringVar()
+            self.Status[resfqdn]   = StringVar()
+            self.newfqdn[resfqdn]  = StringVar()
+
+            # set initial values
+            self.resfqdns[resfqdn].set(resfqdn)
+            self.curfqdns[resfqdn].set(curfqdn)
+            self.Status[resfqdn].set(self.label_txt_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
+
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.resfqdns[resfqdn], width=25, bd=2, relief=GROOVE)
+            self.label_resfqdn[resfqdn].grid(row=self.r1, column=0)
+
+            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.curfqdns[resfqdn], width=25, relief=SUNKEN)
+            self.label_curfqdn[resfqdn].grid(row=self.r1, column=1)
+
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn].grid(row=self.r1, column=2)
+
+            OptionMenu(self.list_frame, self.newfqdn[resfqdn], *self.max_target_fqdn_list).grid(row=self.r1,column=3)
+
             self.r1 +=1
 
-        self.r1 = 3
-        # var.set('default')
 
-        for fqdn,mac in self.resource_nsc_list:
-            self.var[fqdn] = StringVar()
-            # self.choosen[fqdn] = self.var
-            # http://effbot.org/tkinterbook/optionmenu.htm
-            option = OptionMenu(self.list_frame, self.var[fqdn], *self.max_target_fqdn_list)
-            option.grid(row=self.r1,column=3)
-            self.r1 +=1
+
+    # def displayLists(self):
+    #     print "Display lists...\n"
+    #
+    #     for resfqdn,curfqdn,status in self.nsc_status_list:
+    #         print self.var[fqdn].get()
+    #         #print resfqdn,curfqdn,status
+    #
+    #     # var.set('default')
+
 
     def updateStatus(self):
-        print "\nprint choosen fqdn assignment...\n"
-        self.r1 = 1
-        self.loadLists()
-        self.displayLists()
-        for fqdn,mac in self.resource_nsc_list:
-            print fqdn, ": " , self.var[fqdn].get()
-            #print fqdn, mac
+        print "\nprint assignment...\n"
+        self.nsc_status_list = getFileAsList(nsc_status_list_file)
+        for resfqdn,curfqdn,status in self.nsc_status_list:
+            self.resfqdns[resfqdn].set(resfqdn)
+            self.curfqdns[resfqdn].set(curfqdn)
+            self.Status[resfqdn].set(self.label_txt_trans[status])
+            self.label_status[resfqdn].config(fg=self.label_textcol[status])
 
     def printTargetConfigList(self):
         print "\nTarget config list:\n"
@@ -195,18 +234,19 @@ class MainApp(Frame):
             print line
 
     def startReconfiguration(self):
-        print "\nStarting reconfiguraiton of NSCs ....\n"
+        print "\nStarting reconfiguration of NSCs ....\n"
         self.output = runShell("ls -la")
+        print self.output
 
 
     def loadLists(self):
         print "Loading Lists ..."
-        self.nsc_status_list = getFileAsTuple(nsc_status_list_file)
-        self.resource_nsc_list = getFileAsTuple(resource_nsc_list_file)
+        self.nsc_status_list = getFileAsList(nsc_status_list_file)
+        self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
-        self.remote_nsc_list = getFileAsTuple(remote_nsc_list_file)
+        self.remote_nsc_list = getFileAsList(remote_nsc_list_file)
         self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default"]
-        self.target_config_list = getFileAsTuple(target_config_list_file)
+        self.target_config_list = getFileAsList(target_config_list_file)
 
 
     def writeSlogan(self):
