@@ -9,6 +9,7 @@
 #	the text is too long not all of it will be shown. For an
 #	added challenge, can you come up with a way to solve
 #	that issue?
+# bla
 
 import simplegui
 
