@@ -46,6 +46,16 @@ def About():
 def getFileAsList(file):
     return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
 
+def getTargetConfigList(file):
+    '''https://docs.python.org/2/library/itertools.html
+    itertools.izip_longest(*iterables[, fillvalue])
+    Make an iterator that aggregates elements from each of the iterables.
+    If the iterables are of uneven length, missing values are filled-in with fillvalue.
+    Iteration continues until the longest iterable is exhausted. Equivalent to
+    TODO:
+    Einlesen von tuples ungleicher laenge mit itertools'''
+    pass
+
 def saveListAsFile(list,filepath):
     line = ''
     f = open(filepath, 'w')
