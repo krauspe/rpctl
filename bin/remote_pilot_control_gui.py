@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 
+# TODO:
+# saveListAsFile doesn't closes the file !!???
+
 from Tkinter import *
 from tkFileDialog import askopenfilename
 import ScrolledText
 import subprocess as sub
 import os
+import pprint
+from PIL import Image, ImageTk
 
 # settings
 
 main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control 0.8 (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control 1.0 (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
@@ -23,6 +28,13 @@ resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
 target_config_list_file = os.path.join(vardir,"target_config.list")
 remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
 nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
+
+def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"))
+def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"))
+def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"))
+def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"))
+
+
 
 # todo: einlesen und auswerten
 #source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
@@ -44,7 +56,11 @@ def About():
 
 
 def getFileAsList(file):
-    return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
+    #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
+    return [line.rstrip('\n').split() for line in open(file) if not line.startswith('#')]
+
+def getFileAsListOfRow(file, row):
+    return [line.rstrip('\n').split()[row] for line in open(file) if not line.startswith('#')]
 
 def getTargetConfigList(file):
     '''https://docs.python.org/2/library/itertools.html
@@ -57,13 +73,15 @@ def getTargetConfigList(file):
     pass
 
 def saveListAsFile(list,filepath):
-    line = ''
+    print "\nSaving %s\n" % filepath
     f = open(filepath, 'w')
     for tup in list:
+        line = ''
         for element in tup:
-            line += element
-        print f.write(line)
-
+            line += ' ' + element
+        f.write(line + '\n')
+    f.close()
+    print "type(line) = %s\n" % type(line)
 
 def Quit():
         print "Quit"
@@ -74,14 +92,15 @@ def runShell(cmd):
     # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
     # output, errors = p.communicate()
     # return output, errors
-
-    p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
-    while True:
-        out = p.stderr.read(1)
-        if out == '' and p.poll() != None:
-            break
-        if out != '':
-            return out
+    print "  running shell command:(FAKE !)"
+    print "\n  %s\n" % cmd
+    # p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+    # while True:
+    #     out = p.stderr.read(1)
+    #     if out == '' and p.poll() != None:
+    #         break
+    #     if out != '':
+    #         return out
             # sys.stdout.write(out)
             # sys.stdout.flush()
 
@@ -138,21 +157,29 @@ class MainApp(Frame):
         n=0
         self.con_and_button_frame = Frame(root, bg="lightgrey")
         self.con_and_button_frame.grid(row=1, column=3, sticky=W+E+N+S)
-        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Start reconfiguration", bg="red", command=self.startReconfiguration).grid(row=2, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="print resource NSC list", command=self.printResourceNscList).grid(row=3, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="print remote NSC list", command=self.printRemoteNscList).grid(row=4, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="print status list", command=self.printNscStatusList).grid(row=5, column=1, sticky=W+E)
-        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=6,column=1, sticky=W+E)
+
+        Button(self.con_and_button_frame, text="Deploy configs", command=deploy_configs).grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update resource PSP list", command=update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print remote NSC list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print resource NSC list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=8, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=9, column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Start reconfiguration", bg="red", command=self.startReconfiguration).grid(row=11, column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
+        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
 
 
         # LIST HEADER
         self.list_frame = Frame(root, bg="grey")
         self.list_frame.grid(row=4, column=0)
-        Label(self.list_frame, text="Resource %s " % subtype, width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
-        Label(self.list_frame, text="Current %s " % subtype, width=25, relief=GROOVE).grid(row=2, column=1)
+        Label(self.list_frame, text="Resource %s " % subtype.upper(), width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
+        Label(self.list_frame, text="Current FQDN ", width=25, relief=GROOVE).grid(row=2, column=1)
         Label(self.list_frame, text="Status", width=25, relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Choose Remote  %s " % subtype, width=25, relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Choose Remote FQDN ", width=25, relief=GROOVE).grid(row=2, column=3)
 
         self.buildMenu(root)
         self.loadLists()
@@ -167,11 +194,13 @@ class MainApp(Frame):
         self.label_resfqdn = {}
         self.label_curfqdn = {}
         self.label_status = {}
+        self.om = {}
 
         self.new_target_config_list   = []
 
 
         self.r1 = 3
+        #self.testoptions = ("aaa","bbb","ccc","ddd")
         for resfqdn,curfqdn,status in self.nsc_status_list:
 
             # wenn sich die Anzahl der resfqdns erhoeht fehlen hierfuer labels, daher Neustart noetig !
@@ -197,39 +226,53 @@ class MainApp(Frame):
             self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=2)
 
-            OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list).grid(row=self.r1, column=3)
-
             self.r1 +=1
 
+        self.createOptionMENUS("init")
 
 
-    # def displayLists(self):
-    #     print "Display lists...\n"
-    #
-    #     for resfqdn,curfqdn,status in self.nsc_status_list:
-    #         print self.var[fqdn].get()
-    #         #print resfqdn,curfqdn,status
-    #
-    #     # var.set('default')
+    def confirmRemotePSPChoices(self):
+        self.createTargetConfigListFromOptionMENU()
+        self.createOptionMENUS("update")
 
 
     def updateStatus(self):
         print "\nprint assignment...\n"
+        update_status_list()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
             self.lt_resfqdns[resfqdn].set(resfqdn) # eigentlich ueberfluessig
             self.lt_curfqdns[resfqdn].set(curfqdn)
             self.lt_Status[resfqdn].set(self.label_txt_trans[status])
             self.label_status[resfqdn].config(fg=self.label_textcol[status])
-        self.printNewTargetConfigList()
 
-    def printNewTargetConfigList(self):
-        print "\nTarget config list:\n"
-        for resfqdn,mac in self.resource_nsc_list:
-            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get()))
+    def createOptionMENUS(self,opt):
+        self.r1 = 3
+        for resfqdn,curfqdn,status in self.nsc_status_list:
+            if opt == "update":
+                self.om[resfqdn].destroy()
+            self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list)
+            self.om[resfqdn].grid(row=self.r1, column=3)
+            if opt == "init":
+                self.lt_newfqdn[resfqdn].set(curfqdn)
+            self.r1 +=1
+
+    def createTargetConfigListFromOptionMENU(self):
+        print "\nCreating NEW Target config list...\n"
+        for resfqdn,curfqdn,status in self.nsc_status_list:
             newfqdn = self.lt_newfqdn[resfqdn].get()
-            # newfqdn seems to be a tuple, but is actually a string !!!?? WHY ?
-            print '%s %s' % (resfqdn, newfqdn)
+            if newfqdn != curfqdn:
+                force_option = "force_reconfigure"
+            else:
+                force_option = ""
+            print '%s %s %s' % (resfqdn, newfqdn,force_option )
+            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),force_option))
+        saveListAsFile(self.new_target_config_list,target_config_list_file)
+        #saveListAsFile(self.new_target_config_list,target_config_list_file+".new")
+
+        # print "------------------------\n"
+        # pp = pprint.PrettyPrinter(indent=4)
+        # pp.pprint(self.new_target_config_list)
 
     def printTargetConfigList(self):
         print "\nTarget config list:\n"
@@ -251,9 +294,10 @@ class MainApp(Frame):
             print line
 
     def startReconfiguration(self):
-        print "\nStarting reconfiguration of NSCs ....\n"
-        self.output = runShell("ls -la")
-        print self.output
+        print "\nStarting reconfiguration of PSPs ....\n"
+        reconfigure_nscs()
+        #self.output = runShell("dir")
+        #print self.output
 
 
     def loadLists(self):
@@ -261,9 +305,11 @@ class MainApp(Frame):
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
-        self.remote_nsc_list = getFileAsList(remote_nsc_list_file)
+        self.remote_nsc_list = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default"]
         self.target_config_list = getFileAsList(target_config_list_file)
+        #print "self.remote_nsc_list : "
+        #print self.remote_nsc_list
 
 
     def writeSlogan(self):
