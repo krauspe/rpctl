@@ -10,6 +10,7 @@ import subprocess as sub
 import os
 import pprint
 from PIL import Image, ImageTk
+#import AnimatedGIF.py
 
 # settings
 
@@ -24,10 +25,26 @@ basedir = ".."
 bindir  = os.path.join(basedir,"bin")
 confdir = os.path.join(basedir,"config")
 vardir  = os.path.join(basedir, "var")
+imagedir = os.path.join(basedir, "images")
+animdir = os.path.join(imagedir, "animated_gifs")
+
 resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
 target_config_list_file = os.path.join(vardir,"target_config.list")
 remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
 nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
+
+# decoration
+
+animated_gif = 'rotating-jet-smoke.gif'
+animated_gif = 'Lear-jet-flying-in-turbulent-sky.gif'
+animated_gif = 'airplane13.gif'
+animated_gif = 'Animated-fighter-jet-firing-missles.gif'
+animated_gif = 'Moving-picture-red-skull-chewing-animation.gif'
+animated_gif = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
+animated_gif_1_path = os.path.join(animdir,animated_gif)
+duration_factor = 1
+
+# external commands
 
 def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"))
 def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"))
@@ -118,6 +135,44 @@ class redirectText(object):
         self.output.insert(END, string)
         self.output.see("end")
 
+class LabelAnimated(Label):
+    def __init__(self, master, filename,duration_factor):
+        im = Image.open(filename)
+        seq =  []
+        try:
+            while 1:
+                seq.append(im.copy())
+                im.seek(len(seq)) # skip to next frame
+        except EOFError:
+            pass # we're done
+
+        try:
+            self.delay = duration_factor * im.info['duration']
+        except KeyError:
+            self.delay = 100
+
+        first = seq[0].convert('RGBA')
+        self.frames = [ImageTk.PhotoImage(first)]
+
+        Label.__init__(self, master, image=self.frames[0])
+
+        temp = seq[0]
+        for image in seq[1:]:
+            temp.paste(image)
+            frame = temp.convert('RGBA')
+            self.frames.append(ImageTk.PhotoImage(frame))
+
+        self.idx = 0
+
+        self.cancel = self.after(self.delay, self.play)
+
+    def play(self):
+        self.config(image=self.frames[self.idx])
+        self.idx += 1
+        if self.idx == len(self.frames):
+            self.idx = 0
+        self.cancel = self.after(self.delay, self.play)
+
 
 class MainApp(Frame):
 
@@ -142,12 +197,20 @@ class MainApp(Frame):
         Label(self.frame, image=self.logo).grid(row=0,column=0)
         # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
+        #anim = LabelAnimated(self.frame, animated_gif_1_path, duration_factor)
+        #anim.grid(row=0,column=2)
+
 
         # CONSOLE
         self.con_frame = Frame(root, bg="white")
         self.con_frame.grid(row=1, column=0)
         self.console = ScrolledText.ScrolledText(self.con_frame, bg="white")
         self.console.grid(row=1, column=0)
+
+        anim = LabelAnimated(self.con_frame, animated_gif_1_path, duration_factor)
+        anim.grid(row=1,column=1)
+
+
         # redirect stdout
         redir = redirectText(self.console)
         sys.stdout = redir
@@ -239,6 +302,7 @@ class MainApp(Frame):
     def updateStatus(self):
         print "\nprint assignment...\n"
         update_status_list()
+        stopAnimation()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
             self.lt_resfqdns[resfqdn].set(resfqdn) # eigentlich ueberfluessig
@@ -336,6 +400,8 @@ class MainApp(Frame):
         help_menu.add_command(label="Register", command=self.inputRegistrationKey)
         help_menu.add_command(label="About...", command=About)
 
+    def stopAnimation(self):
+        self.anim.after_cancel(self.anim.cancel)
 
 
     def inputRegistrationKey(self):

@@ -1,8 +1,8 @@
 from Tkinter import *
 from PIL import Image, ImageTk
-# pip install install Pillow # yields PIL package
+## pip install Pillow # yields PIL package
 
-class MyLabel(Label):
+class LabelAnimated(Label):
     def __init__(self, master, filename):
         im = Image.open(filename)
         seq =  []
@@ -41,13 +41,15 @@ class MyLabel(Label):
         self.cancel = self.after(self.delay, self.play)
 
 
-root = Tk()
-anim = MyLabel(root, '../images/kamikaze-cat6.gif')
-anim.pack()
+##root = Tk()
 
-def stop_it():
-    anim.after_cancel(anim.cancel)
 
-Button(root, text='stop', command=stop_it).pack()
+#anim = LabelAnimated(root, '../images/animated_gifs/kamikaze-cat6.gif')
+#anim.pack()
 
-root.mainloop()
+#def stopAnimation():
+#    anim.after_cancel(anim.cancel)
+
+#Button(root, text='stop', command=stopAnimation).pack()
+
+##root.mainloop()
