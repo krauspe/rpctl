@@ -40,9 +40,9 @@ animated_gif = 'Animated-fighter-jet-firing-missles.gif'
 animated_gif = 'Moving-picture-red-skull-chewing-animation.gif'
 animated_gif = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
 animated_gif = '15a.gif'
-animated_gif = 'airplane13.gif'
-animated_gif = 'rotating-jet-smoke.gif'
 animated_gif = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
+animated_gif = 'rotating-jet-smoke.gif'
+animated_gif = 'airplane13.gif'
 
 
 
