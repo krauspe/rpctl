@@ -9,8 +9,8 @@ import ScrolledText
 import subprocess as sub
 import os
 import pprint
-from PIL import Image, ImageTk
-#import AnimatedGIF.py
+#from PIL import Image, ImageTk
+from AnimatedGIF import LabelAnimated
 
 # settings
 
@@ -35,14 +35,20 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
 # decoration
 
-animated_gif = 'rotating-jet-smoke.gif'
 animated_gif = 'Lear-jet-flying-in-turbulent-sky.gif'
-animated_gif = 'airplane13.gif'
 animated_gif = 'Animated-fighter-jet-firing-missles.gif'
 animated_gif = 'Moving-picture-red-skull-chewing-animation.gif'
 animated_gif = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
+animated_gif = '15a.gif'
+animated_gif = 'airplane13.gif'
+animated_gif = 'rotating-jet-smoke.gif'
+animated_gif = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
+
+
+
+
 animated_gif_1_path = os.path.join(animdir,animated_gif)
-duration_factor = 1
+duration_factor = 3
 
 # external commands
 
@@ -92,6 +98,7 @@ def getTargetConfigList(file):
 def saveListAsFile(list,filepath):
     print "\nSaving %s\n" % filepath
     f = open(filepath, 'w')
+    f.write("HALLO\n")
     for tup in list:
         line = ''
         for element in tup:
@@ -134,44 +141,6 @@ class redirectText(object):
         """"""
         self.output.insert(END, string)
         self.output.see("end")
-
-class LabelAnimated(Label):
-    def __init__(self, master, filename,duration_factor):
-        im = Image.open(filename)
-        seq =  []
-        try:
-            while 1:
-                seq.append(im.copy())
-                im.seek(len(seq)) # skip to next frame
-        except EOFError:
-            pass # we're done
-
-        try:
-            self.delay = duration_factor * im.info['duration']
-        except KeyError:
-            self.delay = 100
-
-        first = seq[0].convert('RGBA')
-        self.frames = [ImageTk.PhotoImage(first)]
-
-        Label.__init__(self, master, image=self.frames[0])
-
-        temp = seq[0]
-        for image in seq[1:]:
-            temp.paste(image)
-            frame = temp.convert('RGBA')
-            self.frames.append(ImageTk.PhotoImage(frame))
-
-        self.idx = 0
-
-        self.cancel = self.after(self.delay, self.play)
-
-    def play(self):
-        self.config(image=self.frames[self.idx])
-        self.idx += 1
-        if self.idx == len(self.frames):
-            self.idx = 0
-        self.cancel = self.after(self.delay, self.play)
 
 
 class MainApp(Frame):

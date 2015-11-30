@@ -3,7 +3,7 @@ from PIL import Image, ImageTk
 ## pip install Pillow # yields PIL package
 
 class LabelAnimated(Label):
-    def __init__(self, master, filename):
+    def __init__(self, master, filename,duration_factor):
         im = Image.open(filename)
         seq =  []
         try:
@@ -14,7 +14,7 @@ class LabelAnimated(Label):
             pass # we're done
 
         try:
-            self.delay = im.info['duration']
+            self.delay = duration_factor * im.info['duration']
         except KeyError:
             self.delay = 100
 
@@ -34,6 +34,7 @@ class LabelAnimated(Label):
         self.cancel = self.after(self.delay, self.play)
 
     def play(self):
+        #print "idx = %s" % self.idx
         self.config(image=self.frames[self.idx])
         self.idx += 1
         if self.idx == len(self.frames):
