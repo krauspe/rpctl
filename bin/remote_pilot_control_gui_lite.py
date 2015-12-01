@@ -19,8 +19,11 @@ Remote Piloting
 """
 
 
-basedir = ".."
-ext_basedir = basedir
+#basedir = ".."
+#ext_basedir = basedir
+
+basedir = "/opt/dfs/rpctl"
+ext_basedir = "/opt/dfs/tsctl2"
 #ext_basedir = os.path.join(basedir, "..", "tsctl2")
 
 bindir  = os.path.join(ext_basedir,"bin")
@@ -57,6 +60,7 @@ run_shell_opt = ""
 # external commands
 
 def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+#def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
 def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
 def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
 def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
@@ -115,6 +119,8 @@ def Quit():
 
 def runShell(cmd,opt):
     # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
+    #cmd = "cat /etc/HOSTNAME"
+    cmd = "/opt/dfs/tsctl2/bin/admin_get_status_list.sh"
     if opt == "fake":
         print "  running shell command:(FAKE !)"
         print "\n  %s\n" % cmd
@@ -122,19 +128,20 @@ def runShell(cmd,opt):
         print "  running shell command:"
         print "\n  %s\n" % cmd
 
-        p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
-        output, errors = p.communicate()
-        return output, errors
+        # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
+        # output, errors = p.communicate()
+        # return output, errors
 
-    # p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
-    # while True:
-    #     out = p.stderr.read(1)
-    #     if out == '' and p.poll() != None:
-    #         break
-    #     if out != '':
-    #         return out
-            # sys.stdout.write(out)
-            # sys.stdout.flush()
+        p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+        while True:
+            out = p.stderr.read(1)
+            if out == '' and p.poll() != None:
+                break
+            if out != '':
+                print out
+                # return out
+                # sys.stdout.write(out)
+                # sys.stdout.flush()
 
 
 class redirectText(object):
