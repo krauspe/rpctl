@@ -9,7 +9,6 @@ import ScrolledText
 import subprocess as sub
 import os
 import pprint
-#from PIL import Image, ImageTk
 from MyPILTools import LabelAnimated
 
 # settings
@@ -35,20 +34,18 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
 # decoration
 
-animated_gif = 'Lear-jet-flying-in-turbulent-sky.gif'
-animated_gif = 'Animated-fighter-jet-firing-missles.gif'
-animated_gif = 'Moving-picture-red-skull-chewing-animation.gif'
-animated_gif = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
-animated_gif = '15a.gif'
-animated_gif = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
-animated_gif = 'rotating-jet-smoke.gif'
-animated_gif = 'airplane13.gif'
+animated_gif_filename = 'Lear-jet-flying-in-turbulent-sky.gif'
+animated_gif_filename = 'Animated-fighter-jet-firing-missles.gif'
+animated_gif_filename = 'Moving-picture-red-skull-chewing-animation.gif'
+animated_gif_filename = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
+animated_gif_filename = '15a.gif'
+animated_gif_filename = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
+animated_gif_filename = 'rotating-jet-smoke.gif'
+animated_gif_filename = 'airplane13.gif'
 
 
-
-
-animated_gif_1_path = os.path.join(animdir,animated_gif)
-duration_factor = 3
+animated_gif_file = os.path.join(animdir, animated_gif_filename)
+duration = 1
 
 # external commands
 
@@ -70,12 +67,10 @@ def newFile():
     name = askopenfilename
     print "open: ", name
 
-def openFile():
-    name = askopenfilename()
-    print "open: ", name
-
 def About():
     print about
+
+
 
 
 def getFileAsList(file):
@@ -155,6 +150,7 @@ class MainApp(Frame):
         self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE", None:""}
         self.label_textcol = { "available" : "blue", "occupied" : "red", None:"lightgrey"}
 
+
         #Frame.__init__(self, master=None,*args, **kwargs)
         Frame.__init__(self, root)
 
@@ -166,8 +162,6 @@ class MainApp(Frame):
         Label(self.frame, image=self.logo).grid(row=0,column=0)
         # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
-        #anim = LabelAnimated(self.frame, animated_gif_1_path, duration_factor)
-        #anim.grid(row=0,column=2)
 
 
         # CONSOLE
@@ -176,8 +170,8 @@ class MainApp(Frame):
         self.console = ScrolledText.ScrolledText(self.con_frame, bg="white")
         self.console.grid(row=1, column=0)
 
-        anim = LabelAnimated(self.con_frame, animated_gif_1_path, duration_factor)
-        anim.grid(row=1,column=1)
+        #self.anim = None
+        self.anim = self.showAnimatedGif(animated_gif_file,duration,1,1)
 
 
         # redirect stdout
@@ -190,6 +184,7 @@ class MainApp(Frame):
         self.con_and_button_frame = Frame(root, bg="lightgrey")
         self.con_and_button_frame.grid(row=1, column=3, sticky=W+E+N+S)
 
+
         Button(self.con_and_button_frame, text="Deploy configs", command=deploy_configs).grid(row=1, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Update resource PSP list", command=update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
@@ -199,7 +194,8 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="Print resource NSC list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=8, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=9, column=1, sticky=W+E)
-        Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
+        #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Stop animation", command=self.stopAnimation).grid(row=10, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Start reconfiguration", bg="red", command=self.startReconfiguration).grid(row=11, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
@@ -271,7 +267,7 @@ class MainApp(Frame):
     def updateStatus(self):
         print "\nprint assignment...\n"
         update_status_list()
-        stopAnimation()
+        #self.stopAnimation()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
             self.lt_resfqdns[resfqdn].set(resfqdn) # eigentlich ueberfluessig
@@ -356,7 +352,7 @@ class MainApp(Frame):
         file_menu = Menu(self.menu)
         self.menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New", command=newFile)
-        file_menu.add_command(label="Open...", command=openFile)
+        file_menu.add_command(label="Open...", command=self.openAnimatedGifFile)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=Quit)
 
@@ -372,6 +368,19 @@ class MainApp(Frame):
 
     def stopAnimation(self):
         self.anim.after_cancel(self.anim.cancel)
+        self.anim.destroy()
+
+    def openAnimatedGifFile(self):
+        file = askopenfilename()
+        self.showAnimatedGif(file,duration,1,1)
+
+    def showAnimatedGif(self,file,duration,row,column):
+        #if self.anim:
+        #    self.stopAnimation()
+        self.anim = LabelAnimated(self.con_frame, file, duration)
+        self.anim.grid(row=row,column=column)
+        return self.anim
+
 
 
     def inputRegistrationKey(self):
