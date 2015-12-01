@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # TODO:
-# saveListOfListsAsFile doesn't closes the file !!???
+# saveListAsFile doesn't closes the file !!???
 
 from Tkinter import *
 from tkFileDialog import askopenfilename
@@ -40,9 +40,9 @@ animated_gif = 'Animated-fighter-jet-firing-missles.gif'
 animated_gif = 'Moving-picture-red-skull-chewing-animation.gif'
 animated_gif = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
 animated_gif = '15a.gif'
-animated_gif = 'airplane13.gif'
-animated_gif = 'rotating-jet-smoke.gif'
 animated_gif = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
+animated_gif = 'rotating-jet-smoke.gif'
+animated_gif = 'airplane13.gif'
 
 
 
@@ -95,10 +95,10 @@ def getTargetConfigList(file):
     Einlesen von tuples ungleicher laenge mit itertools'''
     pass
 
-def saveListOfListsAsFile(list, filepath):
+def saveListAsFile(list,filepath):
     print "\nSaving %s\n" % filepath
     f = open(filepath, 'w')
-    #f.write("HALLO\n")
+    f.write("HALLO\n")
     for tup in list:
         line = ''
         for element in tup:
@@ -301,8 +301,8 @@ class MainApp(Frame):
                 force_option = ""
             print '%s %s %s' % (resfqdn, newfqdn,force_option )
             self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),force_option))
-        saveListOfListsAsFile(self.new_target_config_list, target_config_list_file)
-        #saveListOfListsAsFile(self.new_target_config_list,target_config_list_file+".new")
+        saveListAsFile(self.new_target_config_list,target_config_list_file)
+        #saveListAsFile(self.new_target_config_list,target_config_list_file+".new")
 
         # print "------------------------\n"
         # pp = pprint.PrettyPrinter(indent=4)
