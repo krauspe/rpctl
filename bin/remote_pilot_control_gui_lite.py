@@ -104,7 +104,6 @@ def getTargetConfigList(file):
 def saveListAsFile(list,filepath):
     print "\nSaving %s\n" % filepath
     f = open(filepath, 'w')
-    f.write("HALLO\n")
     for tup in list:
         line = ''
         for element in tup:
@@ -120,7 +119,11 @@ def Quit():
 def runShell(cmd,opt):
     # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
     #cmd = "cat /etc/HOSTNAME"
-    cmd = "/opt/dfs/tsctl2/bin/admin_get_status_list.sh"
+    #cmd = "/opt/dfs/tsctl2/bin/admin_get_status_list.sh"
+    #print "Running on:\n"
+    cmd  += "; echo ; echo Done."
+    #cmd = "ls -la"
+
     if opt == "fake":
         print "  running shell command:(FAKE !)"
         print "\n  %s\n" % cmd
@@ -132,13 +135,29 @@ def runShell(cmd,opt):
         # output, errors = p.communicate()
         # return output, errors
 
-        p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+        #p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+        p = sub.Popen(cmd, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
+        text = ""
+        err_text = ""
         while True:
-            out = p.stderr.read(1)
+            out = p.stdout.read(1)
             if out == '' and p.poll() != None:
                 break
             if out != '':
-                print out
+                text += out
+        while True:
+            err = p.stderr.read(1)
+            if err == '' and p.poll() != None:
+                break
+            if err != '':
+                err_text += err
+
+
+        print text
+        # print "ERRORS : "
+        print err_text
+
+                #print out
                 # return out
                 # sys.stdout.write(out)
                 # sys.stdout.flush()
@@ -167,8 +186,8 @@ class MainApp(Frame):
         self.var = {}
         self.output = "Console output initialized.\n\n"
         self.r1 = 0
-        self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE", None:""}
-        self.label_textcol = { "available" : "blue", "occupied" : "red", None:"lightgrey"}
+        self.label_txt_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "unreachable !", None:""}
+        self.label_textcol =   { "available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
 
 
         #Frame.__init__(self, master=None,*args, **kwargs)

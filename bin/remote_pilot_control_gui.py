@@ -51,8 +51,8 @@ animated_gif_filename = 'airplane13.gif'
 animated_gif_file = os.path.join(animdir, animated_gif_filename)
 duration = 1
 
-#run_shell_opt = "fake"
-run_shell_opt = ""
+run_shell_opt = "fake"
+#run_shell_opt = ""
 
 # external commands
 
