@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# TODO:
-# saveListAsFile doesn't closes the file !!???
 
 from Tkinter import *
 from tkFileDialog import askopenfilename
@@ -20,12 +18,18 @@ The expert tool for
 Remote Piloting
 """
 
+
 basedir = ".."
-bindir  = os.path.join(basedir,"bin")
-confdir = os.path.join(basedir,"config")
-vardir  = os.path.join(basedir, "var")
+ext_basedir = basedir
+#ext_basedir = os.path.join(basedir, "..", "tsctl2")
+
+bindir  = os.path.join(ext_basedir,"bin")
+confdir = os.path.join(ext_basedir,"config")
+vardir  = os.path.join(ext_basedir, "var")
+
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
+
 
 resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
 target_config_list_file = os.path.join(vardir,"target_config.list")
@@ -47,12 +51,15 @@ animated_gif_filename = 'airplane13.gif'
 animated_gif_file = os.path.join(animdir, animated_gif_filename)
 duration = 1
 
+#run_shell_opt = "fake"
+run_shell_opt = ""
+
 # external commands
 
-def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"))
-def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"))
-def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"))
-def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"))
+def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
 
 
 
@@ -106,13 +113,19 @@ def Quit():
         print "Quit"
         root.quit()
 
-def runShell(cmd):
+def runShell(cmd,opt):
     # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
-    # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
-    # output, errors = p.communicate()
-    # return output, errors
-    print "  running shell command:(FAKE !)"
-    print "\n  %s\n" % cmd
+    if opt == "fake":
+        print "  running shell command:(FAKE !)"
+        print "\n  %s\n" % cmd
+    else:
+        print "  running shell command:"
+        print "\n  %s\n" % cmd
+
+        p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
+        output, errors = p.communicate()
+        return output, errors
+
     # p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
     # while True:
     #     out = p.stderr.read(1)
