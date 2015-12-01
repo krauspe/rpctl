@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # TODO:
-# saveListAsFile doesn't closes the file !!???
+# saveListOfListsAsFile doesn't closes the file !!???
 
 from Tkinter import *
 from tkFileDialog import askopenfilename
@@ -95,10 +95,10 @@ def getTargetConfigList(file):
     Einlesen von tuples ungleicher laenge mit itertools'''
     pass
 
-def saveListAsFile(list,filepath):
+def saveListOfListsAsFile(list, filepath):
     print "\nSaving %s\n" % filepath
     f = open(filepath, 'w')
-    f.write("HALLO\n")
+    #f.write("HALLO\n")
     for tup in list:
         line = ''
         for element in tup:
@@ -300,8 +300,8 @@ class MainApp(Frame):
                 force_option = ""
             print '%s %s %s' % (resfqdn, newfqdn,force_option )
             self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),force_option))
-        saveListAsFile(self.new_target_config_list,target_config_list_file)
-        #saveListAsFile(self.new_target_config_list,target_config_list_file+".new")
+        saveListOfListsAsFile(self.new_target_config_list, target_config_list_file)
+        #saveListOfListsAsFile(self.new_target_config_list,target_config_list_file+".new")
 
         # print "------------------------\n"
         # pp = pprint.PrettyPrinter(indent=4)
