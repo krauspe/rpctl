@@ -19,12 +19,9 @@ Remote Piloting
 """
 
 
-#basedir = ".."
-#ext_basedir = basedir
-
-basedir = "/opt/dfs/rpctl"
-ext_basedir = "/opt/dfs/tsctl2"
-#ext_basedir = os.path.join(basedir, "..", "tsctl2")
+basedir = ".."
+##ext_basedir = basedir
+ext_basedir = os.path.join(basedir, "..", "tsctl2")
 
 bindir  = os.path.join(ext_basedir,"bin")
 confdir = os.path.join(ext_basedir,"config")
