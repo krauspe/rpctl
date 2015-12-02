@@ -8,7 +8,7 @@
 # It uses one of the formerly collected 2step.vars files which matches the given target fqdn 
 # given as command line argument
 #
-# - When "reset" is given as first argument, the original network configuration from it's resource domain will be restored
+# - When "reset" or "default" is given as first argument, the original network configuration from it's resource domain will be restored
 #
 # - As long as a machine is reachable from it's current NSS it can be run by an ssh call,
 #   In this case it is strongly recommendet to use "reboot" as second argument because after writing the configuration the machine may
@@ -19,6 +19,7 @@
 # Changes:
 #
 #  24.11.2015: added kill procs function
+#  01.12.2015: added "default" option (=reset) 
 #
 #
 
@@ -46,7 +47,7 @@ function my_print
 }
 
 if [[ -n $1 ]]; then
-  if [[ $1 == "reset" || $1 == ${hn}.${dn} ]] ; then
+  if [[ $1 == "reset" || $1 == "default" || $1 == ${hn}.${dn} ]] ; then
     twostep_vars=/etc/2step/2step.vars
   elif [[ $1 == "list" ]] ; then
     echo "\npossible arguments are:\n"
@@ -75,10 +76,11 @@ if [[ -n $1 ]]; then
     #echo "hn=$hn dn=$dn" 
   fi
 else
-    echo "\nusage: $(basename $0) <fqdn>|reset|list [reboot]"
+    echo "\nusage: $(basename $0) <fqdn>|reset|default|list [reboot]"
     echo " e.g.: $(basename $0) psp101-s1.te1.lgn.dfs.de        # to configure this host as psp101-s1 in te1.lgn.dfs.de"
     echo " e.g.: $(basename $0) psp101-s1.te1.lgn.dfs.de reboot # as above and do a reboot after writing the config"
     echo "     : $(basename $0) reset                           # to reset configuration as local simulator client\n"
+    echo "     : $(basename $0) default                         # same as "reset"\n"
     exit 1
 fi
 

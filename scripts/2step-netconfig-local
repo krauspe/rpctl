@@ -16,6 +16,8 @@ dbg=echo
 #
 # Modifiziert fuer rein lokale Verwendung mit vorhandener Datei 2step.vars als Kommandozeilenparameter
 # 2step.vars muss mit 2step-get-infos erzeugt worden sein 
+# 
+# changes 01.12.2015: removed get_lookup_hosts for local use
 
 
 # main 
@@ -44,6 +46,137 @@ else
 fi
 
 # schreiben der konfiguration ... fuer alle netzwerkschnittstellen ...
+
+
+function get_lookup_dns
+{ 
+
+	typeset type=$1
+	typeset fqdn=$2
+	typeset result=""
+	typeset pattern1=""
+	typeset pattern2=""
+
+		# nameserver erreichbar, lookup ueber dns ...
+		case $type in
+		txt)
+			# txt-record ... "*descriptive*text*" 
+			#-->lintest25.se.dfs.de descriptive text " dn=se.dfs.de gw=10.232.190.254 ns=10.232.250.190:10.232.250.190 sn=255.255.255.0 dv=eth0 \013"<---
+
+			if txt="$( host -W 5 -t $type ${fqdn} )"
+			then
+				while [[ $txt == *\"* ]]
+				do
+					txt=${txt#*\"}
+					[[ $txt != *\"* ]] && break
+					result=" $result ${txt%%\"*} "
+					txt=${txt#*\"}
+				done
+
+				result=${result#*\"} ; result=${result%\"*}	
+				result=${result//\\/}				# ; entfernen ...
+			else
+				txt=""
+				result=""
+			fi
+
+			;;
+		a)
+			# a-record ... "*has*dress*"
+			#-->#lintest25.se.dfs.de has address 10.232.250.25<-- 
+			pattern1=has ; pattern2=address
+			set -- $( host -W 7 -t $type ${fqdn} )
+
+			if [[ "$*" == *${pattern1}*${pattern2}* ]]
+			then
+				# antwort erhalten ...
+				eval result=\$$(( $# ))
+				result=ip=$result
+			else
+				# keine antwort erhalten ...
+				result=""
+			fi
+			;;
+
+		ptr)
+			# ptr-record ...
+			# -->161.250.232.10.in-addr.arpa domain name pointer chemnitz.se.dfs.de.
+			# -->Host 167.250.232.10.in-addr.arpa not found: 3(NXDOMAIN)
+			pattern1=Host ; pattern2='found:'
+			set -- $( host -W 7 -t $type ${fqdn} )
+			if [[ "$*" != *${pattern1}*${pattern2}* ]]
+			then
+				# antwort erhalten ...
+				result=hn=${5%.}
+			else
+				# keine antwort erhalten ...
+				result=""
+			fi
+			;;
+
+		esac
+
+	echo $result
+
+}
+
+function get_lookup
+{
+	[[ $FDEBUG == *1* ]] && set -x	# set -x fuer funktionen ...
+
+	HN[function.$0.call]="initial"
+
+	
+	typeset type=$1			# a,txt, (a-/txt-/ptr-record), oder ptr 
+	typeset fqdn=$2			# lookup von hostname/fqdn  ...
+	typeset result=""		# anfrage antwort ...
+	typeset s=""
+
+##      deleted hosts lookup for local version  P.K. 11/2015
+#
+#	if [[ -z ${HN[lookup.hosts.type.$type.fqdn.$fqdn]} ]]
+#	then
+#		# 1. lookup in /etc/hosts ...	# /etc/hosts ...
+#		result=$( get_lookup_hosts $type $fqdn )
+#		HN[lookup.hosts.type.$type.fqdn.$fqdn]="$result"
+#
+#	else
+#		result="${HN[lookup.hosts.type.$type.fqdn.$fqdn]}"
+#	fi
+
+	result="${HN[lookup.hosts.type.$type.fqdn.$fqdn]}"
+
+	if [[ -z ${HN[lookup.hosts.type.$type.fqdn.$fqdn]} && ${DNS_OK} == yes ]]
+	then
+		if [[ -z ${HN[lookup.dns.type.$type.fqdn.$fqdn]} ]]
+		then
+			# 2. lookup in dns ...
+
+			result=$( get_lookup_dns $type $fqdn )
+
+			result=${result//+([$WSPACE])=+([$WSPACE])/=}
+			s=""
+
+			for result in "$result"
+			do
+				[[ $result != *=* ]] && continue
+				s=" $s $result"
+			done
+
+			result=$s
+
+			HN[lookup.dns.type.$type.fqdn.$fqdn]="$result"
+		else
+
+			result="${HN[lookup.dns.type.$type.fqdn.$fqdn]}"
+
+		fi
+	fi
+
+	echo "hn=$fqdn ${result} "
+
+}
+
 
 for hn in ${HN[fqdn.list]}		# konfiguration fuer alle hn=... , in eingelesener reihenfolge !
 do

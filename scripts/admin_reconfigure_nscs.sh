@@ -4,8 +4,13 @@
 #
 # This script should run on an admin machine.
 # It should start the remote reconfiguration of a single or all hosts of a list which assigns resource fqdns to remote fqdns
-# ... under development....(02.11.2015)
+# ... under development....(24.11.2015)
 # 
+# changes:
+#  01.12.2015: reset|default now will be handled correctly  
+#
+#
+#
 # TODO: check wether admin_get_status_list.sh was successfull and exit if not !
 #
 # <2step>
@@ -86,12 +91,14 @@ function get_domain_server_hn
 
 echo "\n<< Reconfigure Resource NSC's >>\n"
 
-# ensure existence of resource_nsc_list 
+# ensure existence of target_config_list 
 
 if [[ ! -f $target_config_list_file ]]; then
   echo "\n  $target_config_list_file doesn't exist. exiting !\n"
   exit 1
 fi
+
+# ensure existence of resource_nsc_list 
 
 if [[ ! -f $resource_nsc_list_file ]]; then
   echo "  $resource_nsc_list_file not found, create it .."
@@ -161,9 +168,13 @@ do
     [[ -z $remote_fqdn ]] && echo "\n$resource_fqdn: no remote_fqdn assignd , skipping" && continue  # skip entrys without remote_fqdn entry
     echo $VALID_REMOTE_FQDNS | grep $remote_fqdn >/dev/null 2>&1
     if (( $? > 0 )); then
-     echo "  \n$remote_fqdn is NO VALID REMOTE_FQDN, will be SKIPPED!"
-     invalid_entrys=$((invalid_entrys+1))
-     continue
+     if [[ $remote_fqdn == "default" ]]; then
+       remote_fqdn=$resource_fqdn 
+     else
+       echo "  \n$remote_fqdn is NO VALID REMOTE_FQDN, will be SKIPPED!"
+       invalid_entrys=$((invalid_entrys+1))
+       continue
+     fi
     fi
   fi
   # --- check end
@@ -217,6 +228,7 @@ for resource_fqdn in $RESOURCE_FQDNS
 do
   reconfigure_sucessful=0
   vlan_switch_sucessful=0
+  ready_for_reconfiguration=0
 
   remote_fqdn=${REMOTE_FQDN[$resource_fqdn]}
   target_option=${TARGET_OPTION[$resource_fqdn]}
@@ -236,9 +248,9 @@ do
 
   #echo "FOR: <$resource_fqdn> <$remote_fqdn> <$target_option>"
 
-  ready_for_reconfiguration=0
 
-  [[ -z $remote_fqdn ]] && continue  # skip entrys without assignment
+  [[ -z $remote_fqdn ]] && continue  # skip entrys without assignment 
+                                     # ist eigentlich redundant !!
 
   echo "\n-----------------------------------------------------------------------------------------\n"
 
@@ -246,7 +258,7 @@ do
   if [[ $current_fqdn == $remote_fqdn && $target_option != "force_reconfigure" ]] ; then
     echo "current config of $resource_fqdn is already $remote_fqdn and no force option set. Nothing to do."
   elif [[ ${STATUS[$resource_fqdn]} == "unreachable" || $current == "unknown" ]] ; then
-    echo "current config of $resource_fqdn is UNKNOWN. can not configure !!. Check host !!"
+    echo "current status of $resource_fqdn is ${STATUS[$resource_fqdn]}. can not configure !!. Check host !!"
   elif [[ ${STATUS[$resource_fqdn]} == "occupied" ]] ; then
     if [[ $target_option == "force_reconfigure" ]] ; then
       echo "reconfigure $resource_fqdn (currently $current_fqdn) AGAIN as $remote_fqdn due to force option"
@@ -270,7 +282,7 @@ do
     fi
     # SWITCH VLAN 
 
-    if (( reconfigure_sucessful == 1 )); then 
+    if (( $reconfigure_sucessful == 1 )); then 
       echo "  switch vlan for $resource_fqdn into $remote_dn"
       cmd="$bindir/control_rem_pil_test_net.sh -c $remote_dn  $resource_fqdn"
       echo "  $cmd"

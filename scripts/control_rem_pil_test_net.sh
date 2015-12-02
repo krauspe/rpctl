@@ -1,5 +1,10 @@
 #!/bin/bash
 #
+#
+# changes: 
+#   01.12.2015 PK : added return value for set_vlan_by_port
+#
+#
 script=`basename $0`
 Generic_Name=control_net_test_psp.sh
 version=1.3
@@ -76,6 +81,7 @@ set_vlan_by_port(){
     echo -e "SUCCESS:\t $switch $portid set to: VLAN $vlan"
   else
     echo -e "ERROR:\t  $switch $portid not switched"
+    return 1 
   fi
 }
 
@@ -223,7 +229,10 @@ echo -e $psp_portlist
         if [ $? == 0 ]
         then
           echo "Componentcheck OK"
+          echo "BEVOR set_vlan_by_port"
           set_vlan_by_port $switch $portid $targetvlan
+          echo $?
+          echo "AFTER set_vlan_by_port"
         fi
 
       done < $PSPPORTLIST

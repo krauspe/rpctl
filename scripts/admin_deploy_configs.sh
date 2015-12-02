@@ -9,6 +9,11 @@
 #
 # a lot of TODOs !!!
 #
+# changes:
+# 01.12.2015: added java deployment for atcoach
+#
+#
+
 # <2step>
 . /etc/2step/2step.vars
 #
@@ -23,6 +28,8 @@ vardir=${basedir}/var
 remote_nsc_list_file=${vardir}/remote_nsc.list
 
 source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
+
+arg1=$1
 
 function check_host_alive
 {
@@ -122,6 +129,8 @@ do
    id_dsa_pub=$(ssh ${remote_domain_server} cat /root/.ssh/id_dsa.pub)
    echo $id_dsa_pub >> ${vardir}/aks
    #authorized_keys
+
+
 done
 
 echo "\n<< Deploy all configs to all ResourceDomainServers and RemoteDomainServers >>\n"
@@ -140,12 +149,41 @@ for resource_domain_server in $ResourceDomainServers
 do
     # sync all configd to nsc's
     echo "  syncing $resource_domain_server clients"
+    echo "    syncing tsctl2 stuff"
     ssh $resource_domain_server nsc_sh "[[ -d $bindir ]] || mkdir -p $bindir" $subtype > /dev/null 2>&1
     ssh $resource_domain_server "nsc_rsync $vardir $basedir $subtype "  > /dev/null 2>&1
     ssh $resource_domain_server "nsc_rsync $confdir $basedir $subtype " > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync ${bindir}/nsc_reconfigure.sh ${bindir} $subtype"    # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync ${bindir}/nsc_reconfigure.sh ${bindir} $subtype"    > /dev/null 2>&1
     ssh $resource_domain_server "nsc_rsync ${bindir}/2step-get-infos-local ${bindir} $subtype" > /dev/null 2>&1
     ssh $resource_domain_server "nsc_rsync ${bindir}/2step-netconfig-local ${bindir} $subtype" > /dev/null 2>&1
     ssh $resource_domain_server "nsc_rsync ${vardir}/aks /root/.ssh/authorized_keys $subtype"  > /dev/null 2>&1
+
+    if [[ $arg1 == *xinitrc*  || $arg1 == "all" ]] ; then
+      echo "    syncing xinitrc"
+      ssh $resource_domain_server "nsc_sh '[ -f /etc/X11/xinit/xinitrc ] && mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.$$' psp"
+      ssh $resource_domain_server "nsc_rsync ${confdir}/xinitrc.${subtype} /etc/X11/xinit/xinitrc $subtype"
+    fi
+    if [[ $arg1 == *wall_msg*  || $arg1 == "all" ]]; then
+      echo "    syncing wall_msg script"
+      ssh $resource_domain_server "nsc_rsync ${confdir}/set_wall_msg.sh /usr/local/share/wall_msg/bin $subtype"
+    fi
+
+    if [[ $arg1 == *java*  || $arg1 == "all" ]] ; then
+      echo "    syncing java ..."
+      ufa_dir=/opt/ufa
+      cmd="mkdir -p ${ufa_dir}"
+      # ufa_dir auf allen resource_domain_server anlegen
+      
+      if [[ $resource_domain_server != $(dnsdomainname) ]]; then
+          ssh $resource_domain_server $cmd 
+          # java auf alle resource_domain_server kopieren
+	  rsync -ahH ${ufa_dir}/java ${resource_domain_server}:${ufa_dir}
+      fi
+      # javadir auf allen nscs anlegen
+      ssh $resource_domain_server nsc_sh "[[ -d $ufa_dir ]] || mkdir -p $ufa_dir" $subtype > /dev/null 2>&1
+      # javadir auf alle nscs kopieren
+      ssh $resource_domain_server "nsc_rsync ${ufa_dir}/java ${ufa_dir} $subtype"    > /dev/null 2>&1
+    fi
 done
 
+echo "\nDone.\n"
