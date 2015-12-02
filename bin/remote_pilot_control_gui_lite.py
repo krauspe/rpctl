@@ -2,7 +2,7 @@
 
 
 from Tkinter import *
-from tkFileDialog import askopenfilename
+from tkFileDialog import askopenfilename,askopenfile
 import ScrolledText
 import subprocess as sub
 import os
@@ -11,24 +11,61 @@ from MyPILTools import LabelAnimated
 
 # settings
 
-main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
+main_window_title = """ 2Step Remote Pilot Control Lite 1.0 (unregistered) """
+#main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
 2Step Remote Pilot Control 1.0 (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
 
+mode = "simulate"
 
 basedir = ".."
-##ext_basedir = basedir
 ext_basedir = os.path.join(basedir, "..", "tsctl2")
-
-bindir  = os.path.join(ext_basedir,"bin")
-confdir = os.path.join(ext_basedir,"config")
-vardir  = os.path.join(ext_basedir, "var")
 
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
+
+int_bindir  = os.path.join(basedir,"bin")
+int_confdir = os.path.join(basedir,"config")
+int_vardir  = os.path.join(basedir, "var")
+
+ext_bindir  = os.path.join(ext_basedir,"bin")
+ext_confdir = os.path.join(ext_basedir,"config")
+ext_vardir  = os.path.join(ext_basedir, "var")
+
+sim_bindir  = os.path.join(basedir,"binsim")
+
+cfg = {
+    "productive":
+           {"bindir":ext_bindir,
+            "confdir":ext_confdir,
+            "vardir":ext_vardir,
+            "descr": "Production Mode"},
+    "internal":
+           {"bindir":int_bindir,
+            "confdir":int_confdir,
+            "vardir":int_vardir,
+            "descr": "Using internal scripts and lists"},
+    "internal_bin":
+           {"bindir":int_bindir,
+            "confdir":ext_confdir,
+            "vardir":ext_vardir,
+            "descr": "Using internal scripts and productive lists"},
+    "simulate":
+           {"bindir":sim_bindir,
+            "confdir":int_confdir,
+            "vardir":int_vardir,
+            "descr": "Using simulated lists"},
+    }
+
+bindir  = cfg[mode]["bindir"]
+confdir = cfg[mode]["confdir"]
+vardir  = cfg[mode]["vardir"]
+
+for dir in [bindir,confdir,vardir]:
+    print dir
 
 
 resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
@@ -38,13 +75,13 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
 # decoration
 
-animated_gif_filename = 'Lear-jet-flying-in-turbulent-sky.gif'
-animated_gif_filename = 'Animated-fighter-jet-firing-missles.gif'
-animated_gif_filename = 'Moving-picture-red-skull-chewing-animation.gif'
-animated_gif_filename = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
-animated_gif_filename = '15a.gif'
-animated_gif_filename = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
-animated_gif_filename = 'rotating-jet-smoke.gif'
+# animated_gif_filename = 'Lear-jet-flying-in-turbulent-sky.gif'
+# animated_gif_filename = 'Animated-fighter-jet-firing-missles.gif'
+# animated_gif_filename = 'Moving-picture-red-skull-chewing-animation.gif'
+# animated_gif_filename = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
+# animated_gif_filename = '15a.gif'
+# animated_gif_filename = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
+# animated_gif_filename = 'rotating-jet-smoke.gif'
 animated_gif_filename = 'airplane13.gif'
 
 
@@ -56,12 +93,18 @@ run_shell_opt = ""
 
 # external commands
 
-def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-#def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+def deploy_configs():runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
 def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
 def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
 def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+def simulateExternalCommand(): runShell(os.path.join(bindir,"admin_simulate.sh"), run_shell_opt)
 
+# simulated scripts
+#admin_deploy_configs.sh
+#admin_get_status_list.sh
+#admin_get_resource_nsc_list.sh
+#admin_reconfigure_nscs.sh
+#admin_simulate.sh
 
 
 # todo: einlesen und auswerten
@@ -159,7 +202,6 @@ def runShell(cmd,opt):
                 # sys.stdout.write(out)
                 # sys.stdout.flush()
 
-
 class redirectText(object):
     """http://stackoverflow.com/questions/24707308/get-command-window-output-to-display-in-widget-with-tkinter
     http://stackoverflow.com/questions/30669015/autoscroll-of-text-and-scrollbar-in-python-text-box"""
@@ -221,13 +263,13 @@ class MainApp(Frame):
         self.con_and_button_frame.grid(row=1, column=3, sticky=W+E+N+S)
 
 
-        Button(self.con_and_button_frame, text="Deploy configs", command=deploy_configs).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Update resource PSP list", command=update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Deploy configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update resource PSP list", command=self.update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print remote NSC list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Print status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print resource NSC list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=8, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=9, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
@@ -295,6 +337,20 @@ class MainApp(Frame):
         self.createOptionMENUS("init")
 
 
+    def deploy_configs(self):
+        self.update_idletasks()
+        runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+    def update_status_list(self):
+        self.update_idletasks()
+        runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+    def update_resource_nsc_list(self):
+        self.update_idletasks()
+        runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+    def reconfigure_nscs(self):
+        self.update_idletasks()
+        runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+
+
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
         self.createOptionMENUS("update")
@@ -302,7 +358,7 @@ class MainApp(Frame):
 
     def updateStatus(self):
         print "\nprint assignment...\n"
-        update_status_list()
+        self.update_status_list()
         #self.stopAnimation()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
@@ -361,7 +417,7 @@ class MainApp(Frame):
 
     def startReconfiguration(self):
         print "\nStarting reconfiguration of PSPs ....\n"
-        reconfigure_nscs()
+        self.reconfigure_nscs()
         #self.output = runShell("dir")
         #print self.output
 
@@ -407,8 +463,15 @@ class MainApp(Frame):
         self.anim.destroy()
 
     def openAnimatedGifFile(self):
-        file = askopenfilename()
-        self.showAnimatedGif(file,duration,1,1)
+        options = {}
+        options['defaultextension'] = '.gif'
+        #options['filetypes'] = [('all files', '.*'), ('text files', '.txt')]
+        options['filetypes'] = [('gif files', '.gif')]
+        options['initialdir'] = animdir
+        options['parent'] = self
+        options['title'] = "Open a gif file"
+        with askopenfile(mode='r', **options) as file:
+            self.showAnimatedGif(file,duration,1,1)
 
     def showAnimatedGif(self,file,duration,row,column):
         #if self.anim:
@@ -447,6 +510,7 @@ class MainApp(Frame):
 
 if __name__ == "__main__":
     root = Tk()
+    #root.geometry("800x600")  # mal testen !!
     root.title(main_window_title)
     main = MainApp(root)
     #main.grid(row=0,column=0)
