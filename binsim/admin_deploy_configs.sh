@@ -1,4 +1,4 @@
-#!/usr/bin/ksh
+#!/bin/ksh
 #
 # (c) Peter Krauspe 10/2015
 # Simulation 
@@ -6,14 +6,14 @@
 # funzt
 
 # <2step>
-. /etc/2step/2step.vars
+#. /etc/2step/2step.vars
 #
 dbg=echo
 dbg=""
 dev=eth0
 # ggfs spaeter aus config file
 basedir=/opt/dfs/rpctl  # simualation basdir
-bindir=${basedir}/bin
+bindir=${basedir}/simbin
 confdir=${basedir}/config
 vardir=${basedir}/var
 remote_nsc_list_file=${vardir}/remote_nsc.list
