@@ -27,7 +27,7 @@ ext_basedir = os.path.join(basedir, "..", "tsctl2")
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
 
-int_bindir  = os.path.join(basedir,"bin")
+int_bindir  = os.path.join(basedir,"scripts")
 int_confdir = os.path.join(basedir,"config")
 int_vardir  = os.path.join(basedir, "var")
 
