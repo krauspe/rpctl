@@ -19,3 +19,8 @@ Mega Advanced version:
 
 - use different animated gifs when pressing buttons
 -
+
+
+EXTERNAL SCRIPTS:
+
+- URGEND !!:nss is hartcoded, this is a problem for sites with nss-mgt !!!
