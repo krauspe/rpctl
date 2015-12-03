@@ -17,7 +17,7 @@ dbg=""
 dev=eth0
 # ggfs spaeter aus config file
 basedir=/opt/dfs/tsctl2
-bindir=${basedir}/simbin
+bindir=${basedir}/binsim
 confdir=${basedir}/config
 vardir=${basedir}/var
 typeset -A STATUS

@@ -1,8 +1,8 @@
 #!/bin/ksh
 #
 # (c) Peter Krauspe 10/2015
-# Simulation 
-#
+
+# Simulation
 # funzt
 
 # <2step>
@@ -13,7 +13,7 @@ dbg=""
 dev=eth0
 # ggfs spaeter aus config file
 basedir=/opt/dfs/rpctl  # simualation basdir
-bindir=${basedir}/simbin
+bindir=${basedir}/binsim
 confdir=${basedir}/config
 vardir=${basedir}/var
 remote_nsc_list_file=${vardir}/remote_nsc.list
@@ -87,8 +87,9 @@ do
    [[ -d ${vardir}/$remote_dn ]] || mkdir -p ${vardir}/$remote_dn
 
    echo "  create remote nsc configs on $remote_domain_server"
+
    create_remote_nsc_configs $remote_domain_server
-   echo "HIER !!"
+
    for remote_nsc in $(get_remote_nsc_list $remote_domain_server)
    do
      echo "  copy $remote_nsc config from $remote_domain_server"

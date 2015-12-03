@@ -17,7 +17,7 @@ dbg=""
 dev=eth0
 # ggfs spaeter aus config file
 basedir=/opt/dfs/rpctl
-bindir=${basedir}/simbin
+bindir=${basedir}/binsim
 confdir=${basedir}/config
 vardir=${basedir}/var
 arg1=$1
