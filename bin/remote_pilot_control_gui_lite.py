@@ -156,52 +156,6 @@ def Quit():
         print "Quit"
         root.quit()
 
-def runShell(cmd,opt):
-    # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
-    #cmd = "cat /etc/HOSTNAME"
-    #cmd = "/opt/dfs/tsctl2/bin/admin_get_status_list.sh"
-    #print "Running on:\n"
-    cmd  += "; echo ; echo Done."
-    #cmd = "ls -la"
-
-    if opt == "fake":
-        print "  running shell command:(FAKE !)"
-        print "\n  %s\n" % cmd
-    else:
-        print "  running shell command:"
-        print "\n  %s\n" % cmd
-
-        # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
-        # output, errors = p.communicate()
-        # return output, errors
-
-        #p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
-        p = sub.Popen(cmd, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
-        text = ""
-        err_text = ""
-        while True:
-            out = p.stdout.read(1)
-            if out == '' and p.poll() != None:
-                break
-            if out != '':
-                text += out
-        while True:
-            err = p.stderr.read(1)
-            if err == '' and p.poll() != None:
-                break
-            if err != '':
-                err_text += err
-
-
-        print text
-        # print "ERRORS : "
-        print err_text
-
-                #print out
-                # return out
-                # sys.stdout.write(out)
-                # sys.stdout.flush()
-
 class redirectText(object):
     """http://stackoverflow.com/questions/24707308/get-command-window-output-to-display-in-widget-with-tkinter
     http://stackoverflow.com/questions/30669015/autoscroll-of-text-and-scrollbar-in-python-text-box"""
@@ -336,19 +290,68 @@ class MainApp(Frame):
 
         self.createOptionMENUS("init")
 
+    def runShell(self,cmd,opt):
+        # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
+        #cmd = "cat /etc/HOSTNAME"
+        #cmd = "/opt/dfs/tsctl2/bin/admin_get_status_list.sh"
+        #print "Running on:\n"
+        cmd  += "; echo ; echo Done."
+        #cmd = "ls -la"
+
+        self.text = ""
+        self.err_text = ""
+
+        if opt == "fake":
+            print "  running shell command:(FAKE !)"
+            print "\n  %s\n" % cmd
+        else:
+            print "  running shell command:"
+            print "\n  %s\n" % cmd
+
+            # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
+            # output, errors = p.communicate()
+            # return output, errors
+
+            #p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+            self.update_idletasks()
+
+            p = sub.Popen(cmd, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
+            while True:
+                out = p.stdout.read(1)
+                if out == '' and p.poll() != None:
+                    break
+                if out != '':
+                    self.text += out
+            while True:
+                err = p.stderr.read(1)
+                if err == '' and p.poll() != None:
+                    break
+                if err != '':
+                    self.err_text += err
+
+
+            print self.text
+            # print "ERRORS : "
+            print self.err_text
+
+                    #print out
+                    # return out
+                    # sys.stdout.write(out)
+                    # sys.stdout.flush()
+
 
     def deploy_configs(self):
         # self.update_idletasks()
-        runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
     def update_status_list(self):
         # self.update_idletasks()
-        runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+        self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
     def update_resource_nsc_list(self):
         # self.update_idletasks()
-        runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+        self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
     def reconfigure_nscs(self):
         # self.update_idletasks()
-        runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+        self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
 
 
     def confirmRemotePSPChoices(self):
