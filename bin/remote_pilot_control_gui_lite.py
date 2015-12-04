@@ -57,7 +57,7 @@ cfg = {
            {"bindir":sim_bindir,
             "confdir":int_confdir,
             "vardir":int_vardir,
-            "descr": "Using simulated lists"},
+            "descr": "Create and use simulated internal lists"},
     }
 
 bindir  = cfg[mode]["bindir"]
@@ -91,13 +91,13 @@ duration = 1
 #run_shell_opt = "fake"
 run_shell_opt = ""
 
-# external commands
+# external commands  -> moved into Main class
 
-def deploy_configs():runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
-def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
-def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
-def simulateExternalCommand(): runShell(os.path.join(bindir,"admin_simulate.sh"), run_shell_opt)
+# def deploy_configs():runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+# def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+# def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+# def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+# def simulateExternalCommand(): runShell(os.path.join(bindir,"admin_simulate.sh"), run_shell_opt)
 
 # simulated scripts
 #admin_deploy_configs.sh
@@ -338,16 +338,16 @@ class MainApp(Frame):
 
 
     def deploy_configs(self):
-        self.update_idletasks()
+        # self.update_idletasks()
         runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
     def update_status_list(self):
-        self.update_idletasks()
+        # self.update_idletasks()
         runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
     def update_resource_nsc_list(self):
-        self.update_idletasks()
+        # self.update_idletasks()
         runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
     def reconfigure_nscs(self):
-        self.update_idletasks()
+        # self.update_idletasks()
         runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
 
 
@@ -463,6 +463,7 @@ class MainApp(Frame):
         self.anim.destroy()
 
     def openAnimatedGifFile(self):
+        self.stopAnimation()  # stop previously or initially opened gif
         options = {}
         options['defaultextension'] = '.gif'
         #options['filetypes'] = [('all files', '.*'), ('text files', '.txt')]
