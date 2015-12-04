@@ -34,8 +34,6 @@ typeset AllDomainServers=$(echo $RemoteDomainServers $ResourceDomainServers | se
 resource_nsc_list_file=${vardir}/resource_nsc.list
 nsc_status_list_file=${vardir}/nsc_status.list
 
-# HIER ist noch was faul !
-# diese Funktion muss die hartkodierten "nss.<dn>" statements erseten wenn nss-mgt statt nss auftritt !!!
 
 function get_domain_server_hn
 {
