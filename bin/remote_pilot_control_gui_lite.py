@@ -207,9 +207,10 @@ class MainApp(Frame):
 
 
         # redirect stdout
-        redir = redirectText(self.console)
-        sys.stdout = redir
-        self.console.insert(END, self.output)
+        self.stdoutOrig = sys.stdout
+        self.redir = redirectText(self.console)
+        sys.stdout = self.redir
+        #self.console.insert(END, self.output)
 
         # BUTTONS
         n=0
@@ -217,18 +218,19 @@ class MainApp(Frame):
         self.con_and_button_frame.grid(row=1, column=3, sticky=W+E+N+S)
 
 
-        Button(self.con_and_button_frame, text="Deploy configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Update resource PSP list", command=self.update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
-        Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
+        #Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=8, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=9, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Stop animation", command=self.stopAnimation).grid(row=10, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Start reconfiguration", bg="red", command=self.startReconfiguration).grid(row=11, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=10, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Start Reconfiguration", bg="red", command=self.startReconfiguration).grid(row=11, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
 
@@ -321,18 +323,22 @@ class MainApp(Frame):
                 if out == '' and p.poll() != None:
                     break
                 if out != '':
-                    self.text += out
+                    # self.text += out
+                    self.redir.write(out)
+                    self.stdoutOrig.write(out)
             while True:
                 err = p.stderr.read(1)
                 if err == '' and p.poll() != None:
                     break
                 if err != '':
-                    self.err_text += err
+                    # self.err_text += err
+                    self.redir.write(err)
+                    self.stdoutOrig.write(err)
 
 
-            print self.text
-            # print "ERRORS : "
-            print self.err_text
+            # print self.text
+            # # print "ERRORS : "
+            # print self.err_text
 
                     #print out
                     # return out
@@ -341,17 +347,15 @@ class MainApp(Frame):
 
 
     def deploy_configs(self):
-        # self.update_idletasks()
         self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
     def update_status_list(self):
-        # self.update_idletasks()
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
     def update_resource_nsc_list(self):
-        # self.update_idletasks()
         self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
     def reconfigure_nscs(self):
-        # self.update_idletasks()
         self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+    def simulateExternalCommand(self):
+        self.runShell(os.path.join(sim_bindir,"admin_simulate.sh"), run_shell_opt)
 
 
     def confirmRemotePSPChoices(self):
