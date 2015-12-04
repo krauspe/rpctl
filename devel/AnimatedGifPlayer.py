@@ -97,11 +97,12 @@ class UI(Label):
 
 if __name__ == "__main__":
 
-    if not sys.argv[1:]:
-        print "Syntax: python player.py imagefile(s)"
-        sys.exit(1)
+    # if not sys.argv[1:]:
+    #     print "Syntax: python player.py imagefile(s)"
+    #     sys.exit(1)
 
-    filename = sys.argv[1]
+    # filename = sys.argv[1]
+    filename = "/opt/dfs/rpctl/images/animated_gifs/airplane13.gif"
 
     root = Tk()
     root.title(filename)
