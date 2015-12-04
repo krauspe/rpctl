@@ -2,6 +2,9 @@ from Tkinter import *
 from PIL import Image, ImageTk
 ## pip install Pillow # yields PIL package
 
+# TODO : for recursive functions look at
+# TODO : http://stackoverflow.com/questions/33923/what-is-tail-recursion
+
 class LabelAnimated(Label):
     def __init__(self, master, filename,duration_factor):
         im = Image.open(filename)
@@ -36,6 +39,7 @@ class LabelAnimated(Label):
     def play(self):
         #print "idx = %s" % self.idx
         self.config(image=self.frames[self.idx])
+        self.update_idletasks()
         self.idx += 1
         if self.idx == len(self.frames):
             self.idx = 0
