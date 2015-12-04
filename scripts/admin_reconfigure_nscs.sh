@@ -233,10 +233,6 @@ do
   remote_fqdn=${REMOTE_FQDN[$resource_fqdn]}
   target_option=${TARGET_OPTION[$resource_fqdn]}
   current_fqdn=${CURRENT_FQDN[$resource_fqdn]}
-  # nss. ersetzen durch Funktionsaufruf der nss oder nss-mgt findet !!
-  #resource_domain_server=nss.${resource_fqdn#*.}
-  #current_domain_server=nss.${current_fqdn#*.}
-  #remote_domain_server=nss.${remote_fqdn#*.}
 
   resource_dn=${resource_fqdn#*.}
   current_dn=${current_fqdn#*.}
