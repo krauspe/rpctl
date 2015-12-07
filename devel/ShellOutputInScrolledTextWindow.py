@@ -5,6 +5,9 @@ import Tkinter
 
 import subprocess as sub
 
+# Script using /opt/dfs/rpctl/binsim/admin_simulate.s to test/develop output from external command
+# outside main app (rpctl)
+
 ########################################################################
 class RedirectText(object):
     """"""
