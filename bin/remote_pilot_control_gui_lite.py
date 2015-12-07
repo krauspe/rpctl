@@ -230,7 +230,10 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=9, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=10, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Start Reconfiguration", bg="red", command=self.startReconfiguration).grid(row=11, column=1, sticky=W+E)
+
+        self.bt_Start_Reconfiguration = Button(self.con_and_button_frame, text="Start Reconfiguration", command=self.startReconfiguration, state=DISABLED, activebackground="red")
+        self.bt_Start_Reconfiguration.grid(row=11, column=1, sticky=W+E)
+
         Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
 
@@ -382,22 +385,31 @@ class MainApp(Frame):
             self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list)
             self.om[resfqdn].grid(row=self.r1, column=3)
             if opt == "init":
-                self.lt_newfqdn[resfqdn].set(curfqdn)
+                self.lt_newfqdn[resfqdn].set("no change")
+                #self.lt_newfqdn[resfqdn].set(curfqdn)
             self.r1 +=1
 
     def createTargetConfigListFromOptionMENU(self):
         print "\nCreating NEW Target config list...\n"
         self.new_target_config_list = []
+        self.target_change_requests = 0
+        self.bt_Start_Reconfiguration.config(state=DISABLED)
+
         for resfqdn,curfqdn,status in self.nsc_status_list:
             newfqdn = self.lt_newfqdn[resfqdn].get()
+            if newfqdn == "no change": newfqdn = curfqdn
             if newfqdn != curfqdn:
-                force_option = "force_reconfigure"
+                enable_option = "force_reconfigure"
+                self.target_change_requests += 1
             else:
-                force_option = ""
-            print '%s %s %s' % (resfqdn, newfqdn,force_option )
-            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),force_option))
+                enable_option = ""
+
+            print '%s %s %s' % (resfqdn, newfqdn,enable_option )
+            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),enable_option))
         saveListAsFile(self.new_target_config_list,target_config_list_file)
-        #saveListAsFile(self.new_target_config_list,target_config_list_file+".new")
+        # ACTIVATE START RECONFIGURATION BUTTON IF CAHNGES ARE REQUESTED
+        if self.target_change_requests > 0:
+            self.bt_Start_Reconfiguration.config(state=ACTIVE)
 
         # print "------------------------\n"
         # pp = pprint.PrettyPrinter(indent=4)
@@ -425,6 +437,7 @@ class MainApp(Frame):
     def startReconfiguration(self):
         print "\nStarting reconfiguration of PSPs ....\n"
         self.reconfigure_nscs()
+        self.bt_Start_Reconfiguration.config(state=NORMAL)
         #self.output = runShell("dir")
         #print self.output
 
@@ -435,7 +448,7 @@ class MainApp(Frame):
         self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
         self.remote_nsc_list = getFileAsListOfRow(remote_nsc_list_file, 0)
-        self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default"]
+        self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default","no change"]
         self.target_config_list = getFileAsList(target_config_list_file)
         #print "self.remote_nsc_list : "
         #print self.remote_nsc_list
