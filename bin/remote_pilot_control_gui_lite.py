@@ -179,7 +179,7 @@ class MainApp(Frame):
         self.var = {}
         self.output = "Console output initialized.\n\n"
         self.r1 = 0
-        self.label_txt_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "unreachable !", None:""}
+        self.label_txt_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "UNREACHABLE !", None:""}
         self.label_textcol =   { "available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
 
 
@@ -243,22 +243,30 @@ class MainApp(Frame):
         self.list_frame.grid(row=4, column=0)
         Label(self.list_frame, text="Resource %s " % subtype.upper(), width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
         Label(self.list_frame, text="Current FQDN ", width=25, relief=GROOVE).grid(row=2, column=1)
-        Label(self.list_frame, text="Status", width=25, relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Choose Remote FQDN ", width=25, relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Operation Mode", width=25, relief=GROOVE).grid(row=2, column=2)
+        Label(self.list_frame, text="Status", width=25, relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Choose Remote FQDN ", width=25, relief=GROOVE).grid(row=2, column=4)
 
         self.buildMenu(root)
         self.loadLists()
         #self.updateStatus()
 
+        self.ResourceStatus = {}   # define explicit dict for resource fqdn status
+
         # LIST | OptionMenu
+
+
 
         self.lt_resfqdns = {}
         self.lt_curfqdns = {}
         self.lt_Status   = {}
+        self.lt_operation_mode = {}
+
         self.lt_newfqdn   = {}
         self.label_resfqdn = {}
         self.label_curfqdn = {}
         self.label_status = {}
+        self.label_operation_mode = {}
         self.om = {}
 
         self.new_target_config_list   = []
@@ -268,6 +276,8 @@ class MainApp(Frame):
         #self.testoptions = ("aaa","bbb","ccc","ddd")
         for resfqdn,curfqdn,status in self.nsc_status_list:
 
+            self.ResourceStatus[resfqdn] = status
+
             # wenn sich die Anzahl der resfqdns erhoeht fehlen hierfuer labels, daher Neustart noetig !
             # Loesung: weitere Lables fuer neue Eintrage erzeugen (nicht in init)
 
@@ -275,12 +285,16 @@ class MainApp(Frame):
             self.lt_resfqdns[resfqdn] = StringVar()
             self.lt_curfqdns[resfqdn] = StringVar()
             self.lt_Status[resfqdn]   = StringVar()
+            self.lt_operation_mode[resfqdn]   = StringVar()
+
             self.lt_newfqdn[resfqdn]  = StringVar()
 
             # set initial values
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
             self.lt_Status[resfqdn].set(self.label_txt_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
+            self.lt_operation_mode[resfqdn].set("")
+
 
             self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], width=25, bd=2, relief=GROOVE)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0)
@@ -288,8 +302,24 @@ class MainApp(Frame):
             self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], width=25, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=1)
 
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
+            self.label_operation_mode[resfqdn].grid(row=self.r1, column=2)
+
             self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
-            self.label_status[resfqdn].grid(row=self.r1, column=2)
+            self.label_status[resfqdn].grid(row=self.r1, column=3)
+
+            # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
+            # TODO: solange wird der status aus der nsc_status_list genommen
+
+            if status == "unreachable":
+                self.lt_operation_mode[resfqdn].set("UNKNOWN")
+                self.label_operation_mode[resfqdn].config(fg="red")
+                self.label_curfqdn[resfqdn].config(fg="red")
+
+            else:
+                self.lt_operation_mode[resfqdn].set(self.label_txt_trans[status])
+                self.lt_Status[resfqdn].set("READY")
+                self.label_status[resfqdn].config(fg="dark green")
 
             self.r1 +=1
 
@@ -376,6 +406,7 @@ class MainApp(Frame):
             self.lt_curfqdns[resfqdn].set(curfqdn)
             self.lt_Status[resfqdn].set(self.label_txt_trans[status])
             self.label_status[resfqdn].config(fg=self.label_textcol[status])
+            self.ResourceStatus[resfqdn] = status
 
     def createOptionMENUS(self,opt):
         self.r1 = 3
@@ -383,7 +414,7 @@ class MainApp(Frame):
             if opt == "update":
                 self.om[resfqdn].destroy()
             self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list)
-            self.om[resfqdn].grid(row=self.r1, column=3)
+            self.om[resfqdn].grid(row=self.r1, column=4)
             if opt == "init":
                 self.lt_newfqdn[resfqdn].set("no change")
                 #self.lt_newfqdn[resfqdn].set(curfqdn)
