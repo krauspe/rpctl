@@ -12,9 +12,8 @@
 #              Without that option reconfiguration will be skipped !!
 #              (force_reconfigureld will still be excepted) 
 #
-#
-#
 # TODO: check wether admin_get_status_list.sh was successfull and exit if not !
+# TODO: split in functions to modularize and thus make it possible to process singe resource targets
 #
 # <2step>
 . /etc/2step/2step.vars

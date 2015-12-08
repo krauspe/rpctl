@@ -7,10 +7,11 @@
 #
 # So we can do an offline network reconfiguration on all resource NSC's fron all resource doamins
 #
-# a lot of TODOs !!!
-#
 # changes:
 # 01.12.2015: added java deployment for atcoach
+#
+# TODO: create deploy options for selective deployments (more than java and wall_msg)
+# TODO: Thus, make it possible to deploy to a single target rather than to a list
 #
 #
 
