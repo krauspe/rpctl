@@ -8,6 +8,9 @@
 # 
 # changes:
 #  01.12.2015: reset|default now will be handled correctly  
+#  08.12.2015: "force_reconfigure" is replaced by "enable_reconfiguration" and is necessary to do it !!
+#              Without that option reconfiguration will be skipped !!
+#              (force_reconfigureld will still be excepted) 
 #
 #
 #
@@ -250,36 +253,35 @@ do
 
   echo "\n-----------------------------------------------------------------------------------------\n"
 
-  echo "EXECUTING: $resource_fqdn => $remote_fqdn ($target_option)"
-  if [[ $current_fqdn == $remote_fqdn && $target_option != "force_reconfigure" ]] ; then
-    echo "current config of $resource_fqdn is already $remote_fqdn and no force option set. Nothing to do."
-  elif [[ ${STATUS[$resource_fqdn]} == "unreachable" || $current == "unknown" ]] ; then
-    echo "current status of $resource_fqdn is ${STATUS[$resource_fqdn]}. can not configure !!. Check host !!"
-  elif [[ ${STATUS[$resource_fqdn]} == "occupied" ]] ; then
-    if [[ $target_option == "force_reconfigure" ]] ; then
-      echo "reconfigure $resource_fqdn (currently $current_fqdn) AGAIN as $remote_fqdn due to force option"
-      ready_for_reconfiguration=1
+  echo "CHECKING SYSTEM STATUS FOR RECONFIGURATION: $resource_fqdn => $remote_fqdn (target_option=$target_option)"
+
+  if [[ $target_option == "enable_reconfiguration" || $target_option == "force_reconfigure" ]]; then
+    if [[ ${STATUS[$resource_fqdn]} == "unreachable" ]] ; then
+      echo "  Current status of $resource_fqdn is ${STATUS[$resource_fqdn]}. can not configure !!. Check host !!"
+    elif [[ ${CURRENT_FQDN[$resource_fqdn]} == "unknown" ]] ; then
+      echo "  Current fqdn of $resource_fqdn is unknown!!. Can not reconfigure. Check host !!"
     else
-      echo "$resource_fqdn is occupied as $current_fqdn and no force option is set. Ignoring."
+      echo "  LOOKS GOOD !!"
+      echo "  Reconfigure $resource_fqdn (currently $current_fqdn) as $remote_fqdn through $current_domain_server"
+      ready_for_reconfiguration=1
     fi
-  else
-    echo "  reconfigure $resource_fqdn (currently $current_fqdn) as $remote_fqdn through $current_domain_server"
-    ready_for_reconfiguration=1
   fi
 
   if (( $ready_for_reconfiguration == 1 )); then
 
     # RECONFIGURE AND REBOOT
+    echo
     echo "ssh $current_domain_server ssh $current_fqdn ${bindir}/nsc_reconfigure.sh $remote_fqdn reboot"
     $dbg ssh $current_domain_server "ssh $current_fqdn ${bindir}/nsc_reconfigure.sh $remote_fqdn reboot"
 
     if (( $? == 0 )); then 
       reconfigure_sucessful=1
     fi
+
     # SWITCH VLAN 
 
     if (( $reconfigure_sucessful == 1 )); then 
-      echo "  switch vlan for $resource_fqdn into $remote_dn"
+      echo "  Switch vlan for $resource_fqdn into $remote_dn"
       cmd="$bindir/control_rem_pil_test_net.sh -c $remote_dn  $resource_fqdn"
       echo "  $cmd"
       $dbg $cmd >/dev/null 
