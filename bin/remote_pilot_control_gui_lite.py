@@ -428,17 +428,22 @@ class MainApp(Frame):
 
         for resfqdn,curfqdn,status in self.nsc_status_list:
             newfqdn = self.lt_newfqdn[resfqdn].get()
-            if newfqdn == "no change": newfqdn = curfqdn
-            if newfqdn != curfqdn:
-                enable_option = "force_reconfigure"
-                self.target_change_requests += 1
-            else:
+            if newfqdn == "no change":
+                newfqdn = curfqdn
                 enable_option = ""
+            else:
+                enable_option = "enable_reconfiguration"
+                self.target_change_requests += 1
 
             print '%s %s %s' % (resfqdn, newfqdn,enable_option )
             self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),enable_option))
+
+        # Save NEW TARGET CONFIG LIST
+
         saveListAsFile(self.new_target_config_list,target_config_list_file)
+
         # ACTIVATE START RECONFIGURATION BUTTON IF CAHNGES ARE REQUESTED
+
         if self.target_change_requests > 0:
             self.bt_Start_Reconfiguration.config(state=ACTIVE)
 
