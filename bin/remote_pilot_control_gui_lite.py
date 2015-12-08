@@ -19,7 +19,7 @@ The expert tool for
 Remote Piloting
 """
 
-mode = "simulate"
+mode = "productive"
 
 basedir = ".."
 ext_basedir = os.path.join(basedir, "..", "tsctl2")
@@ -390,8 +390,8 @@ class MainApp(Frame):
 
     def updateStatus(self):
         print "updateStatus: "
-        print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
-        #self.update_status_list()
+        #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
+        self.update_status_list()
         self.updateStatusView()
 
     def updateStatusView(self):
@@ -440,7 +440,7 @@ class MainApp(Frame):
                 self.target_change_requests += 1
 
             print '%s %s %s' % (resfqdn, newfqdn,enable_option )
-            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),enable_option))
+            self.new_target_config_list.append((resfqdn,newfqdn,enable_option))
 
         # Save NEW TARGET CONFIG LIST
 
