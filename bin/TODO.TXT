@@ -1,0 +1,17 @@
+- Current PSP Labeltext no upper
+- disable Start Reconfiguration after using it
+- disable Start Reconfiguration when status is unreachable
+
+- decrease verbose output
+- CHECKING SYSTEM STATUS: change output for skipped entrys
+- create optinal python based simulated status
+- move settings to config file for GUI
+
+extrenal Scripts:
+
+- change option force_reconfigure to enable_reconfiguration in all ksh scripts
+
+- bug: multible resource fqdns will not be detected ?! (multible remote fqdns will)
+
+- complete simulation scripts in binsim
+
