@@ -20,9 +20,15 @@ Remote Piloting
 """
 
 mode = "productive"
+mode_comment = "as configured"
 
 basedir = ".."
 ext_basedir = os.path.join(basedir, "..", "tsctl2")
+
+if not os.path.exists(ext_basedir):
+    mode = "simulate"
+    mode_comment = "because %s doesn't exist !\n" % ext_basedir
+
 
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
@@ -57,8 +63,9 @@ cfg = {
            {"bindir":sim_bindir,
             "confdir":int_confdir,
             "vardir":int_vardir,
-            "descr": "Create and use simulated internal lists"},
+            "descr": "Creating and using simulated internal lists"},
     }
+mode_comment = cfg[mode]["descr"] + '\n' + mode_comment
 
 bindir  = cfg[mode]["bindir"]
 confdir = cfg[mode]["confdir"]
@@ -150,7 +157,7 @@ def saveListAsFile(list,filepath):
             line += ' ' + element
         f.write(line + '\n')
     f.close()
-    print "type(line) = %s\n" % type(line)
+    #print "type(line) = %s\n" % type(line)
 
 def Quit():
         print "Quit"
@@ -177,7 +184,7 @@ class MainApp(Frame):
         """http://stackoverflow.com/questions/6129899/python-multiple-frames-with-grid-manager"""
         self.choosen = {}
         self.var = {}
-        self.output = "Console output initialized.\n\n"
+        self.init_output =  "\nConsole output initialized.\n\n" + mode_comment
         self.r1 = 0
         self.label_status_text_trans =         {"available" : "READY", "occupied" : "READY", "unreachable" : "UNREACHABLE !", None: ""}
         self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", None: ""}
@@ -213,6 +220,10 @@ class MainApp(Frame):
         self.redir = redirectText(self.console)
         sys.stdout = self.redir
         #self.console.insert(END, self.output)
+
+        # print initial message
+
+        print self.init_output
 
         # BUTTONS
         n=0
@@ -398,7 +409,6 @@ class MainApp(Frame):
         # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
         # TODO: solange wird der status aus der nsc_status_list genommen
 
-        print "\nprint assignment...\n"
         #self.stopAnimation()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
