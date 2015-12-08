@@ -179,8 +179,10 @@ class MainApp(Frame):
         self.var = {}
         self.output = "Console output initialized.\n\n"
         self.r1 = 0
-        self.label_txt_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "UNREACHABLE !", None:""}
-        self.label_textcol =   { "available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
+        self.label_status_text_trans =         {"available" : "READY", "occupied" : "READY", "unreachable" : "UNREACHABLE !", None: ""}
+        self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", None: ""}
+        self.label_status_textcol =            {"available" : "dark green", "occupied" : "dark green", "unreachable" : "red", None: "lightgrey"}
+        self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
 
 
         #Frame.__init__(self, master=None,*args, **kwargs)
@@ -249,7 +251,6 @@ class MainApp(Frame):
 
         self.buildMenu(root)
         self.loadLists()
-        #self.updateStatus()
 
         self.ResourceStatus = {}   # define explicit dict for resource fqdn status
 
@@ -292,7 +293,7 @@ class MainApp(Frame):
             # set initial values
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_txt_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
+            self.lt_Status[resfqdn].set(self.label_status_text_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
             self.lt_operation_mode[resfqdn].set("")
 
 
@@ -302,28 +303,20 @@ class MainApp(Frame):
             self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], width=25, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=1)
 
-            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], width=25, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_operation_mode[resfqdn].grid(row=self.r1, column=2)
 
-            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=3)
 
-            # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
-            # TODO: solange wird der status aus der nsc_status_list genommen
 
-            if status == "unreachable":
-                self.lt_operation_mode[resfqdn].set("UNKNOWN")
-                self.label_operation_mode[resfqdn].config(fg="red")
-                self.label_curfqdn[resfqdn].config(fg="red")
-
-            else:
-                self.lt_operation_mode[resfqdn].set(self.label_txt_trans[status])
-                self.lt_Status[resfqdn].set("READY")
-                self.label_status[resfqdn].config(fg="dark green")
 
             self.r1 +=1
 
+        self.updateStatusView()
         self.createOptionMENUS("init")
+
+
 
     def runShell(self,cmd,opt):
         # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
@@ -395,18 +388,29 @@ class MainApp(Frame):
         self.createTargetConfigListFromOptionMENU()
         self.createOptionMENUS("update")
 
-
     def updateStatus(self):
+        print "updateStatus: "
+        print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
+        #self.update_status_list()
+        self.updateStatusView()
+
+    def updateStatusView(self):
+        # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
+        # TODO: solange wird der status aus der nsc_status_list genommen
+
         print "\nprint assignment...\n"
-        self.update_status_list()
         #self.stopAnimation()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
-            self.lt_resfqdns[resfqdn].set(resfqdn) # eigentlich ueberfluessig
-            self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_txt_trans[status])
-            self.label_status[resfqdn].config(fg=self.label_textcol[status])
             self.ResourceStatus[resfqdn] = status
+            self.lt_resfqdns[resfqdn].set(resfqdn)
+            self.lt_curfqdns[resfqdn].set(curfqdn.upper())
+            self.lt_Status[resfqdn].set(self.label_status_text_trans[status])
+            self.lt_operation_mode[resfqdn].set(self.label_operation_mode_text_trans[status])
+            self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[status])
+            self.label_curfqdn[resfqdn].config(fg=self.label_status_textcol[status])
+            self.label_status[resfqdn].config(fg=self.label_status_textcol[status])
+
 
     def createOptionMENUS(self,opt):
         self.r1 = 3
