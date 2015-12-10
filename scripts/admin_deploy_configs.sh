@@ -9,6 +9,8 @@
 #
 # changes:
 # 01.12.2015: added java deployment for atcoach
+# 10.12.2015: deploy ssh keys (als) to ALL domain servers (not only remote) , becvause otherwise the "home nss" has no pwdless root acess on psp's
+#             fixed bug on mkdir commmands for bindir and java deployment 
 #
 # TODO: create deploy options for selective deployments (more than java and wall_msg)
 # TODO: Thus, make it possible to deploy to a single target rather than to a list
@@ -125,13 +127,14 @@ do
      copy_remote_nsc_config $remote_domain_server $remote_nsc
      echo $remote_nsc >> $remote_nsc_list_file
    done
+done
    
+for domain_server in $AlleDomainServers 
+do
    echo "  copy public key"
-   id_dsa_pub=$(ssh ${remote_domain_server} cat /root/.ssh/id_dsa.pub)
+   id_dsa_pub=$(ssh ${domain_server} cat /root/.ssh/id_dsa.pub)
    echo $id_dsa_pub >> ${vardir}/aks
    #authorized_keys
-
-
 done
 
 echo "\n<< Deploy all configs to all ResourceDomainServers and RemoteDomainServers >>\n"
@@ -151,13 +154,13 @@ do
     # sync all configd to nsc's
     echo "  syncing $resource_domain_server clients"
     echo "    syncing tsctl2 stuff"
-    ssh $resource_domain_server nsc_sh "[[ -d $bindir ]] || mkdir -p $bindir" $subtype > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync $vardir $basedir $subtype "  > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync $confdir $basedir $subtype " > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync ${bindir}/nsc_reconfigure.sh ${bindir} $subtype"    > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync ${bindir}/2step-get-infos-local ${bindir} $subtype" > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync ${bindir}/2step-netconfig-local ${bindir} $subtype" > /dev/null 2>&1
-    ssh $resource_domain_server "nsc_rsync ${vardir}/aks /root/.ssh/authorized_keys $subtype"  > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_sh \"mkdir -p $bindir\" $subtype" # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync $vardir $basedir $subtype "  # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync $confdir $basedir $subtype " # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync ${bindir}/nsc_reconfigure.sh ${bindir} $subtype"    # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync ${bindir}/2step-get-infos-local ${bindir} $subtype" # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync ${bindir}/2step-netconfig-local ${bindir} $subtype" # > /dev/null 2>&1
+    ssh $resource_domain_server "nsc_rsync ${vardir}/aks /root/.ssh/authorized_keys $subtype"  # > /dev/null 2>&1
 
     if [[ $arg1 == *xinitrc*  || $arg1 == "all" ]] ; then
       echo "    syncing xinitrc"
@@ -181,7 +184,7 @@ do
 	  rsync -ahH ${ufa_dir}/java ${resource_domain_server}:${ufa_dir}
       fi
       # javadir auf allen nscs anlegen
-      ssh $resource_domain_server nsc_sh "[[ -d $ufa_dir ]] || mkdir -p $ufa_dir" $subtype > /dev/null 2>&1
+      ssh $resource_domain_server "nsc_sh \"mkdir -p $ufa_dir\" $subtype" #> /dev/null 2>&1
       # javadir auf alle nscs kopieren
       ssh $resource_domain_server "nsc_rsync ${ufa_dir}/java ${ufa_dir} $subtype"    > /dev/null 2>&1
     fi
