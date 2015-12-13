@@ -90,9 +90,9 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 # animated_gif_filename = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
 # animated_gif_filename = 'rotating-jet-smoke.gif'
 animated_gif_filename = 'airplane13.gif'
+# default NOT in animated_gif dir because this can change ...
+animated_gif_file = os.path.join(imagedir, animated_gif_filename)
 
-
-animated_gif_file = os.path.join(animdir, animated_gif_filename)
 duration = 1
 
 #run_shell_opt = "fake"
@@ -100,23 +100,10 @@ run_shell_opt = ""
 
 # external commands  -> moved into Main class
 
-# def deploy_configs():runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-# def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
-# def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
-# def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
-# def simulateExternalCommand(): runShell(os.path.join(bindir,"admin_simulate.sh"), run_shell_opt)
-
-# simulated scripts
-#admin_deploy_configs.sh
-#admin_get_status_list.sh
-#admin_get_resource_nsc_list.sh
-#admin_reconfigure_nscs.sh
-#admin_simulate.sh
-
-
 # todo: einlesen und auswerten
 #source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
 # app settings
+
 subtype = "psp"
 
 
