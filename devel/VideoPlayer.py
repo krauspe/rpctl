@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # http://stackoverflow.com/questions/7227162/way-to-play-video-files-in-tkinter
 # You could use python-gestreamer for playing (this works for me on Linux, but it should
 # also work on windows). This requires python-gstreamer and python-gobject, I would recommend
