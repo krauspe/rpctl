@@ -23,6 +23,10 @@ mode = "productive"
 mode_comment = "as configured"
 
 basedir = ".."
+#geht noch nicht weil 'bin' noch weg muss. Vieleicht giibt's ein path.split und dan letztes Element weg ... !?
+#basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+print "basedir = ", basedir
+
 ext_basedir = os.path.join(basedir, "..", "tsctl2")
 
 if not os.path.exists(ext_basedir):
