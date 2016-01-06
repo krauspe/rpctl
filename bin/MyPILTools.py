@@ -32,7 +32,7 @@ class LabelAnimated(Label):
             frame = temp.convert('RGBA')
             self.frames.append(ImageTk.PhotoImage(frame))
 
-        # new code
+        # new code (makes problems with some gifs)
         # self.frames = [ImageTk.PhotoImage(frame.convert('RGBA')) for frame in seq]
         # Label.__init__(self, master, image=self.frames[0])
 
