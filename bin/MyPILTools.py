@@ -21,20 +21,20 @@ class LabelAnimated(Label):
         except KeyError:
             self.delay = 100
 
-        # first = seq[0].convert('RGBA')
-        # self.frames = [ImageTk.PhotoImage(first)]
-        #
-        # Label.__init__(self, master, image=self.frames[0])
-        #
-        # temp = seq[0]
-        # for image in seq[1:]:
-        #     temp.paste(image)
-        #     frame = temp.convert('RGBA')
-        #     self.frames.append(ImageTk.PhotoImage(frame))
+        first = seq[0].convert('RGBA')
+        self.frames = [ImageTk.PhotoImage(first)]
+
+        Label.__init__(self, master, image=self.frames[0])
+
+        temp = seq[0]
+        for image in seq[1:]:
+            temp.paste(image)
+            frame = temp.convert('RGBA')
+            self.frames.append(ImageTk.PhotoImage(frame))
 
         # new code
-        self.frames = [ImageTk.PhotoImage(frame.convert('RGBA')) for frame in seq]
-        Label.__init__(self, master, image=self.frames[0])
+        # self.frames = [ImageTk.PhotoImage(frame.convert('RGBA')) for frame in seq]
+        # Label.__init__(self, master, image=self.frames[0])
 
         self.idx = 0
 
