@@ -5,7 +5,7 @@
 #DONE: disable "start reconfiguration" button after it has been pressed
 #DONE: change default entry in remote fqdn select boxes to "no_change" after end of reconfiguration
 #TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
-#TODO      -> Trying to use scrolled lables, no errors but no window appears !!??
+#TODO      -> Trying to use scrolled lables, line is truncated !!??
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
@@ -247,18 +247,24 @@ class MainApp(Frame):
         # LIST HEADER
 
         ################
-        self.canvas = Canvas(root, borderwidth=0, background="#ffffff")
+
+        self.canvas_frame = Frame(root, bg="grey")
+        self.canvas_frame.grid(row=4, column=0)
+
+        self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
         #self.canvas.grid(row=4, column=0)
+        #self.canvas.grid()
 
         self.list_frame = Frame(self.canvas, bg="grey")
-        #self.list_frame = Frame(root, bg="grey")
-        self.list_frame.grid(row=4, column=0)
 
-        self.vsb = Scrollbar(root, orient="vertical", command=self.canvas.yview)
+        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
+
         self.vsb.pack(side="right", fill="y")
-        self.canvas.pack(side="left", fill="both", expand=True)
-        self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+        self.canvas.pack(side="left",fill="both", expand=True)
+
+        #self.canvas.create_window((4,4),window=self.list_frame, anchor="nw",tags="self.list_frame")
+        self.canvas.create_window((0,0),window=self.list_frame, anchor="center",tags="self.list_frame")
 
         Label(self.list_frame, text="Resource %s " % subtype.upper(), width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
         Label(self.list_frame, text="Current FQDN ", width=25, relief=GROOVE).grid(row=2, column=1)
