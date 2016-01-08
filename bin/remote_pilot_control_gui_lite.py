@@ -19,10 +19,10 @@ from MyPILTools import LabelAnimated
 
 # settings
 
-main_window_title = """ 2Step Remote Pilot Control Lite 1.0 (unregistered) """
+main_window_title = """ 2Step Remote Pilot Control Lite 1.4 (unregistered) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control 1.0 (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control 1.4 (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
