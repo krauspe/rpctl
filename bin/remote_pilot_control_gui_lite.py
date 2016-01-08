@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 
+#TODO: solve basedir path problem
+#TODO: file not found error handling for status_list and target_config list
+#DONE: disable "start reconfiguration" button after it has been pressed
+#DONE: change default entry in remote fqdn select boxes to "no_change" after end of reconfiguration
+#TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
+#TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
+#TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
+#TODO:                     admin_reconfigure_nscs.sh should use the above get status script
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -19,11 +27,13 @@ The expert tool for
 Remote Piloting
 """
 
-mode = "productive"
+#mode = "productive"
+mode = "simulate"
+
 mode_comment = "as configured"
 
 basedir = ".."
-#geht noch nicht weil 'bin' noch weg muss. Vieleicht giibt's ein path.split und dan letztes Element weg ... !?
+#geht noch nicht weil 'bin' noch weg muss. Vieleicht giibt's ein path.split und dann letztes Element weg ... !?
 #basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
 print "basedir = ", basedir
 
@@ -86,13 +96,6 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
 # decoration
 
-# animated_gif_filename = 'Lear-jet-flying-in-turbulent-sky.gif'
-# animated_gif_filename = 'Animated-fighter-jet-firing-missles.gif'
-# animated_gif_filename = 'Moving-picture-red-skull-chewing-animation.gif'
-# animated_gif_filename = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
-# animated_gif_filename = '15a.gif'
-# animated_gif_filename = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
-# animated_gif_filename = 'rotating-jet-smoke.gif'
 animated_gif_filename = 'airplane13.gif'
 # default NOT in animated_gif dir because this can change ...
 animated_gif_file = os.path.join(imagedir, animated_gif_filename)
@@ -118,8 +121,6 @@ def newFile():
 
 def About():
     print about
-
-
 
 
 def getFileAsList(file):
@@ -258,8 +259,6 @@ class MainApp(Frame):
 
         # LIST | OptionMenu
 
-
-
         self.lt_resfqdns = {}
         self.lt_curfqdns = {}
         self.lt_Status   = {}
@@ -311,13 +310,10 @@ class MainApp(Frame):
             self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=3)
 
-
-
             self.r1 +=1
 
         self.updateStatusView()
         self.createOptionMENUS("init")
-
 
 
     def runShell(self,cmd,opt):
@@ -374,6 +370,8 @@ class MainApp(Frame):
                     # sys.stdout.flush()
 
 
+    # define functions for external shell scripts
+
     def deploy_configs(self):
         self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
     def update_status_list(self):
@@ -385,6 +383,8 @@ class MainApp(Frame):
     def simulateExternalCommand(self):
         self.runShell(os.path.join(sim_bindir,"admin_simulate.sh"), run_shell_opt)
 
+
+    # define other functions
 
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
@@ -405,7 +405,9 @@ class MainApp(Frame):
         for resfqdn,curfqdn,status in self.nsc_status_list:
             self.ResourceStatus[resfqdn] = status
             self.lt_resfqdns[resfqdn].set(resfqdn)
-            self.lt_curfqdns[resfqdn].set(curfqdn.upper())
+            #self.lt_curfqdns[resfqdn].set(curfqdn.upper())
+            # upper sieht kacke aus je nach schriftart !
+            self.lt_curfqdns[resfqdn].set(curfqdn)
             self.lt_Status[resfqdn].set(self.label_status_text_trans[status])
             self.lt_operation_mode[resfqdn].set(self.label_operation_mode_text_trans[status])
             self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[status])
@@ -478,7 +480,8 @@ class MainApp(Frame):
     def startReconfiguration(self):
         print "\nStarting reconfiguration of PSPs ....\n"
         self.reconfigure_nscs()
-        self.bt_Start_Reconfiguration.config(state=NORMAL)
+        self.bt_Start_Reconfiguration.config(state=DISABLED)
+        self.createOptionMENUS("init")
         #self.output = runShell("dir")
         #print self.output
 
@@ -519,6 +522,8 @@ class MainApp(Frame):
         help_menu.add_command(label="Register", command=self.inputRegistrationKey)
         help_menu.add_command(label="About...", command=About)
 
+    # fun stuff
+
     def stopAnimation(self):
         self.anim.after_cancel(self.anim.cancel)
         self.anim.destroy()
@@ -541,7 +546,6 @@ class MainApp(Frame):
         self.anim = LabelAnimated(self.con_frame, file, duration)
         self.anim.grid(row=row,column=column)
         return self.anim
-
 
 
     def inputRegistrationKey(self):
