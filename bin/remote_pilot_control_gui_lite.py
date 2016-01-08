@@ -27,8 +27,8 @@ The expert tool for
 Remote Piloting
 """
 
-#mode = "productive"
-mode = "simulate"
+#mode = "simulate"
+mode = "productive"
 
 mode_comment = "as configured"
 
