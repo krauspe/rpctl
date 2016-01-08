@@ -27,8 +27,8 @@ The expert tool for
 Remote Piloting
 """
 
-#mode = "simulate"
-mode = "productive"
+mode = "simulate"
+#mode = "productive"
 
 mode_comment = "as configured"
 
@@ -244,8 +244,21 @@ class MainApp(Frame):
 
 
         # LIST HEADER
+
+        ################
+        #self.canvas = Canvas(root, borderwidth=0, background="#ffffff")
+        #self.canvas.grid(row=4, column=0)
+
+        #self.list_frame = Frame(self.canvas, bg="grey")
         self.list_frame = Frame(root, bg="grey")
         self.list_frame.grid(row=4, column=0)
+
+        #self.vsb = Scrollbar(root, orient="vertical", command=self.canvas.yview)
+        #self.canvas.configure(yscrollcommand=self.vsb.set)
+        #self.vsb.pack(side="right", fill="y")
+        #self.canvas.pack(side="left", fill="both", expand=True)
+        #self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+
         Label(self.list_frame, text="Resource %s " % subtype.upper(), width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
         Label(self.list_frame, text="Current FQDN ", width=25, relief=GROOVE).grid(row=2, column=1)
         Label(self.list_frame, text="Operation Mode", width=25, relief=GROOVE).grid(row=2, column=2)
@@ -298,7 +311,7 @@ class MainApp(Frame):
             self.lt_operation_mode[resfqdn].set("")
 
 
-            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], width=25, bd=2, relief=GROOVE)
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], width=25, bd=1, relief=GROOVE)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0)
 
             self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], width=25, relief=SUNKEN)
@@ -312,8 +325,15 @@ class MainApp(Frame):
 
             self.r1 +=1
 
+        #self.frame.bind("<Configure>", self.onFrameConfigure)
+
         self.updateStatusView()
         self.createOptionMENUS("init")
+
+    # function for scrolled labels
+    #def onFrameConfigure(self, event):
+    #    '''Reset the scroll region to encompass the inner frame'''
+    #    self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
 
     def runShell(self,cmd,opt):
