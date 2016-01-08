@@ -12,6 +12,11 @@
 # <2step>
 #. /etc/2step/2step.vars
 #
+echo "starting simulated reconfiguration ... (do nothing :-)"
+exit
+# TODO : create simulated status list
+
+
 #dbg=echo
 dbg=""
 dev=eth0

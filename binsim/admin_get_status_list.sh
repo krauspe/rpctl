@@ -12,6 +12,9 @@
 # <2step>
 #. /etc/2step/2step.vars
 #
+echo "simulate get status list ....(do nothing currently...)"
+exit
+
 #dbg=echo
 dbg=""
 dev=eth0
