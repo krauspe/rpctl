@@ -116,7 +116,6 @@ subtype = "psp"
 
 def newFile():
     name = askopenfilename()
-    name = askopenfilename
     print "open: ", name
 
 def About():
@@ -557,7 +556,7 @@ class MainApp(Frame):
         options['initialdir'] = animdir
         options['parent'] = self
         options['title'] = "Open a gif file"
-        with askopenfile(mode='r', **options) as file:
+        with askopenfile(mode='rb', **options) as file:
             self.showAnimatedGif(file,duration,1,1)
 
     def showAnimatedGif(self,file,duration,row,column):
