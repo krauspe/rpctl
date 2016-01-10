@@ -1,8 +1,18 @@
 #!/usr/bin/env python
 
+#TODO: solve basedir path problem
+#TODO: file not found error handling for status_list and target_config list
+#DONE: disable "start reconfiguration" button after it has been pressed
+#DONE: change default entry in remote fqdn select boxes to "no_change" after end of reconfiguration
+#TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
+#DONE      -> Using scrolled labels: problem: when header in canvas frame: header scrolls too. header in own frame: it isn't alligned !
+#TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
+#TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
+#TODO:                     admin_reconfigure_nscs.sh should use the above get status script
 
 from Tkinter import *
-from tkFileDialog import askopenfilename
+from tkFileDialog import askopenfilename,askopenfile
+import tkFont
 import ScrolledText
 import subprocess as sub
 import os
@@ -11,24 +21,74 @@ from MyPILTools import LabelAnimated
 
 # settings
 
-main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
+main_window_title = """ 2Step Remote Pilot Control 1.5 (unregistered) """
+#main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control 1.0 (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control 1.5 (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
 
+mode = "simulate"
+#mode = "productive"
+
+mode_comment = "as configured"
 
 basedir = ".."
-ext_basedir = basedir
-#ext_basedir = os.path.join(basedir, "..", "tsctl2")
+#geht noch nicht weil 'bin' noch weg muss. Vieleicht giibt's ein path.split und dann letztes Element weg ... !?
+#basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+print "basedir = ", basedir
 
-bindir  = os.path.join(ext_basedir,"bin")
-confdir = os.path.join(ext_basedir,"config")
-vardir  = os.path.join(ext_basedir, "var")
+ext_basedir = os.path.join(basedir, "..", "tsctl2")
+
+if not os.path.exists(ext_basedir):
+    mode = "simulate"
+    mode_comment = "because %s doesn't exist !\n" % ext_basedir
+
 
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
+
+int_bindir  = os.path.join(basedir,"scripts")
+int_confdir = os.path.join(basedir,"config")
+int_vardir  = os.path.join(basedir, "var")
+
+ext_bindir  = os.path.join(ext_basedir,"bin")
+ext_confdir = os.path.join(ext_basedir,"config")
+ext_vardir  = os.path.join(ext_basedir, "var")
+
+sim_bindir  = os.path.join(basedir,"binsim")
+
+cfg = {
+    "productive":
+           {"bindir":ext_bindir,
+            "confdir":ext_confdir,
+            "vardir":ext_vardir,
+            "descr": "Production Mode"},
+    "internal":
+           {"bindir":int_bindir,
+            "confdir":int_confdir,
+            "vardir":int_vardir,
+            "descr": "Using internal scripts and lists"},
+    "internal_bin":
+           {"bindir":int_bindir,
+            "confdir":ext_confdir,
+            "vardir":ext_vardir,
+            "descr": "Using internal scripts and productive lists"},
+    "simulate":
+           {"bindir":sim_bindir,
+            "confdir":int_confdir,
+            "vardir":int_vardir,
+            "descr": "Creating and using simulated internal lists"},
+    }
+mode_comment = cfg[mode]["descr"] + '\n' + mode_comment
+
+bindir  = cfg[mode]["bindir"]
+confdir = cfg[mode]["confdir"]
+vardir  = cfg[mode]["vardir"]
+
+for dir in [bindir,confdir,vardir]:
+    print dir
 
 
 resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
@@ -38,46 +98,31 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
 # decoration
 
-animated_gif_filename = 'Lear-jet-flying-in-turbulent-sky.gif'
-animated_gif_filename = 'Animated-fighter-jet-firing-missles.gif'
-animated_gif_filename = 'Moving-picture-red-skull-chewing-animation.gif'
-animated_gif_filename = 'Moving-picture-skeleton-sneaking-around-animated-gif.gif'
-animated_gif_filename = '15a.gif'
-animated_gif_filename = 'Animated-Lear-jet-loosing-control-spinning-around-with-smoke.gif'
-animated_gif_filename = 'rotating-jet-smoke.gif'
 animated_gif_filename = 'airplane13.gif'
+#animated_gif_filename = 'dancing_girl.gif'
 
-
-animated_gif_file = os.path.join(animdir, animated_gif_filename)
+# default NOT in animated_gif dir because this can change ...
+animated_gif_file = os.path.join(imagedir, animated_gif_filename)
 duration = 1
 
-run_shell_opt = "fake"
-#run_shell_opt = ""
+#run_shell_opt = "fake"
+run_shell_opt = ""
 
-# external commands
-
-def deploy_configs(): runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-def update_status_list(): runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
-def update_resource_nsc_list(): runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
-def reconfigure_nscs(): runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
-
-
+# external commands  -> moved into Main class
 
 # todo: einlesen und auswerten
 #source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
 # app settings
+
 subtype = "psp"
 
 
 def newFile():
     name = askopenfilename()
-    name = askopenfilename
     print "open: ", name
 
 def About():
     print about
-
-
 
 
 def getFileAsList(file):
@@ -100,42 +145,17 @@ def getTargetConfigList(file):
 def saveListAsFile(list,filepath):
     print "\nSaving %s\n" % filepath
     f = open(filepath, 'w')
-    f.write("HALLO\n")
     for tup in list:
         line = ''
         for element in tup:
             line += ' ' + element
         f.write(line + '\n')
     f.close()
-    print "type(line) = %s\n" % type(line)
+    #print "type(line) = %s\n" % type(line)
 
 def Quit():
         print "Quit"
         root.quit()
-
-def runShell(cmd,opt):
-    # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
-    if opt == "fake":
-        print "  running shell command:(FAKE !)"
-        print "\n  %s\n" % cmd
-    else:
-        print "  running shell command:"
-        print "\n  %s\n" % cmd
-
-        p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
-        output, errors = p.communicate()
-        return output, errors
-
-    # p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
-    # while True:
-    #     out = p.stderr.read(1)
-    #     if out == '' and p.poll() != None:
-    #         break
-    #     if out != '':
-    #         return out
-            # sys.stdout.write(out)
-            # sys.stdout.flush()
-
 
 class redirectText(object):
     """http://stackoverflow.com/questions/24707308/get-command-window-output-to-display-in-widget-with-tkinter
@@ -155,13 +175,17 @@ class MainApp(Frame):
 
     #def __init__(self, root, *args, **kwargs):
     def __init__(self, root=None ):
+
+
         """http://stackoverflow.com/questions/6129899/python-multiple-frames-with-grid-manager"""
         self.choosen = {}
         self.var = {}
-        self.output = "Console output initialized.\n\n"
+        self.init_output =  "\nConsole output initialized.\n\n" + mode_comment
         self.r1 = 0
-        self.label_txt_trans = {"available": "LOCAL", "occupied": "REMOTE", None:""}
-        self.label_textcol = { "available" : "blue", "occupied" : "red", None:"lightgrey"}
+        self.label_status_text_trans =         {"available" : "READY", "occupied" : "READY", "unreachable" : "UNREACHABLE !", None: ""}
+        self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", None: ""}
+        self.label_status_textcol =            {"available" : "dark green", "occupied" : "dark green", "unreachable" : "red", None: "lightgrey"}
+        self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
 
 
         #Frame.__init__(self, master=None,*args, **kwargs)
@@ -188,53 +212,99 @@ class MainApp(Frame):
 
 
         # redirect stdout
-        redir = redirectText(self.console)
-        sys.stdout = redir
-        self.console.insert(END, self.output)
+        self.stdoutOrig = sys.stdout
+        self.redir = redirectText(self.console)
+        sys.stdout = self.redir
+        #self.console.insert(END, self.output)
+
+        # print initial message
+
+        print self.init_output
 
         # BUTTONS
         n=0
         self.con_and_button_frame = Frame(root, bg="lightgrey")
-        self.con_and_button_frame.grid(row=1, column=3, sticky=W+E+N+S)
+        self.con_and_button_frame.grid(row=1, column=1, sticky=W+E+N+S)
 
-
-        Button(self.con_and_button_frame, text="Deploy configs", command=deploy_configs).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Update resource PSP list", command=update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.update_resource_nsc_list).grid(row=2, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
-        Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print remote NSC list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print resource NSC list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
+        #Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=8, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=9, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Stop animation", command=self.stopAnimation).grid(row=10, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Start reconfiguration", bg="red", command=self.startReconfiguration).grid(row=11, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=10, column=1, sticky=W+E)
+
+        self.bt_Start_Reconfiguration = Button(self.con_and_button_frame, text="Start Reconfiguration", command=self.startReconfiguration, state=DISABLED, activebackground="red")
+        self.bt_Start_Reconfiguration.grid(row=11, column=1, sticky=W+E)
+
         Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
 
 
         # LIST HEADER
-        self.list_frame = Frame(root, bg="grey")
+
+        #################
+
+        self.canvas_frame = Frame(root, bg="grey")
+        self.canvas_frame.grid(row=4, column=0)
+
+        self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
+
+        self.list_frame = Frame(self.canvas, bg="grey")
         self.list_frame.grid(row=4, column=0)
-        Label(self.list_frame, text="Resource %s " % subtype.upper(), width=25, relief=GROOVE, highlightthickness=2).grid(row=2, column=0)
-        Label(self.list_frame, text="Current FQDN ", width=25, relief=GROOVE).grid(row=2, column=1)
-        Label(self.list_frame, text="Status", width=25, relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Choose Remote FQDN ", width=25, relief=GROOVE).grid(row=2, column=3)
+        lhwidth = 15
+        lwidth = 18
+
+        # Label(self.list_frame, text="Resource %s " % subtype.upper(), font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
+        # Label(self.list_frame, text="Current FQDN ", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
+        # Label(self.list_frame, text="Operation Mode", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
+        # Label(self.list_frame, text="Status", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
+        # Label(self.list_frame, text="Choose Remote FQDN ", width=23, bg="lightblue", relief=GROOVE).grid(row=2, column=4)
+
+        #self.lFont = tkFont.Font(family="Helvetica", size=10)
+        self.lhFont = tkFont.Font(family="Arial Black", size=11)
+        self.lFont = tkFont.Font(family="Arial", size=12)
+        self.optFont = tkFont.Font(family="Arial", size=11)
+        self.opthFont = tkFont.Font(family="Arial Black", size=9)
+
+        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
+        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
+        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
+        Label(self.list_frame, text="Status", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=25, bg="lightyellow", relief=GROOVE).grid(row=2, column=4)
+
+
+        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+        self.canvas.configure(yscrollcommand=self.vsb.set)
+
+        self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+        self.vsb.pack(side="right", fill="y")
+        self.canvas.pack(side="left",fill="both", expand=True)
+
+
 
         self.buildMenu(root)
         self.loadLists()
-        #self.updateStatus()
+
+        self.ResourceStatus = {}   # define explicit dict for resource fqdn status
 
         # LIST | OptionMenu
 
         self.lt_resfqdns = {}
         self.lt_curfqdns = {}
         self.lt_Status   = {}
+        self.lt_operation_mode = {}
+
         self.lt_newfqdn   = {}
         self.label_resfqdn = {}
         self.label_curfqdn = {}
         self.label_status = {}
+        self.label_operation_mode = {}
         self.om = {}
 
         self.new_target_config_list   = []
@@ -244,6 +314,8 @@ class MainApp(Frame):
         #self.testoptions = ("aaa","bbb","ccc","ddd")
         for resfqdn,curfqdn,status in self.nsc_status_list:
 
+            self.ResourceStatus[resfqdn] = status
+
             # wenn sich die Anzahl der resfqdns erhoeht fehlen hierfuer labels, daher Neustart noetig !
             # Loesung: weitere Lables fuer neue Eintrage erzeugen (nicht in init)
 
@@ -251,67 +323,181 @@ class MainApp(Frame):
             self.lt_resfqdns[resfqdn] = StringVar()
             self.lt_curfqdns[resfqdn] = StringVar()
             self.lt_Status[resfqdn]   = StringVar()
+            self.lt_operation_mode[resfqdn]   = StringVar()
+
             self.lt_newfqdn[resfqdn]  = StringVar()
 
             # set initial values
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_txt_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
+            self.lt_Status[resfqdn].set(self.label_status_text_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
+            self.lt_operation_mode[resfqdn].set("")
 
-            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], width=25, bd=2, relief=GROOVE)
-            self.label_resfqdn[resfqdn].grid(row=self.r1, column=0)
 
-            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], width=25, relief=SUNKEN)
-            self.label_curfqdn[resfqdn].grid(row=self.r1, column=1)
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=lwidth,  relief=GROOVE)
+            self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
 
-            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], width=25, fg=self.label_textcol[status], relief=SUNKEN)
-            self.label_status[resfqdn].grid(row=self.r1, column=2)
+            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=lwidth, relief=SUNKEN)
+            self.label_curfqdn[resfqdn].grid(row=self.r1, column=1, sticky=N+S)
+
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_operation_mode[resfqdn].grid(row=self.r1, column=2, sticky=N+S)
+
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn].grid(row=self.r1, column=3, sticky=N+S)
 
             self.r1 +=1
 
+        self.frame.bind("<Configure>", self.onFrameConfigure)
+
+        self.updateStatusView()
         self.createOptionMENUS("init")
 
+    # function for scrolled labels
+    def onFrameConfigure(self, event):
+       '''Reset the scroll region to encompass the inner frame'''
+       self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=400)
+
+
+    def runShell(self,cmd,opt):
+        # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
+        #cmd = "cat /etc/HOSTNAME"
+        #cmd = "/opt/dfs/tsctl2/bin/admin_get_status_list.sh"
+        #print "Running on:\n"
+        cmd  += "; echo ; echo Done."
+        #cmd = "ls -la"
+
+        self.text = ""
+        self.err_text = ""
+
+        if opt == "fake":
+            print "  running shell command:(FAKE !)"
+            print "\n  %s\n" % cmd
+        else:
+            print "  running shell command:"
+            print "\n  %s\n" % cmd
+
+            # p = sub.Popen(cmd,stdout=sub.PIPE,stderr=sub.PIPE)
+            # output, errors = p.communicate()
+            # return output, errors
+
+            #p = sub.Popen(cmd, shell=True, stderr=sub.PIPE)
+            self.update_idletasks()
+
+            p = sub.Popen(cmd, shell=True, stdout=sub.PIPE, stderr=sub.PIPE)
+            while True:
+                out = p.stdout.read(1)
+                if out == '' and p.poll() != None:
+                    break
+                if out != '':
+                    # self.text += out
+                    self.redir.write(out)
+                    self.stdoutOrig.write(out)
+            while True:
+                err = p.stderr.read(1)
+                if err == '' and p.poll() != None:
+                    break
+                if err != '':
+                    # self.err_text += err
+                    self.redir.write(err)
+                    self.stdoutOrig.write(err)
+
+
+            # print self.text
+            # # print "ERRORS : "
+            # print self.err_text
+
+                    #print out
+                    # return out
+                    # sys.stdout.write(out)
+                    # sys.stdout.flush()
+
+
+    # define functions for external shell scripts
+
+    def deploy_configs(self):
+        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+    def update_status_list(self):
+        self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+    def update_resource_nsc_list(self):
+        self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+    def reconfigure_nscs(self):
+        self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+    def simulateExternalCommand(self):
+        self.runShell(os.path.join(sim_bindir,"admin_simulate.sh"), run_shell_opt)
+
+
+    # define other functions
 
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
         self.createOptionMENUS("update")
 
-
     def updateStatus(self):
-        print "\nprint assignment...\n"
-        update_status_list()
+        print "updateStatus: "
+        #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
+        self.update_status_list()
+        self.updateStatusView()
+
+    def updateStatusView(self):
+        # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
+        # TODO: solange wird der status aus der nsc_status_list genommen
+
         #self.stopAnimation()
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
         for resfqdn,curfqdn,status in self.nsc_status_list:
-            self.lt_resfqdns[resfqdn].set(resfqdn) # eigentlich ueberfluessig
+            self.ResourceStatus[resfqdn] = status
+            self.lt_resfqdns[resfqdn].set(resfqdn)
+            #self.lt_curfqdns[resfqdn].set(curfqdn.upper())
+            # upper sieht kacke aus je nach schriftart !
             self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_txt_trans[status])
-            self.label_status[resfqdn].config(fg=self.label_textcol[status])
+            self.lt_Status[resfqdn].set(self.label_status_text_trans[status])
+            self.lt_operation_mode[resfqdn].set(self.label_operation_mode_text_trans[status])
+            self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[status])
+            self.label_curfqdn[resfqdn].config(fg=self.label_status_textcol[status])
+            self.label_status[resfqdn].config(fg=self.label_status_textcol[status])
+
 
     def createOptionMENUS(self,opt):
         self.r1 = 3
+
         for resfqdn,curfqdn,status in self.nsc_status_list:
             if opt == "update":
                 self.om[resfqdn].destroy()
             self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list)
-            self.om[resfqdn].grid(row=self.r1, column=3)
+            self.om[resfqdn].config(width=20, font=self.optFont)
+            self.om[resfqdn].grid(row=self.r1, column=4, sticky=S)
             if opt == "init":
-                self.lt_newfqdn[resfqdn].set(curfqdn)
+                self.lt_newfqdn[resfqdn].set("no change")
+                #self.lt_newfqdn[resfqdn].set(curfqdn)
             self.r1 +=1
 
     def createTargetConfigListFromOptionMENU(self):
         print "\nCreating NEW Target config list...\n"
         self.new_target_config_list = []
+        self.target_change_requests = 0
+        self.bt_Start_Reconfiguration.config(state=DISABLED)
+
         for resfqdn,curfqdn,status in self.nsc_status_list:
             newfqdn = self.lt_newfqdn[resfqdn].get()
-            if newfqdn != curfqdn:
-                force_option = "force_reconfigure"
+            if newfqdn == "no change":
+                newfqdn = curfqdn
+                enable_option = ""
             else:
-                force_option = ""
-            print '%s %s %s' % (resfqdn, newfqdn,force_option )
-            self.new_target_config_list.append((resfqdn,self.lt_newfqdn[resfqdn].get(),force_option))
+                enable_option = "enable_reconfiguration"
+                self.target_change_requests += 1
+
+            print '%s %s %s' % (resfqdn, newfqdn,enable_option )
+            self.new_target_config_list.append((resfqdn,newfqdn,enable_option))
+
+        # Save NEW TARGET CONFIG LIST
+
         saveListAsFile(self.new_target_config_list,target_config_list_file)
-        #saveListAsFile(self.new_target_config_list,target_config_list_file+".new")
+
+        # ACTIVATE START RECONFIGURATION BUTTON IF CAHNGES ARE REQUESTED
+
+        if self.target_change_requests > 0:
+            self.bt_Start_Reconfiguration.config(state=ACTIVE)
 
         # print "------------------------\n"
         # pp = pprint.PrettyPrinter(indent=4)
@@ -338,7 +524,9 @@ class MainApp(Frame):
 
     def startReconfiguration(self):
         print "\nStarting reconfiguration of PSPs ....\n"
-        reconfigure_nscs()
+        self.reconfigure_nscs()
+        self.bt_Start_Reconfiguration.config(state=DISABLED)
+        self.createOptionMENUS("init")
         #self.output = runShell("dir")
         #print self.output
 
@@ -349,7 +537,7 @@ class MainApp(Frame):
         self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
         self.remote_nsc_list = getFileAsListOfRow(remote_nsc_list_file, 0)
-        self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default"]
+        self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default","no change"]
         self.target_config_list = getFileAsList(target_config_list_file)
         #print "self.remote_nsc_list : "
         #print self.remote_nsc_list
@@ -379,13 +567,23 @@ class MainApp(Frame):
         help_menu.add_command(label="Register", command=self.inputRegistrationKey)
         help_menu.add_command(label="About...", command=About)
 
+    # fun stuff
+
     def stopAnimation(self):
         self.anim.after_cancel(self.anim.cancel)
         self.anim.destroy()
 
     def openAnimatedGifFile(self):
-        file = askopenfilename()
-        self.showAnimatedGif(file,duration,1,1)
+        self.stopAnimation()  # stop previously or initially opened gif
+        options = {}
+        options['defaultextension'] = '.gif'
+        #options['filetypes'] = [('all files', '.*'), ('text files', '.txt')]
+        options['filetypes'] = [('gif files', '.gif')]
+        options['initialdir'] = animdir
+        options['parent'] = self
+        options['title'] = "Open a gif file"
+        with askopenfile(mode='rb', **options) as file:
+            self.showAnimatedGif(file,duration,1,1)
 
     def showAnimatedGif(self,file,duration,row,column):
         #if self.anim:
@@ -393,7 +591,6 @@ class MainApp(Frame):
         self.anim = LabelAnimated(self.con_frame, file, duration)
         self.anim.grid(row=row,column=column)
         return self.anim
-
 
 
     def inputRegistrationKey(self):
@@ -424,6 +621,7 @@ class MainApp(Frame):
 
 if __name__ == "__main__":
     root = Tk()
+    #root.geometry("800x600")  # mal testen !!
     root.title(main_window_title)
     main = MainApp(root)
     #main.grid(row=0,column=0)
