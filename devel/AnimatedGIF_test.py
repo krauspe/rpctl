@@ -42,7 +42,7 @@ class MyLabel(Label):
 
 
 root = Tk()
-anim = MyLabel(root, '../images/kamikaze-cat6.gif')
+anim = MyLabel(root, '../images/animated_gifs/planes/Animated-fighter-jet-firing-missles.gif')
 anim.pack()
 
 def stop_it():
