@@ -97,11 +97,11 @@ remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
 nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
 # decoration
-
+logo_filename = 'dfs.gif'
 animated_gif_filename = 'airplane13.gif'
-#animated_gif_filename = 'dancing_girl.gif'
 
 # default NOT in animated_gif dir because this can change ...
+logo_file = os.path.join(imagedir, logo_filename)
 animated_gif_file = os.path.join(imagedir, animated_gif_filename)
 duration = 1
 
@@ -194,9 +194,9 @@ class MainApp(Frame):
         # LOGO
         self.frame = Frame(root, bg="lightblue")
         #self.frame.grid(row=0,column=6)
-        self.frame.grid(row=0,column=0)
-        self.logo = PhotoImage(file="../images/dfs.gif")
-        Label(self.frame, image=self.logo).grid(row=0,column=0)
+        self.frame.grid(row=0,column=1)
+        self.logo = PhotoImage(file=logo_file)
+        Label(self.frame, image=self.logo).grid(row=0,column=1)
         # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
 
@@ -257,8 +257,8 @@ class MainApp(Frame):
 
         self.list_frame = Frame(self.canvas, bg="grey")
         self.list_frame.grid(row=4, column=0)
-        lhwidth = 15
-        lwidth = 18
+        lhwidth = 17
+        lwidth = 21
 
         # Label(self.list_frame, text="Resource %s " % subtype.upper(), font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
         # Label(self.list_frame, text="Current FQDN ", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
@@ -268,15 +268,15 @@ class MainApp(Frame):
 
         #self.lFont = tkFont.Font(family="Helvetica", size=10)
         self.lhFont = tkFont.Font(family="Arial Black", size=11)
-        self.lFont = tkFont.Font(family="Arial", size=12)
-        self.optFont = tkFont.Font(family="Arial", size=11)
+        self.lFont = tkFont.Font(family="Arial", size=10)
+        self.optFont = tkFont.Font(family="Arial", size=9)
         self.opthFont = tkFont.Font(family="Arial Black", size=9)
 
         Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
         Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
         Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
         Label(self.list_frame, text="Status", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
-        Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=25, bg="lightyellow", relief=GROOVE).grid(row=2, column=4)
+        Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=20, bg="lightyellow", relief=GROOVE).grid(row=2, column=4)
 
 
         self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
@@ -356,7 +356,7 @@ class MainApp(Frame):
     # function for scrolled labels
     def onFrameConfigure(self, event):
        '''Reset the scroll region to encompass the inner frame'''
-       self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=400)
+       self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=650)
 
 
     def runShell(self,cmd,opt):
