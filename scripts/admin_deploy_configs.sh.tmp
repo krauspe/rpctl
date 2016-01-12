@@ -8,16 +8,14 @@
 # So we can do an offline network reconfiguration on all resource NSC's fron all resource doamins
 #
 # changes:
-# 01.12.2015: - added java deployment for atcoach
-# 10.12.2015: - deploy ssh keys (aks) to ALL domain servers (not only remote) , because otherwise the "home nss" has no pwdless root acess on psp's
-#             - fixed bug on mkdir commmands for bindir and java deployment 
+# 01.12.2015: added java deployment for atcoach
+# 10.12.2015: deploy ssh keys (aks) to ALL domain servers (not only remote) , because otherwise the "home nss" has no pwdless root acess on psp's
+#             fixed bug on mkdir commmands for bindir and java deployment 
+# 04.01.2016: ssh keys will only be distributed with command line option "aks" (NOT with "all" !!!)
+#             (not tested !)  
 #
-# 05.01.2016: - scripts NEEDS options now, otherwise usage output only !!
-#             - create deploy options for selective deployments (more than java and wall_msg)
-#               example: deploy:all or deploy:config
-#             - add option to deploy to a single NSC rather than to all NSCs of a resource domain 
-#             - save ssh key deployment (backup old authorized keys) 
-#             - changed option for ssh keys from "aks" to "keys"
+# TODO: create deploy options for selective deployments (more than java and wall_msg)
+# TODO: Thus, make it possible to deploy to a single target rather than to a list
 #
 #
 
@@ -42,11 +40,11 @@ arg2=$2
 
 if [[ $# < 2 ]]; then
    echo "usage: $(basename $0) <action>  [RemoteNSC-list]"
-   echo "   eg: $(basename $0) deploy:all       all   # create , collect  and deploy configs , and scripts (NO public keys) to all Servers and ResourceNSCs"
+   echo "   eg: $(basename $0) deploy:all       all   # create , collect  and deploy configs , public keys and scripts to all Servers and ResourceNSCs"
    echo "   eg: $(basename $0) deploy:all       psp1-s1.ak3.lgn.dfs.de  # as above, only for this host"
-   echo "   eg: $(basename $0) deploy:keys      psp1-s1.ak3.lgn.dfs.de  # as above, but only ssh public"
    echo "   eg: $(basename $0) deploy:config    psp1-s1.ak3.lgn.dfs.de  # as above, but only tsctl2 and network config"
    echo "   eg: $(basename $0) deploy:scripts   psp1-s1.ak3.lgn.dfs.de  # as above, but only scripts"
+   echo "   eg: $(basename $0) deploy:keys      psp1-s1.ak3.lgn.dfs.de  # as above, but only ssh public keys"
    echo "   eg: $(basename $0) all|config|scripts|keys   all   # make everything due to action keyword but don't deploy to NSCs (PSPs) !!"
    exit 1
 fi
@@ -224,64 +222,64 @@ done
 
 echo "\n<< Deploy all configs to all Resource NSC's >>\n"
 
-if ! [[ $arg1 == *deploy* && $arg1 == *all* || $arg1 == *config* || $arg1 == *scripts* || $arg1 == *keys* || $arg1 == *xinitrc* || $arg1 == *wall_msg* || $arg1 == *java* ]] ; then
-  echo "WARNING: Deployment to NSCs is SKIPPED because of missing or wrong options !!"
-  exit
-fi
+if [[ $arg1 == *deploy* ]] ; then
 
-for resource_domain_server in $TargetResourceDomainServers
-do
-    # sync all configd to nsc's
-    echo "  syncing $resource_domain_server clients"
-    echo "    syncing tsctl2 stuff"
-
-    if [[ $arg1 == *keys* || $arg1 == *all* ]] ; then
-      echo "    syncing authorized_keys"
-      ssh $resource_domain_server "nsc_rsync ${vardir}/aks /root/.ssh $target"   > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_sh 'cd /root/.ssh; [ -f authorized_keys.tsctl2.backup ] || cp authorized_keys authorized_keys.tsctl2.backup' $target"  > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_sh 'cd /root/.ssh; cat authorized_keys.tsctl2.backup aks > authorized_keys' $target"  > /dev/null 2>&1
-    fi
-
-    if [[ $arg1 == *config* || $arg1 == *all* ]] ; then
-      echo "    syncing vardir and confdir"
-      ssh $resource_domain_server "nsc_sh \"mkdir -p $bindir\" $target" > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_rsync $vardir $basedir $target "  > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_rsync $confdir $basedir $target " > /dev/null 2>&1
-    fi
-
-    if [[ $arg1 == *scripts* || $arg1 == *all* ]] ; then
-      echo "    syncing scripts"
-      ssh $resource_domain_server "nsc_rsync ${bindir}/nsc_reconfigure.sh ${bindir} $target"   > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_rsync ${bindir}/2step-get-infos-local ${bindir} $target" > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_rsync ${bindir}/2step-netconfig-local ${bindir} $target" > /dev/null 2>&1
-    fi
-
-    if [[ $arg1 == *xinitrc*  || $arg1 == *all* ]] ; then
-      echo "    syncing xinitrc"
-      ssh $resource_domain_server "nsc_sh '[ -f /etc/X11/xinit/xinitrc ] && mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.$$' $target" > /dev/null 2>&1
-      ssh $resource_domain_server "nsc_rsync ${confdir}/xinitrc.${subtype} /etc/X11/xinit/xinitrc $target" > /dev/null 2>&1
-    fi
-    if [[ $arg1 == *wall_msg*  || $arg1 == *all* ]]; then
-      echo "    syncing wall_msg script"
-      ssh $resource_domain_server "nsc_rsync ${confdir}/set_wall_msg.sh /usr/local/share/wall_msg/bin $target" > /dev/null 2>&1
-    fi
-
-    if [[ $arg1 == *java*  || $arg1 == *all* ]] ; then
-      echo "    syncing java ..."
-      ufa_dir=/opt/ufa
-      cmd="mkdir -p ${ufa_dir}"
-      # ufa_dir auf allen resource_domain_server anlegen
-      
-      if [[ $resource_domain_server != $(dnsdomainname) ]]; then
-          ssh $resource_domain_server $cmd  > /dev/null 2>&1
-          # java auf alle resource_domain_server kopieren
-	  rsync -ahH ${ufa_dir}/java ${resource_domain_server}:${ufa_dir} > /dev/null 2>&1
+  for resource_domain_server in $TargetResourceDomainServers
+  do
+      # sync all configd to nsc's
+      echo "  syncing $resource_domain_server clients"
+      echo "    syncing tsctl2 stuff"
+  
+      if [[ $arg1 == *config* || $arg1 == "all" ]] ; then
+        echo "    syncing vardir and confdir"
+        ssh $resource_domain_server "nsc_sh \"mkdir -p $bindir\" $target" # > /dev/null 2>&1
+        ssh $resource_domain_server "nsc_rsync $vardir $basedir $target "  # > /dev/null 2>&1
+        ssh $resource_domain_server "nsc_rsync $confdir $basedir $target " # > /dev/null 2>&1
       fi
-      # ufa dir auf allen nscs anlegen
-      ssh $resource_domain_server "nsc_sh \"mkdir -p $ufa_dir\" $target" > /dev/null 2>&1
-      # javadir auf alle nscs kopieren
-      ssh $resource_domain_server "nsc_rsync ${ufa_dir}/java ${ufa_dir} $target"    > /dev/null 2>&1
-    fi
-done
+  
+      if [[ $arg1 == *nsc_scripts* || $arg1 == "all" ]] ; then
+        echo "    syncing "
+        ssh $resource_domain_server "nsc_rsync ${bindir}/nsc_reconfigure.sh ${bindir} $target"    # > /dev/null 2>&1
+        ssh $resource_domain_server "nsc_rsync ${bindir}/2step-get-infos-local ${bindir} $target" # > /dev/null 2>&1
+        ssh $resource_domain_server "nsc_rsync ${bindir}/2step-netconfig-local ${bindir} $target" # > /dev/null 2>&1
+      fi
+  
+      if [[ $arg1 == *keys* ]] ; then
+        echo "    syncing authorized_keys"
+        #ssh $resource_domain_server "nsc_rsync ${vardir}/aks /root/.ssh/authorized_keys $target"  # > /dev/null 2>&1
+        #change for testing: don't overwrite authorized_keys for testing !!
+        ssh $resource_domain_server "nsc_rsync ${vardir}/aks /root/.ssh $target"  # > /dev/null 2>&1
+      fi
+  
+      if [[ $arg1 == *xinitrc*  || $arg1 == "all" ]] ; then
+        echo "    syncing xinitrc"
+        ssh $resource_domain_server "nsc_sh '[ -f /etc/X11/xinit/xinitrc ] && mv /etc/X11/xinit/xinitrc /etc/X11/xinit/xinitrc.$$' $target"
+        ssh $resource_domain_server "nsc_rsync ${confdir}/xinitrc.${subtype} /etc/X11/xinit/xinitrc $target"
+      fi
+      if [[ $arg1 == *wall_msg*  || $arg1 == "all" ]]; then
+        echo "    syncing wall_msg script"
+        ssh $resource_domain_server "nsc_rsync ${confdir}/set_wall_msg.sh /usr/local/share/wall_msg/bin $target"
+      fi
+  
+      if [[ $arg1 == *java*  || $arg1 == "all" ]] ; then
+        echo "    syncing java ..."
+        ufa_dir=/opt/ufa
+        cmd="mkdir -p ${ufa_dir}"
+        # ufa_dir auf allen resource_domain_server anlegen
+        
+        if [[ $resource_domain_server != $(dnsdomainname) ]]; then
+            ssh $resource_domain_server $cmd 
+            # java auf alle resource_domain_server kopieren
+  	  rsync -ahH ${ufa_dir}/java ${resource_domain_server}:${ufa_dir}
+        fi
+        # javadir auf allen nscs anlegen
+        ssh $resource_domain_server "nsc_sh \"mkdir -p $ufa_dir\" $target" #> /dev/null 2>&1
+        # javadir auf alle nscs kopieren
+        ssh $resource_domain_server "nsc_rsync ${ufa_dir}/java ${ufa_dir} $target"    > /dev/null 2>&1
+      fi
+  done
+else
+  echo "Deployment to NSCs is SKIPPED !!"
+fi
 
 echo "\nDone.\n"
