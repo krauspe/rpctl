@@ -34,12 +34,19 @@ mode = "simulate"
 
 mode_comment = "as configured"
 
-basedir = ".."
-#geht noch nicht weil 'bin' noch weg muss. Vieleicht giibt's ein path.split und dann letztes Element weg ... !?
-#basedir = os.path.abspath(os.path.join(os.path.dirname(__file__)))
+#basedir = ".."
+basedir_abs = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+basedir = os.path.relpath(basedir_abs)
+
 print "basedir = ", basedir
 
-ext_basedir = os.path.join(basedir, "..", "tsctl2")
+
+#ext_basedir = os.path.join(basedir, "..", "tsctl2")
+ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
+#ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
+#ext_basedir     = os.path.relpath(ext_basedir_abs)
+# TODO: get relative path
+print "ext_basedir = ", ext_basedir
 
 if not os.path.exists(ext_basedir):
     mode = "simulate"
