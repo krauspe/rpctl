@@ -19,14 +19,11 @@ options['filetypes'] = [('gif files', '.gif')]
 options['initialdir'] = animdir
 #options['parent'] = self
 options['title'] = "Open a gif file"
-ag_file = askopenfile(mode='r', **options)
-print str(ag_file.name)
+ag_file = askopenfile(mode='rb', **options)
+#print str(ag_file.name)
 
-if ag_file.name:
-    #pyglet.image.load(ag_file)
-    #animation_stream = open('F:/PROG/PycharmProjects/rpctl/images/animated_gifs/planes/airplane13.gif', 'rb')
-    animation_stream = open(ag_file.name, 'rb')
-    animation = pyglet.image.load_animation('my.gif', file=animation_stream)
+if ag_file:
+    animation = pyglet.image.load_animation(ag_file.name)
     sprite = pyglet.sprite.Sprite(animation)
     # create a window and set it to the image size
     win = pyglet.window.Window(width=sprite.width, height=sprite.height)
@@ -34,10 +31,10 @@ if ag_file.name:
     # each value goes from 0.0 to 1.0
     green = 0, 1, 0, 1
     pyglet.gl.glClearColor(*green)
+    @win.event
 
-@win.event
-def on_draw():
-    win.clear()
-    sprite.draw()
+    def on_draw():
+        win.clear()
+        sprite.draw()
 
-pyglet.app.run()
+    pyglet.app.run()
