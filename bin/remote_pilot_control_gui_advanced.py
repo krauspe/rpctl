@@ -31,7 +31,6 @@ Remote Piloting
 
 mode = "simulate"
 #mode = "productive"
-
 mode_comment = "as configured"
 
 #basedir = ".."
@@ -39,8 +38,6 @@ basedir_abs = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 basedir = os.path.relpath(basedir_abs)
 
 print "basedir = ", basedir
-
-
 #ext_basedir = os.path.join(basedir, "..", "tsctl2")
 ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
 #ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
@@ -48,13 +45,14 @@ ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
 # TODO: get relative path
 print "ext_basedir = ", ext_basedir
 
-if not os.path.exists(ext_basedir):
-    mode = "simulate"
-    mode_comment = "because %s doesn't exist !\n" % ext_basedir
-
-
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
+logo_filename = 'dfs.gif'
+animated_gif_filename = 'airplane13.gif'
+duration = 1
+# default NOT in animated_gif dir because this can change ...
+logo_file = os.path.join(imagedir, logo_filename)
+animated_gif_file = os.path.join(imagedir, animated_gif_filename)
 
 int_bindir  = os.path.join(basedir,"scripts")
 int_confdir = os.path.join(basedir,"config")
@@ -88,8 +86,14 @@ cfg = {
             "vardir":int_vardir,
             "descr": "Creating and using simulated internal lists"},
     }
-mode_comment = cfg[mode]["descr"] + '\n' + mode_comment
 
+#TODO: maybe create a function for switching modes...
+
+if not os.path.exists(ext_basedir):
+    mode = "simulate"
+    mode_comment = "because %s doesn't exist !\n" % ext_basedir
+
+mode_comment = cfg[mode]["descr"] + '\n' + mode_comment
 bindir  = cfg[mode]["bindir"]
 confdir = cfg[mode]["confdir"]
 vardir  = cfg[mode]["vardir"]
@@ -97,32 +101,18 @@ vardir  = cfg[mode]["vardir"]
 for dir in [bindir,confdir,vardir]:
     print dir
 
-
 resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
 target_config_list_file = os.path.join(vardir,"target_config.list")
 remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
 nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 
-# decoration
-logo_filename = 'dfs.gif'
-animated_gif_filename = 'airplane13.gif'
-
-# default NOT in animated_gif dir because this can change ...
-logo_file = os.path.join(imagedir, logo_filename)
-animated_gif_file = os.path.join(imagedir, animated_gif_filename)
-duration = 1
-
 #run_shell_opt = "fake"
 run_shell_opt = ""
-
-# external commands  -> moved into Main class
 
 # todo: einlesen und auswerten
 #source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
 # app settings
-
 subtype = "psp"
-
 
 def newFile():
     name = askopenfilename()
@@ -130,7 +120,6 @@ def newFile():
 
 def About():
     print about
-
 
 def getFileAsList(file):
     #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
@@ -264,8 +253,8 @@ class MainApp(Frame):
 
         self.list_frame = Frame(self.canvas, bg="grey")
         self.list_frame.grid(row=4, column=0)
-        lhwidth = 17
-        lwidth = 21
+        self.lhwidth = 17
+        self.lwidth = 21
 
         # Label(self.list_frame, text="Resource %s " % subtype.upper(), font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
         # Label(self.list_frame, text="Current FQDN ", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
@@ -279,10 +268,10 @@ class MainApp(Frame):
         self.optFont = tkFont.Font(family="Arial", size=9)
         self.opthFont = tkFont.Font(family="Arial Black", size=9)
 
-        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
-        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
-        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Status", font=self.lhFont, width=lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
+        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
+        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
+        Label(self.list_frame, text="Status", font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
         Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=20, bg="lightyellow", relief=GROOVE).grid(row=2, column=4)
 
 
@@ -296,7 +285,6 @@ class MainApp(Frame):
 
 
         self.buildMenu(root)
-        self.loadLists()
 
         self.ResourceStatus = {}   # define explicit dict for resource fqdn status
 
@@ -316,7 +304,11 @@ class MainApp(Frame):
 
         self.new_target_config_list   = []
 
+        self.createStatusView()
 
+
+    def createStatusView(self):
+        self.loadLists()
         self.r1 = 3
         #self.testoptions = ("aaa","bbb","ccc","ddd")
         for resfqdn,curfqdn,status in self.nsc_status_list:
@@ -341,16 +333,16 @@ class MainApp(Frame):
             self.lt_operation_mode[resfqdn].set("")
 
 
-            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=lwidth,  relief=GROOVE)
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=self.lwidth,  relief=GROOVE)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
 
-            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=lwidth, relief=SUNKEN)
+            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=self.lwidth, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=1, sticky=N+S)
 
-            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=self.lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_operation_mode[resfqdn].grid(row=self.r1, column=2, sticky=N+S)
 
-            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=self.lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=3, sticky=N+S)
 
             self.r1 +=1
@@ -359,6 +351,7 @@ class MainApp(Frame):
 
         self.updateStatusView()
         self.createOptionMENUS("init")
+
 
     # function for scrolled labels
     def onFrameConfigure(self, event):
