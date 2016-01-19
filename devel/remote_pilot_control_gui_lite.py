@@ -203,7 +203,7 @@ class MainApp(Frame):
         self.console.grid(row=1, column=0)
 
         #self.anim = None
-        self.anim = self.showAnimatedGif(animated_gif_file,duration,1,1)
+        self.anim = self.showAnimatedGif(animated_gif_file,duration,1,1,1)
 
 
         # redirect stdout
@@ -557,12 +557,12 @@ class MainApp(Frame):
         options['parent'] = self
         options['title'] = "Open a gif file"
         with askopenfile(mode='rb', **options) as file:
-            self.showAnimatedGif(file,duration,1,1)
+            self.showAnimatedGif(file,duration,1,1,1)
 
-    def showAnimatedGif(self,file,duration,row,column):
+    def showAnimatedGif(self,file,duration,row,column,mode):
         #if self.anim:
         #    self.stopAnimation()
-        self.anim = LabelAnimated(self.con_frame, file, duration)
+        self.anim = LabelAnimated(self.con_frame, file, duration, mode)
         self.anim.grid(row=row,column=column)
         return self.anim
 
