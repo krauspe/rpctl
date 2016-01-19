@@ -34,15 +34,13 @@ mode = "simulate"
 mode_comment = "as configured"
 
 #basedir = ".."
-basedir_abs = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+basedir_abs = os.path.dirname(os.path.dirname(__file__))
 basedir = os.path.relpath(basedir_abs)
-
-print "basedir = ", basedir
 #ext_basedir = os.path.join(basedir, "..", "tsctl2")
 ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
-#ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
-#ext_basedir     = os.path.relpath(ext_basedir_abs)
-# TODO: get relative path
+
+print "basedir_abs: ", basedir_abs
+print "basedir = ", basedir
 print "ext_basedir = ", ext_basedir
 
 imagedir = os.path.join(basedir, "images")
@@ -93,18 +91,10 @@ if not os.path.exists(ext_basedir):
     mode = "simulate"
     mode_comment = "because %s doesn't exist !\n" % ext_basedir
 
-mode_comment = cfg[mode]["descr"] + '\n' + mode_comment
-bindir  = cfg[mode]["bindir"]
-confdir = cfg[mode]["confdir"]
-vardir  = cfg[mode]["vardir"]
-
-for dir in [bindir,confdir,vardir]:
-    print dir
-
-resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
-target_config_list_file = os.path.join(vardir,"target_config.list")
-remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
-nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
+mode_comment = str(cfg[mode]["descr"]) + '\n' + mode_comment
+bindir  = str(cfg[mode]["bindir"])
+confdir = str(cfg[mode]["confdir"])
+vardir  = str(cfg[mode]["vardir"])
 
 #run_shell_opt = "fake"
 run_shell_opt = ""
