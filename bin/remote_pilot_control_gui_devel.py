@@ -31,8 +31,8 @@ Remote Piloting
 """
 # operation mode
 
-mode = "simulate"
-#mode = "productive"
+#mode = "simulate"
+mode = "productive"
 mode_comment = "as configured"
 
 # path settings
@@ -94,9 +94,9 @@ cfg = {
 # background colours for resource fqdn labels
 lbgcol = {
     "ak1.lgn.dfs.de":"lightgreen",
-    "ak2.lgn.dfs.de":"lightblue",
+    "ak2.lgn.dfs.de":"paleturquoise2",
     "ak3.lgn.dfs.de":"lightyellow",
-    "ak4.lgn.dfs.de":"lightred",
+    "ak4.lgn.dfs.de":"khaki1",
     "lx1.lgn.dfs.de":"lightcyan",
     "lx3.lgn.dfs.de":"lightblue",
     "te1.lgn.dfs.de":"lightyellow",
@@ -210,7 +210,7 @@ class MainApp(Frame):
         Frame.__init__(self, root)
 
         # LOGO
-        self.frame = Frame(root, bg="lightblue")
+        self.frame = Frame(root, bg="deepskyblue2")
         #self.frame.grid(row=0,column=6)
         self.frame.grid(row=0,column=1)
         self.logo = PhotoImage(file=logo_file)
@@ -284,11 +284,11 @@ class MainApp(Frame):
         # Label(self.list_frame, text="Choose Remote FQDN ", width=23, bg="lightblue", relief=GROOVE).grid(row=2, column=4)
 
 
-        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
+        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=0)
         Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=20, bg="lightyellow", relief=GROOVE).grid(row=2, column=1)
-        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
-        Label(self.list_frame, text="Status", font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=4)
+        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=2)
+        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Status", font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=4)
 
 
         self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
