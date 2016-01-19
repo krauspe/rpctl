@@ -89,7 +89,9 @@ cfg = {
             "descr": "Creating and using simulated internal lists"},
     }
 
-# Workaround until settings are readf from a file
+# Workaround until settings are read from a file
+
+# SETTINGS
 
 # background colours for resource fqdn labels
 lbgcol = {
@@ -100,6 +102,30 @@ lbgcol = {
     "lx1.lgn.dfs.de":"lightcyan",
     "lx3.lgn.dfs.de":"lightblue",
     "te1.lgn.dfs.de":"lightyellow",
+}
+
+# label width settings
+lhwidth = 17                                           # label header width
+lwidth = 21
+
+# label font settings
+lhFont = {
+    "family":"Arial Black",  # alternaive "Helvetica"
+    "size":11,
+}
+
+lFont = {
+    "family":"Arial",  # alternaive "Helvetica"
+    "size":10,
+}
+
+optFont = {
+    "family":"Arial",
+    "size":10,
+}
+opthFont = {
+    "family":"Arial Black",
+    "size":9,
 }
 
 #TODO: maybe create a function for switching modes...
@@ -197,14 +223,11 @@ class MainApp(Frame):
         self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
 
         # Font settings
-        self.lhwidth = 17                                           # label header width
-        self.lwidth = 21                                            # label width
-        self.lhFont = tkFont.Font(family="Arial Black", size=11)    # label header font
-        #self.lFont = tkFont.Font(family="Helvetica", size=10)      # label font
-        self.lFont = tkFont.Font(family="Arial", size=10)           # label font
-        self.optFont = tkFont.Font(family="Arial", size=9)          # option menu font
-        self.opthFont = tkFont.Font(family="Arial Black", size=9)   # option menu header font
 
+        self.lhFont = tkFont.Font(family=lhFont["family"], size=lhFont["size"])         # label header font
+        self.lFont = tkFont.Font(family=lFont["family"], size=lhFont["size"])           # label font
+        self.optFont = tkFont.Font(family=optFont["family"], size=optFont["size"])      # option menu font
+        self.opthFont = tkFont.Font(family=opthFont["family"], size=opthFont["size"])   # option menu header font
 
         #Frame.__init__(self, master=None,*args, **kwargs)
         Frame.__init__(self, root)
@@ -284,11 +307,11 @@ class MainApp(Frame):
         # Label(self.list_frame, text="Choose Remote FQDN ", width=23, bg="lightblue", relief=GROOVE).grid(row=2, column=4)
 
 
-        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=0)
+        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=0)
         Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=20, bg="lightyellow", relief=GROOVE).grid(row=2, column=1)
-        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=3)
-        Label(self.list_frame, text="Status", font=self.lhFont, width=self.lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=4)
+        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=2)
+        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=3)
+        Label(self.list_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=4)
 
 
         self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
@@ -355,16 +378,16 @@ class MainApp(Frame):
                 resfqdn_lbgcol = "white"
 
 
-            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=self.lwidth,  relief=GROOVE, bg=resfqdn_lbgcol)
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=lwidth,  relief=GROOVE, bg=resfqdn_lbgcol)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
 
-            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=self.lwidth, relief=SUNKEN)
+            self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=lwidth, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=2, sticky=N+S)
 
-            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=self.lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_operation_mode[resfqdn].grid(row=self.r1, column=3, sticky=N+S)
 
-            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=self.lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=4, sticky=N+S)
 
             self.r1 +=1
