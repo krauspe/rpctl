@@ -232,12 +232,19 @@ class MainApp(Frame):
         #Frame.__init__(self, master=None,*args, **kwargs)
         Frame.__init__(self, root)
 
-        # LOGO
-        self.frame = Frame(root, bg="deepskyblue2")
-        #self.frame.grid(row=0,column=6)
+
+        self.frame = Frame(root)
         self.frame.grid(row=0,column=1)
+
+        # tried to move buttons in logo frame (kack !)
+        #Button(self.frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=0, column=0, sticky="W")
+        #Button(self.frame, text="Print Status list", command=self.printNscStatusList).grid(row=0, column=1,sticky="W")
+        #Button(self.frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=0, column=2, sticky="W")
+        #Label(self.frame,  text="", width=90).grid(row=0, column=3,sticky=W+E)
+        # LOGO
+        #self.frame.grid(row=0,column=6)
         self.logo = PhotoImage(file=logo_file)
-        Label(self.frame, image=self.logo).grid(row=0,column=1)
+        Label(self.frame, image=self.logo).grid(row=0,column=1,sticky="E")
         # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
         # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
 
@@ -272,8 +279,9 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.update_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
-        #Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
+        ##Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
+
         Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=8, column=1, sticky=W+E)
