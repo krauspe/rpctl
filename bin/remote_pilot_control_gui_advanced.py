@@ -201,8 +201,9 @@ class MainApp(Frame):
         self.console = ScrolledText.ScrolledText(self.con_frame, bg="white")
         self.console.grid(row=1, column=0)
 
-        #self.anim = None
-        self.anim = self.showAnimatedGif(animated_gif_file,duration,1,1)
+        # show initial animated gif
+        # changed function in LabelAnimated plays gif only once when duration is nagative
+        self.anim = self.showAnimatedGif(animated_gif_file,1,"forever",2,1,1)
 
 
         # redirect stdout
@@ -574,14 +575,16 @@ class MainApp(Frame):
         options['parent'] = self
         options['title'] = "Open a gif file"
         with askopenfile(mode='rb', **options) as file:
-            self.showAnimatedGif(file,duration,1,1)
+            self.showAnimatedGif(file,duration,"forever",1,1,1)
 
-    def showAnimatedGif(self,file,duration,row,column):
+    def showAnimatedGif(self,file,duration,mode,method,row,column):
         #if self.anim:
         #    self.stopAnimation()
-        self.anim = LabelAnimated(self.con_frame, file, duration)
+        self.anim = LabelAnimated(self.con_frame, file, duration, mode, method)
         self.anim.grid(row=row,column=column)
         return self.anim
+
+
 
     def inputRegistrationKey(self):
         '''inputRegistrationKey'''
