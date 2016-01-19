@@ -97,7 +97,7 @@ lbgcol = {
     "ak2.lgn.dfs.de":"lightblue",
     "ak3.lgn.dfs.de":"lightyellow",
     "ak4.lgn.dfs.de":"lightred",
-    "lx1.lgn.dfs.de":"lightgreen",
+    "lx1.lgn.dfs.de":"lightcyan",
     "lx3.lgn.dfs.de":"lightblue",
     "te1.lgn.dfs.de":"lightyellow",
 }
