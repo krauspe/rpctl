@@ -34,15 +34,13 @@ mode = "simulate"
 mode_comment = "as configured"
 
 #basedir = ".."
-basedir_abs = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+basedir_abs = os.path.dirname(os.path.dirname(__file__))
 basedir = os.path.relpath(basedir_abs)
-
-print "basedir = ", basedir
 #ext_basedir = os.path.join(basedir, "..", "tsctl2")
 ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
-#ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
-#ext_basedir     = os.path.relpath(ext_basedir_abs)
-# TODO: get relative path
+
+print "basedir_abs: ", basedir_abs
+print "basedir = ", basedir
 print "ext_basedir = ", ext_basedir
 
 imagedir = os.path.join(basedir, "images")
@@ -93,10 +91,10 @@ if not os.path.exists(ext_basedir):
     mode = "simulate"
     mode_comment = "because %s doesn't exist !\n" % ext_basedir
 
-mode_comment = cfg[mode]["descr"] + '\n' + mode_comment
-bindir  = cfg[mode]["bindir"]
-confdir = cfg[mode]["confdir"]
-vardir  = cfg[mode]["vardir"]
+mode_comment = str(cfg[mode]["descr"]) + '\n' + mode_comment
+bindir  = str(cfg[mode]["bindir"])
+confdir = str(cfg[mode]["confdir"])
+vardir  = str(cfg[mode]["vardir"])
 
 for dir in [bindir,confdir,vardir]:
     print dir
@@ -306,7 +304,6 @@ class MainApp(Frame):
 
         self.createStatusView()
 
-
     def createStatusView(self):
         self.loadLists()
         self.r1 = 3
@@ -352,12 +349,10 @@ class MainApp(Frame):
         self.updateStatusView()
         self.createOptionMENUS("init")
 
-
     # function for scrolled labels
     def onFrameConfigure(self, event):
        '''Reset the scroll region to encompass the inner frame'''
        self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=650)
-
 
     def runShell(self,cmd,opt):
         # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
@@ -412,7 +407,6 @@ class MainApp(Frame):
                     # sys.stdout.write(out)
                     # sys.stdout.flush()
 
-
     # define functions for external shell scripts
 
     def deploy_configs(self):
@@ -425,7 +419,6 @@ class MainApp(Frame):
         self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
     def simulateExternalCommand(self):
         self.runShell(os.path.join(sim_bindir,"admin_simulate.sh"), run_shell_opt)
-
 
     # define other functions
 
@@ -456,7 +449,6 @@ class MainApp(Frame):
             self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[status])
             self.label_curfqdn[resfqdn].config(fg=self.label_status_textcol[status])
             self.label_status[resfqdn].config(fg=self.label_status_textcol[status])
-
 
     def createOptionMENUS(self,opt):
         self.r1 = 3
@@ -512,6 +504,7 @@ class MainApp(Frame):
         print "\nResource nsc list:\n"
         for line in self.resource_nsc_list:
             print line
+
     def printRemoteNscList(self):
         print "\nRemote nsc list:\n"
         for line in self.remote_nsc_list:
@@ -530,7 +523,6 @@ class MainApp(Frame):
         #self.output = runShell("dir")
         #print self.output
 
-
     def loadLists(self):
         print "Loading Lists ..."
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
@@ -541,7 +533,6 @@ class MainApp(Frame):
         self.target_config_list = getFileAsList(target_config_list_file)
         #print "self.remote_nsc_list : "
         #print self.remote_nsc_list
-
 
     def writeSlogan(self):
         print "Alles geht !"
@@ -591,7 +582,6 @@ class MainApp(Frame):
         self.anim = LabelAnimated(self.con_frame, file, duration)
         self.anim.grid(row=row,column=column)
         return self.anim
-
 
     def inputRegistrationKey(self):
         '''inputRegistrationKey'''
