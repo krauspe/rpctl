@@ -21,6 +21,7 @@ from MyPILTools import LabelAnimated
 
 # settings
 
+# Titles
 main_window_title = """ 2Step Remote Pilot Control 1.6 (unregistered) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
@@ -28,10 +29,13 @@ about = """
 The expert tool for
 Remote Piloting
 """
+# operation mode
 
 mode = "simulate"
 #mode = "productive"
 mode_comment = "as configured"
+
+# path settings
 
 #basedir = ".."
 basedir_abs = os.path.dirname(os.path.dirname(__file__))
@@ -84,6 +88,19 @@ cfg = {
             "vardir":int_vardir,
             "descr": "Creating and using simulated internal lists"},
     }
+
+# Workaround until settings are readf from a file
+
+# background colours for resource fqdn labels
+lbgcol = {
+    "ak1.lgn.dfs.de":"lightgreen",
+    "ak2.lgn.dfs.de":"lightblue",
+    "ak3.lgn.dfs.de":"lightyellow",
+    "ak4.lgn.dfs.de":"lightred",
+    "lx1.lgn.dfs.de":"lightgreen",
+    "lx3.lgn.dfs.de":"lightblue",
+    "te1.lgn.dfs.de":"lightyellow",
+}
 
 #TODO: maybe create a function for switching modes...
 
@@ -329,8 +346,16 @@ class MainApp(Frame):
             self.lt_Status[resfqdn].set(self.label_status_text_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
             self.lt_operation_mode[resfqdn].set("")
 
+            # mark labels depemding on domain of resfqdn
 
-            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=self.lwidth,  relief=GROOVE)
+            self.dn = ".".join( (resfqdn.split("."))[1:])
+            if lbgcol.has_key(self.dn):
+                resfqdn_lbgcol = lbgcol[self.dn]
+            else:
+                resfqdn_lbgcol = "white"
+
+
+            self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=self.lwidth,  relief=GROOVE, bg=resfqdn_lbgcol)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
 
             self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=self.lwidth, relief=SUNKEN)
