@@ -31,8 +31,8 @@ Remote Piloting
 """
 # operation mode
 
-#mode = "simulate"
-mode = "productive"
+mode = "simulate"
+#mode = "productive"
 mode_comment = "as configured"
 
 # path settings
