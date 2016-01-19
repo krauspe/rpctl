@@ -1,14 +1,5 @@
 #!/usr/bin/env python
 
-#DONE: solve basedir path problem
-#TODO: file not found error handling for status_list and target_config list
-#DONE: disable "start reconfiguration" button after it has been pressed
-#DONE: change default entry in remote fqdn select boxes to "no_change" after end of reconfiguration
-#TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
-#DONE      -> Using scrolled labels: problem: when header in canvas frame: header scrolls too. header in own frame: it isn't alligned !
-#TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
-#TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
-#TODO:                     admin_reconfigure_nscs.sh should use the above get status script
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -22,7 +13,6 @@ from MyPILTools import LabelAnimated
 # settings
 
 main_window_title = """ 2Step Remote Pilot Control 1.5 (unregistered) """
-#main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
 2Step Remote Pilot Control 1.5 (c) Peter Krauspe DFS 11/2015
 The expert tool for
@@ -33,10 +23,8 @@ mode = "simulate"
 #mode = "productive"
 mode_comment = "as configured"
 
-#basedir = ".."
 basedir_abs = os.path.dirname(os.path.dirname(__file__))
 basedir = os.path.relpath(basedir_abs)
-#ext_basedir = os.path.join(basedir, "..", "tsctl2")
 ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
 
 print "basedir_abs: ", basedir_abs
@@ -85,7 +73,6 @@ cfg = {
             "descr": "Creating and using simulated internal lists"},
     }
 
-#TODO: maybe create a function for switching modes...
 
 if not os.path.exists(ext_basedir):
     mode = "simulate"
@@ -107,9 +94,6 @@ nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 #run_shell_opt = "fake"
 run_shell_opt = ""
 
-# todo: einlesen und auswerten
-#source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
-# app settings
 subtype = "psp"
 
 def newFile():
@@ -258,13 +242,6 @@ class MainApp(Frame):
 
         self.list_frame = Frame(self.canvas, bg="grey")
         self.list_frame.grid(row=4, column=0)
-
-        # Label(self.list_frame, text="Resource %s " % subtype.upper(), font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
-        # Label(self.list_frame, text="Current FQDN ", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
-        # Label(self.list_frame, text="Operation Mode", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
-        # Label(self.list_frame, text="Status", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
-        # Label(self.list_frame, text="Choose Remote FQDN ", width=23, bg="lightblue", relief=GROOVE).grid(row=2, column=4)
-
 
         Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=self.lhwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
         Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=20, bg="lightyellow", relief=GROOVE).grid(row=2, column=1)
