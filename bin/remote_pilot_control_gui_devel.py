@@ -96,6 +96,14 @@ bindir  = str(cfg[mode]["bindir"])
 confdir = str(cfg[mode]["confdir"])
 vardir  = str(cfg[mode]["vardir"])
 
+for dir in [bindir,confdir,vardir]:
+    print dir
+
+resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
+target_config_list_file = os.path.join(vardir,"target_config.list")
+remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
+nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
+
 #run_shell_opt = "fake"
 run_shell_opt = ""
 
