@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#TODO: solve basedir path problem
+#DONE: solve basedir path problem
 #TODO: file not found error handling for status_list and target_config list
 #DONE: disable "start reconfiguration" button after it has been pressed
 #DONE: change default entry in remote fqdn select boxes to "no_change" after end of reconfiguration
