@@ -31,21 +31,17 @@ Remote Piloting
 """
 # operation mode
 
-mode = "simulate"
-#mode = "productive"
+#mode = "simulate"
+mode = "productive"
 mode_comment = "as configured"
 
 # path settings
 
-#basedir = ".."
-basedir_abs = os.path.dirname(os.path.dirname(__file__))
-basedir = os.path.relpath(basedir_abs)
-#ext_basedir = os.path.join(basedir, "..", "tsctl2")
-ext_basedir = os.path.join(os.path.dirname(basedir_abs),"tsctl2")
+pydir =  os.path.dirname(os.path.abspath(__file__))
 
-print "basedir_abs: ", basedir_abs
-print "basedir = ", basedir
-print "ext_basedir = ", ext_basedir
+basedir = os.path.dirname(pydir)
+ext_basedir = os.path.join(os.path.dirname(basedir),'tsctl2')
+
 
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
@@ -139,8 +135,11 @@ bindir  = str(cfg[mode]["bindir"])
 confdir = str(cfg[mode]["confdir"])
 vardir  = str(cfg[mode]["vardir"])
 
-for dir in [bindir,confdir,vardir]:
-    print dir
+print "basedir=", basedir
+print "ext_basedir=", ext_basedir
+print "bindir=", bindir
+print "confdir=",confdir
+print "vardir=",vardir
 
 resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
 target_config_list_file = os.path.join(vardir,"target_config.list")
