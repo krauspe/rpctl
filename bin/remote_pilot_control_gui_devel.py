@@ -617,7 +617,8 @@ class MainApp(Frame):
         file_menu = Menu(self.menu)
         self.menu.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New", command=newFile)
-        file_menu.add_command(label="Open...", command=self.openAnimatedGifFile)
+        file_menu.add_command(label="Open...", command=self.askOpenAnimatedGifFileM1)
+        file_menu.add_command(label="Open...(method 2)", command=self.askOpenAnimatedGifFileM2)
         file_menu.add_separator()
         file_menu.add_command(label="Exit", command=Quit)
 
@@ -631,13 +632,19 @@ class MainApp(Frame):
         help_menu.add_command(label="Register", command=self.inputRegistrationKey)
         help_menu.add_command(label="About...", command=About)
 
-    # fun stuff
+    # animation functions
 
     def stopAnimation(self):
         self.anim.after_cancel(self.anim.cancel)
         self.anim.destroy()
 
-    def openAnimatedGifFile(self):
+    def askOpenAnimatedGifFileM1(self):
+        self.openAnimatedGifFile(1, 1, 1)
+
+    def askOpenAnimatedGifFileM2(self):
+        self.openAnimatedGifFile(1, 1, 2)
+
+    def openAnimatedGifFile(self,duration, mode, method):
         self.stopAnimation()  # stop previously or initially opened gif
         options = {}
         options['defaultextension'] = '.gif'
@@ -647,7 +654,7 @@ class MainApp(Frame):
         options['parent'] = self
         options['title'] = "Open a gif file"
         with askopenfile(mode='rb', **options) as file:
-            self.showAnimatedGif(file,duration,"forever",1,1,1)
+            self.showAnimatedGif(file,duration,"forever",duration, mode, method)
 
     def showAnimatedGif(self,file,duration,mode,method,row,column):
         #if self.anim:
