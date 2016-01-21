@@ -285,17 +285,16 @@ class MainApp(Frame):
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
 
 
-        # LIST HEADER FRAME (IN CANVAS)
+        # LIST HEADER FRAME
 
         self.header_frame = Frame(root, bg="grey")
         self.header_frame.grid(row=4, column=0)
 
-        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=0)
-        Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightyellow", relief=GROOVE).grid(row=2, column=1,sticky=W+E)
-        Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=2,sticky=W+E)
-        Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=3,sticky=W+E)
-        Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=4,sticky=W+E)
-        #Label(self.header_frame, text="", font=self.lhFont, width=2, bg="red", relief=GROOVE).grid(row=2, column=5,sticky=W+E)
+        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=0)
+        Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightyellow", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
+        Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=2,sticky=W+E)
+        Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
+        Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
 
         # LIST SCROLL AREA FRAME (IN CANVAS)
 
@@ -303,7 +302,7 @@ class MainApp(Frame):
         self.canvas_frame.grid(row=5, column=0)
         self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
         self.list_frame = Frame(self.canvas, bg="grey")
-        self.list_frame.grid(row=5, column=0)
+        self.list_frame.grid(row=0, column=0)
         self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
         self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
@@ -335,7 +334,7 @@ class MainApp(Frame):
 
     def createStatusView(self):
         self.loadLists()
-        self.r1 = 3
+        self.r1 = 0  # HIER
         #self.testoptions = ("aaa","bbb","ccc","ddd")
         for resfqdn,curfqdn,status in self.nsc_status_list:
 
@@ -493,7 +492,7 @@ class MainApp(Frame):
 
 
     def createOptionMENUS(self,opt):
-        self.r1 = 3
+        self.r1 = 0
 
         for resfqdn,curfqdn,status in self.nsc_status_list:
             if opt == "update":
