@@ -31,8 +31,8 @@ Remote Piloting
 """
 # operation mode
 
-#mode = "simulate"
-gui_mode = "productive"
+gui_mode = "simulate"
+#gui_mode = "productive"
 mode_comment = "as configured"
 
 # path settings
@@ -100,7 +100,7 @@ lbgcol = {
 }
 
 # label width settings
-lhwidth = 17                                           # label header width
+lhwidth = 17                                          # label header width
 lwidth = 21
 
 # label font settings
@@ -234,17 +234,8 @@ class MainApp(Frame):
         self.frame = Frame(root)
         self.frame.grid(row=0,column=1)
 
-        # tried to move buttons in logo frame (kack !)
-        #Button(self.frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=0, column=0, sticky="W")
-        #Button(self.frame, text="Print Status list", command=self.printNscStatusList).grid(row=0, column=1,sticky="W")
-        #Button(self.frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=0, column=2, sticky="W")
-        #Label(self.frame,  text="", width=90).grid(row=0, column=3,sticky=W+E)
-        # LOGO
-        #self.frame.grid(row=0,column=6)
         self.logo = PhotoImage(file=logo_file)
         Label(self.frame, image=self.logo).grid(row=0,column=1,sticky="E")
-        # Label(self, fg="dark blue", bg="dark grey", font="Helvetica 13 bold italic", text=explanation).grid(row=0,column=1);
-        # self.slogan = Button(frame, text="MachDasEsGeht", command=self.writeSlogan).grid(row=0,column=2)
 
 
         # CONSOLE
@@ -294,35 +285,27 @@ class MainApp(Frame):
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
 
 
-        # LIST HEADER
+        # LIST HEADER FRAME (IN CANVAS)
 
-        #################
+        self.header_frame = Frame(root, bg="grey")
+        self.header_frame.grid(row=4, column=0)
+
+        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=0)
+        Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightyellow", relief=GROOVE).grid(row=2, column=1,sticky=W+E)
+        Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=2,sticky=W+E)
+        Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=3,sticky=W+E)
+        Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=4,sticky=W+E)
+        #Label(self.header_frame, text="", font=self.lhFont, width=2, bg="red", relief=GROOVE).grid(row=2, column=5,sticky=W+E)
+
+        # LIST SCROLL AREA FRAME (IN CANVAS)
 
         self.canvas_frame = Frame(root, bg="grey")
-        self.canvas_frame.grid(row=4, column=0)
-
+        self.canvas_frame.grid(row=5, column=0)
         self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
-
         self.list_frame = Frame(self.canvas, bg="grey")
-        self.list_frame.grid(row=4, column=0)
-
-        # Label(self.list_frame, text="Resource %s " % subtype.upper(), font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=0)
-        # Label(self.list_frame, text="Current FQDN ", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=1)
-        # Label(self.list_frame, text="Operation Mode", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=2)
-        # Label(self.list_frame, text="Status", font="-weight bold", width=lwidth, bg="lightblue", relief=GROOVE).grid(row=2, column=3)
-        # Label(self.list_frame, text="Choose Remote FQDN ", width=23, bg="lightblue", relief=GROOVE).grid(row=2, column=4)
-
-
-        Label(self.list_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=0)
-        Label(self.list_frame, text="Choose Remote FQDN ", font=self.opthFont, width=20, bg="lightyellow", relief=GROOVE).grid(row=2, column=1)
-        Label(self.list_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=2)
-        Label(self.list_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=3)
-        Label(self.list_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=2, column=4)
-
-
+        self.list_frame.grid(row=5, column=0)
         self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
-
         self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
         self.vsb.pack(side="right", fill="y")
         self.canvas.pack(side="left",fill="both", expand=True)
