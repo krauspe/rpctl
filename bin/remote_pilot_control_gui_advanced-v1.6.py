@@ -32,13 +32,12 @@ Remote Piloting
 # operation mode
 
 #mode = "simulate"
-mode = "productive"
+gui_mode = "productive"
 mode_comment = "as configured"
 
 # path settings
 
 pydir =  os.path.dirname(os.path.abspath(__file__))
-
 basedir = os.path.dirname(pydir)
 ext_basedir = os.path.join(os.path.dirname(basedir),'tsctl2')
 
@@ -127,13 +126,13 @@ opthFont = {
 #TODO: maybe create a function for switching modes...
 
 if not os.path.exists(ext_basedir):
-    mode = "simulate"
+    gui_mode = "simulate"
     mode_comment = "because %s doesn't exist !\n" % ext_basedir
 
-mode_comment = str(cfg[mode]["descr"]) + '\n' + mode_comment
-bindir  = str(cfg[mode]["bindir"])
-confdir = str(cfg[mode]["confdir"])
-vardir  = str(cfg[mode]["vardir"])
+mode_comment = str(cfg[gui_mode]["descr"]) + '\n' + mode_comment
+bindir  = str(cfg[gui_mode]["bindir"])
+confdir = str(cfg[gui_mode]["confdir"])
+vardir  = str(cfg[gui_mode]["vardir"])
 
 print "basedir=", basedir
 print "ext_basedir=", ext_basedir
