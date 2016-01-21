@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
-#DONE: solve basedir path problem
 #TODO: file not found error handling for status_list and target_config list
-#DONE: disable "start reconfiguration" button after it has been pressed
-#DONE: change default entry in remote fqdn select boxes to "no_change" after end of reconfiguration
 #TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
-#DONE      -> Using scrolled labels: problem: when header in canvas frame: header scrolls too. header in own frame: it isn't alligned !
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
@@ -22,10 +18,10 @@ from MyPILTools import LabelAnimated
 # settings
 
 # Titles
-main_window_title = """ 2Step Remote Pilot Control 1.7 (branch) """
+main_window_title = """ 2Step Remote Pilot Control 1.7 (unregistered) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control 1.7 (branch) (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control 1.7 (unregistered) (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
