@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+#TODO NEXT: create functions/widgets to get list of selected target domains which are showed in OptionMenu
 #TODO: file not found error handling for status_list and target_config list
 #TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
@@ -12,6 +13,7 @@ import tkFont
 import ScrolledText
 import subprocess as sub
 import os
+from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
@@ -493,7 +495,14 @@ class MainApp(Frame):
         for resfqdn,curfqdn,status in self.nsc_status_list:
             if opt == "update":
                 self.om[resfqdn].destroy()
-            self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.max_target_fqdn_list)
+
+            # chosse specific domains as test
+            #self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList(["lx1.lgn.dfs.de","te1.lgn.dfs.de"])
+
+            # empty domain list forces getSelectedTargetFqdnOptionList to return ALL target_fqdn
+            # THis is a preparation for preselcting domains. This must be done yet !!!!1
+            self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList([])
+            self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
             self.om[resfqdn].config(width=20, font=self.optFont)
             self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
             if opt == "init":
@@ -532,6 +541,61 @@ class MainApp(Frame):
         # pp = pprint.PrettyPrinter(indent=4)
         # pp.pprint(self.new_target_config_list)
 
+    # LOAD AND GENERATE LIST FUNCTIONS
+
+    def loadLists(self):
+        print "Loading Lists ..."
+        self.nsc_status_list = getFileAsList(nsc_status_list_file)
+        self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
+        self.resource_nsc_list_dict = dict(self.resource_nsc_list)
+        self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
+        #self.target_fqdn_option_list = [fqdn for fqdn in self.remote_fqdns_all] + ["default", "no change"]
+        self.target_config_list = getFileAsList(target_config_list_file)
+
+        self.nsc_status = {}
+        self.current_fqdn = {}
+        #self.resource_fqdns_from_dn = {}
+        #self.resource_fqdns_all = []
+        self.remote_fqdns_from_dn = {}
+
+        self.domains = []
+
+        for resfqdn,curfqdn,status in self.nsc_status_list:
+            self.nsc_status[resfqdn] = status
+            self.current_fqdn[resfqdn] = curfqdn
+
+        for resfqdn,mac in self.resource_nsc_list:
+
+            if not self.nsc_status[resfqdn]:
+                self.nsc_status[resfqdn] = 'unknown'
+            if not self.current_fqdn[resfqdn]:
+                self.current_fqdn[resfqdn] = 'unknown'
+
+        self.target_fqdns_from_dn = defaultdict(list)
+        self.target_fqdns_from_dn = self.getListOfFqdnsPerDomain(self.remote_fqdns_all)
+        self.target_dns_all = [dn for dn in self.target_fqdns_from_dn.keys()]
+
+    def getSelectedTargetFqdnOptionList(self,incoming_dn_list):
+        target_fqdn_list = []
+        if len(incoming_dn_list) > 0:
+            dn_list = incoming_dn_list
+        else:
+            dn_list = self.target_dns_all
+
+        for dn in dn_list:
+            target_fqdn_list += self.target_fqdns_from_dn[dn]
+        target_fqdn_option_list = target_fqdn_list + ["default", "no change"]
+        return target_fqdn_option_list
+
+    def getListOfFqdnsPerDomain(self,fqdn_list):
+        fqdns_from_dn = defaultdict(list)
+        for fqdn in fqdn_list:
+            dn = '.'.join(fqdn.rsplit(".")[1:])
+            fqdns_from_dn[dn].append(fqdn)
+        return fqdns_from_dn
+
+
+
     def printTargetConfigList(self):
         print "\nTarget config list:\n"
         for line in self.target_config_list:
@@ -543,7 +607,7 @@ class MainApp(Frame):
             print line
     def printRemoteNscList(self):
         print "\nRemote nsc list:\n"
-        for line in self.remote_nsc_list:
+        for line in self.remote_fqdns_all:
             print line
 
     def printNscStatusList(self):
@@ -558,30 +622,6 @@ class MainApp(Frame):
         self.createOptionMENUS("init")
         #self.output = runShell("dir")
         #print self.output
-
-    # soll durch einzelne functions ersetzt werden
-    def loadLists(self):
-        print "Loading Lists ..."
-        self.nsc_status_list = getFileAsList(nsc_status_list_file)
-        self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
-        self.resource_nsc_list_dict = dict(self.resource_nsc_list)
-        self.remote_nsc_list = getFileAsListOfRow(remote_nsc_list_file, 0)
-        self.max_target_fqdn_list = [fqdn for fqdn in self.remote_nsc_list] + ["default","no change"]
-        self.target_config_list = getFileAsList(target_config_list_file)
-        #print "self.remote_nsc_list : "
-        #print self.remote_nsc_list
-
-    # def getResourceNscList(self):
-    #     pass
-    # def getRemoteNscList(self):
-    #     pass
-    # def getRemoteStatusList(self):
-    #     pass
-    # def getResourceNscList(self):
-    #     pass
-
-
-
 
     def writeSlogan(self):
         print "Alles geht !"
