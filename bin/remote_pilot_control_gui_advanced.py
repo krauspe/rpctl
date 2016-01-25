@@ -218,10 +218,10 @@ class MainApp(Frame):
         self.var = {}
         self.init_output =  "\nConsole output initialized.\n\n" + mode_comment
         self.r1 = 0
-        self.label_status_text_trans =         {"available" : "READY", "occupied" : "READY", "unreachable" : "UNREACHABLE !", None: ""}
-        self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", None: ""}
-        self.label_status_textcol =            {"available" : "dark green", "occupied" : "dark green", "unreachable" : "red", None: "lightgrey"}
-        self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
+        self.label_status_text_trans =         {"available" : "READY", "occupied" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
+        self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "unknown" : "unknown", None: ""}
+        self.label_status_textcol =            {"available" : "dark green", "occupied" : "dark green", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
+        self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
 
         # Font settings
 
@@ -356,10 +356,12 @@ class MainApp(Frame):
     def createStatusView(self):
         self.loadLists()
         self.r1 = 0  # HIER
-        #self.testoptions = ("aaa","bbb","ccc","ddd")
-        for resfqdn,curfqdn,status in self.nsc_status_list:
+        #for resfqdn,curfqdn,status in self.nsc_status_list:
+        for resfqdn in self.resource_fqdns_all:
+            curfqdn = self.current_fqdn[resfqdn]
+            status  = self.nsc_status[resfqdn]
 
-            self.ResourceStatus[resfqdn] = status
+            #self.ResourceStatus[resfqdn] = status
 
             # wenn sich die Anzahl der resfqdns erhoeht fehlen hierfuer labels, daher Neustart noetig !
             # Loesung: weitere Lables fuer neue Eintrage erzeugen (nicht in init)
@@ -497,9 +499,18 @@ class MainApp(Frame):
         # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
         # TODO: solange wird der status aus der nsc_status_list genommen
 
+        # TODO NEXT: CHECK why running "self.createStatusView()" which is necessary at this point to reload everything creates emtpty window ????
+        #self.createStatusView()
+
         #self.stopAnimation()
-        self.nsc_status_list = getFileAsList(nsc_status_list_file)
-        for resfqdn,curfqdn,status in self.nsc_status_list:
+        #self.nsc_status_list = getFileAsList(nsc_status_list_file)
+        #for resfqdn,curfqdn,status in self.nsc_status_list:
+
+        #self.loadLists()
+        for resfqdn in self.resource_fqdns_all:
+            curfqdn = self.current_fqdn[resfqdn]
+            status  = self.nsc_status[resfqdn]
+
             self.ResourceStatus[resfqdn] = status
             self.lt_resfqdns[resfqdn].set(resfqdn)
             #self.lt_curfqdns[resfqdn].set(curfqdn.upper())
@@ -576,15 +587,18 @@ class MainApp(Frame):
 
         self.domains = []
 
+        # create dicts for status view: loop over resource_fqdns_all
+        # and get everything from the dicts instaed of status_list
+
         for resfqdn,curfqdn,status in self.nsc_status_list:
             self.nsc_status[resfqdn] = status
             self.current_fqdn[resfqdn] = curfqdn
 
         for resfqdn,mac in self.resource_nsc_list:
 
-            if not self.nsc_status[resfqdn]:
+            if not self.nsc_status.has_key(resfqdn):
                 self.nsc_status[resfqdn] = 'unknown'
-            if not self.current_fqdn[resfqdn]:
+            if not self.current_fqdn.has_key(resfqdn):
                 self.current_fqdn[resfqdn] = 'unknown'
             self.resource_fqdns_all.append(resfqdn)
 
