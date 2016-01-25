@@ -203,6 +203,11 @@ class redirectText(object):
         self.output.insert(END, string)
         self.output.see("end")
 
+# class   CheckboxSelectDomains(frame.row,column,all_entrys):
+#         def __init__(self):
+#             pass
+#         def get(self):
+#             pass
 
 class MainApp(Frame):
 
@@ -329,6 +334,24 @@ class MainApp(Frame):
 
         self.createStatusView()
 
+        # checboxes to choose domains
+        self.checkbutton_frame = Frame(root, bg="grey")
+        self.checkbutton_frame.grid(row=5, column=1)
+
+        # Resource Domains
+        Label(self.checkbutton_frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
+        for dn in self.target_dns_all:
+            self.checkbutton_target_dns = Checkbutton(master=self.checkbutton_frame,font=self.lFont,text=dn)
+            self.checkbutton_target_dns.pack(side="top", fill=X)
+
+        # Target Domains
+        Label(self.checkbutton_frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
+        for dn in self.resource_dns_all:
+            self.checkbutton_resource_dns = Checkbutton(master=self.checkbutton_frame,font=self.lFont,text=dn)
+            self.checkbutton_resource_dns.pack(side="top", fill=X)
+
+
+        # self.target_dns_all
 
     def createStatusView(self):
         self.loadLists()
@@ -495,13 +518,7 @@ class MainApp(Frame):
         for resfqdn,curfqdn,status in self.nsc_status_list:
             if opt == "update":
                 self.om[resfqdn].destroy()
-
-            # chosse specific domains as test
-            #self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList(["lx1.lgn.dfs.de","te1.lgn.dfs.de"])
-
-            # empty domain list forces getSelectedTargetFqdnOptionList to return ALL target_fqdn
-            # THis is a preparation for preselcting domains. This must be done yet !!!!1
-            self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList([])
+            self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList()
             self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
             self.om[resfqdn].config(width=20, font=self.optFont)
             self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
@@ -549,13 +566,12 @@ class MainApp(Frame):
         self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
         self.resource_nsc_list_dict = dict(self.resource_nsc_list)
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
-        #self.target_fqdn_option_list = [fqdn for fqdn in self.remote_fqdns_all] + ["default", "no change"]
         self.target_config_list = getFileAsList(target_config_list_file)
 
         self.nsc_status = {}
         self.current_fqdn = {}
-        #self.resource_fqdns_from_dn = {}
-        #self.resource_fqdns_all = []
+        self.resource_fqdns_from_dn = {}
+        self.resource_fqdns_all = []
         self.remote_fqdns_from_dn = {}
 
         self.domains = []
@@ -570,15 +586,23 @@ class MainApp(Frame):
                 self.nsc_status[resfqdn] = 'unknown'
             if not self.current_fqdn[resfqdn]:
                 self.current_fqdn[resfqdn] = 'unknown'
+            self.resource_fqdns_all.append(resfqdn)
 
         self.target_fqdns_from_dn = defaultdict(list)
         self.target_fqdns_from_dn = self.getListOfFqdnsPerDomain(self.remote_fqdns_all)
         self.target_dns_all = [dn for dn in self.target_fqdns_from_dn.keys()]
 
-    def getSelectedTargetFqdnOptionList(self,incoming_dn_list):
+        self.resource_fqdns_from_dn = defaultdict(list)
+        self.resource_fqdns_from_dn = self.getListOfFqdnsPerDomain(self.resource_fqdns_all)
+        self.resource_dns_all = [dn for dn in self.resource_fqdns_from_dn.keys()]
+
+
+    def getSelectedTargetFqdnOptionList(self):
+
         target_fqdn_list = []
-        if len(incoming_dn_list) > 0:
-            dn_list = incoming_dn_list
+        selected_dns = self.getSelectTargetDomains()
+        if len(selected_dns) > 0:
+            dn_list = selected_dns
         else:
             dn_list = self.target_dns_all
 
@@ -586,6 +610,11 @@ class MainApp(Frame):
             target_fqdn_list += self.target_fqdns_from_dn[dn]
         target_fqdn_option_list = target_fqdn_list + ["default", "no change"]
         return target_fqdn_option_list
+
+    def getSelectTargetDomains(self):
+        #TODO create checkbox widget with all target domains
+        #TODO and get list of selected
+        return ["lx3.lgn.dfs.de"]
 
     def getListOfFqdnsPerDomain(self,fqdn_list):
         fqdns_from_dn = defaultdict(list)
