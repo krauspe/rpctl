@@ -218,10 +218,11 @@ class MainApp(Frame):
         self.var = {}
         self.init_output =  "\nConsole output initialized.\n\n" + mode_comment
         self.r1 = 0
-        self.label_status_text_trans =         {"available" : "READY", "occupied" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
+        self.label_status_text_trans =         {"ready" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
         self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "unknown" : "unknown", None: ""}
-        self.label_status_textcol =            {"available" : "dark green", "occupied" : "dark green", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
+        self.label_status_textcol =            {"ready" : "dark green", "unreachable" : "red",  "unknown" : "black"}
         self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
+
 
         # Font settings
 
@@ -356,29 +357,37 @@ class MainApp(Frame):
     def createStatusView(self):
         self.loadLists()
         self.r1 = 0  # HIER
-        #for resfqdn,curfqdn,status in self.nsc_status_list:
+
+        #print "self.resource_fqdns_all(new):", self.resource_fqdns_all
+        # TODO: BUG: additional resource fqdn entrys read from updated list will not produce new (visible) Labels
+        # TODO       when status is updated
+        # TODO       The initial number of entrys (from start) seems to be the maximum !?? (maybe a canvas problem ?)
+
+        #delete old labels
+        for resfqdn in self.label_resfqdn.keys(): self.label_resfqdn[resfqdn].destroy()
+        for resfqdn in self.label_curfqdn.keys(): self.label_curfqdn[resfqdn].destroy()
+        for resfqdn in self.label_operation_mode.keys(): self.label_operation_mode[resfqdn].destroy()
+        for resfqdn in self.label_status.keys(): self.label_status[resfqdn].destroy()
+
         for resfqdn in self.resource_fqdns_all:
             curfqdn = self.current_fqdn[resfqdn]
-            status  = self.nsc_status[resfqdn]
-
-            #self.ResourceStatus[resfqdn] = status
-
-            # wenn sich die Anzahl der resfqdns erhoeht fehlen hierfuer labels, daher Neustart noetig !
-            # Loesung: weitere Lables fuer neue Eintrage erzeugen (nicht in init)
+            opmode  = self.nsc_status[resfqdn]
+            status = self.resource_status[resfqdn]
 
             # define tkinter vars
             self.lt_resfqdns[resfqdn] = StringVar()
             self.lt_curfqdns[resfqdn] = StringVar()
             self.lt_Status[resfqdn]   = StringVar()
             self.lt_operation_mode[resfqdn]   = StringVar()
-
             self.lt_newfqdn[resfqdn]  = StringVar()
 
             # set initial values
+
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_status_text_trans[status]) # translate: available -> LOCAL , occupied -> REMOTE
-            self.lt_operation_mode[resfqdn].set("")
+            self.lt_Status[resfqdn].set(self.label_status_text_trans[status])
+            self.lt_operation_mode[resfqdn].set(self.label_operation_mode_text_trans[opmode])
+
 
             # mark labels depemding on domain of resfqdn
 
@@ -388,6 +397,7 @@ class MainApp(Frame):
             else:
                 resfqdn_lbgcol = "white"
 
+            # TODO: debug output, see above! #  print "create Label: self.label_resfqdn[%s]" % resfqdn # debug output
 
             self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=lwidth,  relief=GROOVE, bg=resfqdn_lbgcol)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
@@ -395,17 +405,21 @@ class MainApp(Frame):
             self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=lwidth, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=2, sticky=N+S)
 
-            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=self.label_operation_mode_textcol[opmode], relief=SUNKEN)
             self.label_operation_mode[resfqdn].grid(row=self.r1, column=3, sticky=N+S)
 
             self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=4, sticky=N+S)
 
+            self.label_curfqdn[resfqdn].config(fg=self.label_operation_mode_textcol[opmode])
+            self.label_status[resfqdn].config(fg=self.label_status_textcol[status])
+            self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[opmode])
+
             self.r1 +=1
 
+        #self.frame.unbind(self.onFrameConfigure)
         self.frame.bind("<Configure>", self.onFrameConfigure)
 
-        self.updateStatusView()
         self.createOptionMENUS("init")
 
 
@@ -413,7 +427,6 @@ class MainApp(Frame):
     def onFrameConfigure(self, event):
        '''Reset the scroll region to encompass the inner frame'''
        self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=650)
-
 
     def runShell(self,cmd,opt):
         # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
@@ -493,49 +506,35 @@ class MainApp(Frame):
         print "updateStatus: "
         #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
         self.update_status_list()
-        self.updateStatusView()
-
-    def updateStatusView(self):
-        # TODO: HIER sollte noch eine aktualisierbare python status abfrage mit differenzierten Status-Meldungen rein,
-        # TODO: solange wird der status aus der nsc_status_list genommen
-
-        # TODO NEXT: CHECK why running "self.createStatusView()" which is necessary at this point to reload everything creates emtpty window ????
-        #self.createStatusView()
-
-        #self.stopAnimation()
-        #self.nsc_status_list = getFileAsList(nsc_status_list_file)
-        #for resfqdn,curfqdn,status in self.nsc_status_list:
-
-        #self.loadLists()
-        for resfqdn in self.resource_fqdns_all:
-            curfqdn = self.current_fqdn[resfqdn]
-            status  = self.nsc_status[resfqdn]
-
-            self.ResourceStatus[resfqdn] = status
-            self.lt_resfqdns[resfqdn].set(resfqdn)
-            #self.lt_curfqdns[resfqdn].set(curfqdn.upper())
-            # upper sieht kacke aus je nach schriftart !
-            self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_status_text_trans[status])
-            self.lt_operation_mode[resfqdn].set(self.label_operation_mode_text_trans[status])
-            self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[status])
-            self.label_curfqdn[resfqdn].config(fg=self.label_status_textcol[status])
-            self.label_status[resfqdn].config(fg=self.label_status_textcol[status])
-
+        self.createStatusView()
+        self.createOptionMENUS("update")
 
     def createOptionMENUS(self,opt):
         self.r1 = 0
+        # delete old option menus
+        for resfqdn in self.om.keys(): self.om[resfqdn].destroy()
 
-        for resfqdn,curfqdn,status in self.nsc_status_list:
-            if opt == "update":
-                self.om[resfqdn].destroy()
-            self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList()
-            self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
-            self.om[resfqdn].config(width=20, font=self.optFont)
-            self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
+        for resfqdn in self.resource_fqdns_all:
+
+            #if opt == "update":
+                #if self.om.has_key(resfqdn):
+                #    self.om[resfqdn].destroy()
+                #    #print "detroy om[%s]" % resfqdn
+            if self.resource_status[resfqdn] == "ready":
+                #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
+                self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList()
+                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
+                self.om[resfqdn].config(width=20, font=self.optFont)
+                self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
+            else:
+                self.lt_newfqdn[resfqdn].set("no change")
+                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn],"no change")
+                self.om[resfqdn].config(width=20, font=self.optFont, bg="grey", fg="grey")
+                self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
+
+
             if opt == "init":
                 self.lt_newfqdn[resfqdn].set("no change")
-                #self.lt_newfqdn[resfqdn].set(curfqdn)
             self.r1 +=1
 
     def createTargetConfigListFromOptionMENU(self):
@@ -544,24 +543,23 @@ class MainApp(Frame):
         self.target_change_requests = 0
         self.bt_Start_Reconfiguration.config(state=DISABLED)
 
-        for resfqdn,curfqdn,status in self.nsc_status_list:
+        print 'resfqdn\tnewfqdn\tenable_option\n-----------------------------------'
+
+        for resfqdn in self.resource_fqdns_all:
             newfqdn = self.lt_newfqdn[resfqdn].get()
-            if newfqdn == "no change":
-                newfqdn = curfqdn
+            if newfqdn == "no change" or self.resource_status[resfqdn] != "ready":
+                newfqdn = self.current_fqdn[resfqdn]
                 enable_option = ""
             else:
                 enable_option = "enable_reconfiguration"
                 self.target_change_requests += 1
 
-            print '%s %s %s' % (resfqdn, newfqdn,enable_option )
+            print '%s\t%s\t%s' % (resfqdn, newfqdn,enable_option )
             self.new_target_config_list.append((resfqdn,newfqdn,enable_option))
 
         # Save NEW TARGET CONFIG LIST
-
         saveListAsFile(self.new_target_config_list,target_config_list_file)
-
         # ACTIVATE START RECONFIGURATION BUTTON IF CAHNGES ARE REQUESTED
-
         if self.target_change_requests > 0:
             self.bt_Start_Reconfiguration.config(state=ACTIVE)
 
@@ -579,28 +577,37 @@ class MainApp(Frame):
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.target_config_list = getFileAsList(target_config_list_file)
 
-        self.nsc_status = {}
-        self.current_fqdn = {}
-        self.resource_fqdns_from_dn = {}
-        self.resource_fqdns_all = []
-        self.remote_fqdns_from_dn = {}
+        self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
+        self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
 
-        self.domains = []
+        self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
+        self.resource_mac = {}
+        self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
+        self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
+        self.resource_fqdns_from_nsc_status_list = [] # all resource fqdns contained in nsc_status_list
+        self.resource_fqdns_all = []                  # all available resource fqdns read from script generated list
 
-        # create dicts for status view: loop over resource_fqdns_all
-        # and get everything from the dicts instaed of status_list
+        # read originall nsc_status from shell script and translate to resource_status
 
         for resfqdn,curfqdn,status in self.nsc_status_list:
             self.nsc_status[resfqdn] = status
             self.current_fqdn[resfqdn] = curfqdn
+            if self.nsc_status[resfqdn] == "available" or self.nsc_status[resfqdn] == "occupied":
+                self.resource_status[resfqdn] = "ready"
+            else:
+                self.resource_status[resfqdn] = self.nsc_status[resfqdn]
+            self.resource_fqdns_from_nsc_status_list.append(resfqdn)
 
-        for resfqdn,mac in self.resource_nsc_list:
 
+        for resfqdn,mac in self.resource_nsc_list:  # list of lists from file (ALL resource NSC"s !)
+            self.resource_mac = mac                 # store MAC addresses for later use .....
             if not self.nsc_status.has_key(resfqdn):
-                self.nsc_status[resfqdn] = 'unknown'
+                self.resource_status[resfqdn] = 'unknown'
             if not self.current_fqdn.has_key(resfqdn):
                 self.current_fqdn[resfqdn] = 'unknown'
             self.resource_fqdns_all.append(resfqdn)
+
+        #print "loadlists: should be UPTODATE:", self.resource_fqdns_all
 
         self.target_fqdns_from_dn = defaultdict(list)
         self.target_fqdns_from_dn = self.getListOfFqdnsPerDomain(self.remote_fqdns_all)
@@ -612,7 +619,6 @@ class MainApp(Frame):
 
 
     def getSelectedTargetFqdnOptionList(self):
-
         target_fqdn_list = []
         selected_dns = self.getSelectTargetDomains()
         if len(selected_dns) > 0:
@@ -628,7 +634,8 @@ class MainApp(Frame):
     def getSelectTargetDomains(self):
         #TODO create checkbox widget with all target domains
         #TODO and get list of selected
-        return ["lx3.lgn.dfs.de"]
+        #return ["lx3.lgn.dfs.de"]  # test
+        return []
 
     def getListOfFqdnsPerDomain(self,fqdn_list):
         fqdns_from_dn = defaultdict(list)
