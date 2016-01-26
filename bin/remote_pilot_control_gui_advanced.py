@@ -319,13 +319,15 @@ class MainApp(Frame):
 
         self.canvas_frame = Frame(root, bg="grey")
         self.canvas_frame.grid(row=5, column=0)
+
         self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
+        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+        self.vsb.pack(side="right", fill="y")
         self.list_frame = Frame(self.canvas, bg="grey")
         self.list_frame.grid(row=0, column=0)
-        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self.vsb.set)
+
         self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
-        self.vsb.pack(side="right", fill="y")
         self.canvas.pack(side="left",fill="both", expand=True)
 
         self.buildMenu(root)
@@ -348,7 +350,7 @@ class MainApp(Frame):
 
         self.new_target_config_list   = []
 
-        self.createStatusView()
+        self.createStatusView("init")
 
         # checboxes to choose domains
         self.checkbutton_frame = Frame(root, bg="grey")
@@ -369,7 +371,21 @@ class MainApp(Frame):
 
         # self.target_dns_all
 
-    def createStatusView(self):
+    def createStatusView(self,option):
+        ## tried to delete and create everything here ... nop !
+        # if option == "update":
+        #     self.vsb.destroy()
+        #     self.list_frame.destroy()
+        #     self.canvas.destroy()
+        # self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
+        # self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+        # self.vsb.pack(side="right", fill="y")
+        # self.list_frame = Frame(self.canvas, bg="grey")
+        # self.list_frame.grid(row=0, column=0)
+        # self.canvas.configure(yscrollcommand=self.vsb.set)
+        # self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+        # self.canvas.pack(side="left",fill="both", expand=True)
+
         self.loadLists()
         self.r1 = 0  # HIER
 
@@ -432,9 +448,7 @@ class MainApp(Frame):
 
             self.r1 +=1
 
-        #self.frame.unbind(self.onFrameConfigure)
         self.frame.bind("<Configure>", self.onFrameConfigure)
-
         self.createOptionMENUS("init")
 
 
@@ -521,7 +535,7 @@ class MainApp(Frame):
         print "updateStatus: "
         #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
         self.update_status_list()
-        self.createStatusView()
+        self.createStatusView("update")
         self.createOptionMENUS("update")
 
     def createOptionMENUS(self,opt):
