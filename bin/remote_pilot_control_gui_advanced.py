@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 
 #TODO NEXT: create functions/widgets to get list of selected target domains which are showed in OptionMenu
-#TODO: file not found error handling for status_list and target_config list
+#DONE: file not found error handling for status_list and target_config list
 #TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
+#TODO: maybe create a function for switching modes(simulate <-> production)
+
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -17,13 +19,11 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-# settings
-
 # Titles
-main_window_title = """ 2Step Remote Pilot Control 1.7 (unregistered) """
+main_window_title = """ 2Step Remote Pilot Control 1.8 (branch) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control 1.7 (unregistered) (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control 1.8 (branch) (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
@@ -33,7 +33,7 @@ gui_mode = "simulate"
 #gui_mode = "productive"
 mode_comment = "as configured"
 
-# path settings
+# dynamic settings
 
 pydir =  os.path.dirname(os.path.abspath(__file__))
 basedir = os.path.dirname(pydir)
@@ -121,7 +121,7 @@ opthFont = {
     "size":9,
 }
 
-#TODO: maybe create a function for switching modes...
+# derived settings
 
 if not os.path.exists(ext_basedir):
     gui_mode = "simulate"
@@ -160,20 +160,35 @@ def About():
 
 def getFileAsList(file):
     #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
-    return [line.rstrip('\n').split() for line in open(file) if not line.startswith('#')]
+    if os.path.exists(file):
+        in_list = [line.rstrip('\n').split() for line in open(file) if not line.startswith('#')]
+        if len(in_list) < 0:
+            print "WARNING: %s is empty or has no valid lines !!" % file
+        return in_list
+    else:
+        print "WARNING: %s doesn't exist !!" % file
+        return []
 
 def getFileAsListOfRow(file, row):
-    return [line.rstrip('\n').split()[row] for line in open(file) if not line.startswith('#')]
+    #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
+    if os.path.exists(file):
+        in_list = [line.rstrip('\n').split()[row] for line in open(file) if not line.startswith('#')]
+        if len(in_list) < 0:
+            print "WARNING: %s is empty or has no valid lines !!" % file
+        return in_list
+    else:
+        print "WARNING: %s doesn't exist !!" % file
+        return []
 
-def getTargetConfigList(file):
-    '''https://docs.python.org/2/library/itertools.html
-    itertools.izip_longest(*iterables[, fillvalue])
-    Make an iterator that aggregates elements from each of the iterables.
-    If the iterables are of uneven length, missing values are filled-in with fillvalue.
-    Iteration continues until the longest iterable is exhausted. Equivalent to
-    TODO:
-    Einlesen von tuples ungleicher laenge mit itertools'''
-    pass
+# def getTargetConfigList(file):
+#     '''https://docs.python.org/2/library/itertools.html
+#     itertools.izip_longest(*iterables[, fillvalue])
+#     Make an iterator that aggregates elements from each of the iterables.
+#     If the iterables are of uneven length, missing values are filled-in with fillvalue.
+#     Iteration continues until the longest iterable is exhausted. Equivalent to
+#     TODO:
+#     Einlesen von tuples ungleicher laenge mit itertools'''
+#     pass
 
 def saveListAsFile(list,filepath):
     print "\nSaving %s\n" % filepath
