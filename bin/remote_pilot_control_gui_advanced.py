@@ -349,20 +349,19 @@ class MainApp(Frame):
 
         self.domain_selector_frame = Frame(root, bg="grey")
         self.domain_selector_frame.grid(row=5, column=1)
-
         self.domainSelector(self.domain_selector_frame, "create", "all")
 
     def domainSelector(self,frame,action,type):
         # Resource Domains
         if type == "target" or type == "all":
             self.select_target_label = Label(frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
-            for dn in self.target_dns_all:
+            for dn in self.dns_all["target"]:
                 self.checkbutton_target_dns[dn] = Checkbutton(master=self.domain_selector_frame, font=self.lFont, text=dn)
                 self.checkbutton_target_dns[dn].pack(side="top", fill=X)
         if type == "resource" or type == "all":
             # Target Domains
             self.select_resource_label = Label(frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
-            for dn in self.resource_dns_all:
+            for dn in self.dns_all["resource"]:
                 self.checkbutton_resource_dns[dn] = Checkbutton(master=self.domain_selector_frame, font=self.lFont, text=dn)
                 self.checkbutton_resource_dns[dn].pack(side="top", fill=X)
 
@@ -541,7 +540,7 @@ class MainApp(Frame):
 
             if self.resource_status[resfqdn] == "ready":
                 #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
-                self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList()
+                self.target_fqdn_option_list = self.getSelectedFqdnOptionList("target")
                 self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
                 self.om[resfqdn].config(width=20, font=self.optFont)
                 self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
@@ -636,33 +635,47 @@ class MainApp(Frame):
 
         #print "loadlists: should be UPTODATE:", self.resource_fqdns_all
 
-        self.target_fqdns_from_dn = defaultdict(list)
-        self.target_fqdns_from_dn = self.getListOfFqdnsPerDomain(self.remote_fqdns_all)
-        self.target_dns_all = [dn for dn in self.target_fqdns_from_dn.keys()]
+        self.fqdns_from_dn= {}
+        self.dns_all = {}
 
-        self.resource_fqdns_from_dn = defaultdict(list)
-        self.resource_fqdns_from_dn = self.getListOfFqdnsPerDomain(self.resource_fqdns_all)
-        self.resource_dns_all = [dn for dn in self.resource_fqdns_from_dn.keys()]
+        self.fqdns_from_dn["target"] = defaultdict(list)
+        self.fqdns_from_dn["target"] = self.getListOfFqdnsPerDomain(self.remote_fqdns_all)
+        self.dns_all["target"] = [dn for dn in self.fqdns_from_dn["target"].keys()]
+
+        self.fqdns_from_dn["resource"] = defaultdict(list)
+        self.fqdns_from_dn["resource"] = self.getListOfFqdnsPerDomain(self.resource_fqdns_all)
+        self.dns_all["resource"] = [dn for dn in self.fqdns_from_dn["resource"].keys()]
 
 
-    def getSelectedTargetFqdnOptionList(self):
-        target_fqdn_list = []
-        selected_dns = self.getSelectTargetDomains()
+    def getSelectedFqdnOptionList(self, type):
+        fqdn_list = []
+        selected_dns = self.getSelectedDomains(type)
         if len(selected_dns) > 0:
             dn_list = selected_dns
         else:
-            dn_list = self.target_dns_all
+            dn_list = self.dns_all[type]
 
         for dn in dn_list:
-            target_fqdn_list += self.target_fqdns_from_dn[dn]
-        target_fqdn_option_list = target_fqdn_list + ["default", "no change"]
-        return target_fqdn_option_list
+            fqdn_list += self.fqdns_from_dn[type][dn]
+        if type == "target":
+            fqdn_list += ["default", "no change"]
 
-    def getSelectTargetDomains(self):
+        return fqdn_list
+
+    def getSelectedDomains(self,type):
         #TODO create checkbox widget with all target domains
         #TODO and get list of selected
         #return ["lx3.lgn.dfs.de"]  # test
-        return []
+        dn_list = []
+
+        if type == "resource":
+            # do it
+            pass
+        elif type == "target":
+            # get it
+            dn_list = ["lx3.lgn.dfs.de"]
+            pass
+        return dn_list
 
     def getListOfFqdnsPerDomain(self,fqdn_list):
         fqdns_from_dn = defaultdict(list)
