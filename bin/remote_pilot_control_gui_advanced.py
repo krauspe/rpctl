@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 #TODO NEXT: create functions/widgets to get list of selected target domains which are showed in OptionMenu
+#TODO: show message (text or picture) on start/end of external scripts
+#DONE: recrate status area completely after reread resource nsc list
 #DONE: file not found error handling for status_list and target_config list
 #TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
@@ -241,7 +243,6 @@ class MainApp(Frame):
         self.init_output =  "\nConsole output initialized.\n\n" + mode_comment
         self.r1 = 0
 
-
         # Font settings
 
         self.lhFont = tkFont.Font(family=lhFont["family"], size=lhFont["size"])         # label header font
@@ -269,7 +270,6 @@ class MainApp(Frame):
         # show initial animated gif
         # changed function in LabelAnimated plays gif only once when duration is nagative
         self.anim = self.showAnimatedGif(animated_gif_file,1,"forever",2,1,1)
-
 
         # redirect stdout
         self.stdoutOrig = sys.stdout
@@ -318,24 +318,21 @@ class MainApp(Frame):
         Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
         Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
 
-        # LIST SCROLL AREA FRAME (IN CANVAS)
+        # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
 
-        self.canvas_frame = Frame(root, bg="grey")
-        self.canvas_frame.grid(row=5, column=0)
-
-        self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
-        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
-        self.vsb.pack(side="right", fill="y")
-        self.list_frame = Frame(self.canvas, bg="grey")
-        self.list_frame.grid(row=0, column=0)
-        self.canvas.configure(yscrollcommand=self.vsb.set)
-
-        self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
-        self.canvas.pack(side="left",fill="both", expand=True)
+        # self.canvas_frame = Frame(root, bg="grey")
+        # self.canvas_frame.grid(row=5, column=0)
+        # self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
+        # self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+        # self.vsb.pack(side="right", fill="y")
+        # self.list_frame = Frame(self.canvas, bg="grey")
+        # self.list_frame.grid(row=0, column=0)
+        # self.canvas.configure(yscrollcommand=self.vsb.set)
+        #
+        # self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+        # self.canvas.pack(side="left",fill="both", expand=True)
 
         self.buildMenu(root)
-
-        self.ResourceStatus = {}   # define explicit dict for resource fqdn status
 
         # LIST | OptionMenu
 
@@ -375,22 +372,28 @@ class MainApp(Frame):
         # self.target_dns_all
 
     def createStatusView(self,option):
-        ## tried to delete and create everything here ... nop !
-        # if option == "update":
-        #     self.vsb.destroy()
-        #     self.list_frame.destroy()
-        #     self.canvas.destroy()
-        # self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
-        # self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
-        # self.vsb.pack(side="right", fill="y")
-        # self.list_frame = Frame(self.canvas, bg="grey")
-        # self.list_frame.grid(row=0, column=0)
-        # self.canvas.configure(yscrollcommand=self.vsb.set)
-        # self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
-        # self.canvas.pack(side="left",fill="both", expand=True)
+
+        # LIST SCROLL AREA FRAME (IN CANVAS)
+
+        if option == "update":
+            self.vsb.destroy()
+            self.list_frame.destroy()
+            self.canvas.destroy()
+            self.canvas_frame.destroy()
+
+        self.canvas_frame = Frame(root, bg="grey")
+        self.canvas_frame.grid(row=5, column=0)
+        self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
+        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+        self.vsb.pack(side="right", fill="y")
+        self.list_frame = Frame(self.canvas, bg="grey")
+        self.list_frame.grid(row=0, column=0)
+        self.canvas.configure(yscrollcommand=self.vsb.set)
+        self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+        self.canvas.pack(side="left",fill="both", expand=True)
 
         self.loadLists()
-        self.r1 = 0  # HIER
+        self.r1 = 0
 
         #print "self.resource_fqdns_all(new):", self.resource_fqdns_all
         # TODO: BUG: additional resource fqdn entrys read from updated list will not produce new (visible) Labels
