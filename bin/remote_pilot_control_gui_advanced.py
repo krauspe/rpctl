@@ -121,6 +121,13 @@ opthFont = {
     "size":9,
 }
 
+# label colours and text translations
+
+label_status_text_trans =         {"ready" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
+label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "unknown" : "unknown", None: ""}
+label_status_textcol =            {"ready" : "dark green", "unreachable" : "red",  "unknown" : "black"}
+label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
+
 # derived settings
 
 if not os.path.exists(ext_basedir):
@@ -233,10 +240,6 @@ class MainApp(Frame):
         self.var = {}
         self.init_output =  "\nConsole output initialized.\n\n" + mode_comment
         self.r1 = 0
-        self.label_status_text_trans =         {"ready" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
-        self.label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "unknown" : "unknown", None: ""}
-        self.label_status_textcol =            {"ready" : "dark green", "unreachable" : "red",  "unknown" : "black"}
-        self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
 
 
         # Font settings
@@ -416,8 +419,8 @@ class MainApp(Frame):
 
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(self.label_status_text_trans[status])
-            self.lt_operation_mode[resfqdn].set(self.label_operation_mode_text_trans[opmode])
+            self.lt_Status[resfqdn].set(label_status_text_trans[status])
+            self.lt_operation_mode[resfqdn].set(label_operation_mode_text_trans[opmode])
 
 
             # mark labels depemding on domain of resfqdn
@@ -436,15 +439,15 @@ class MainApp(Frame):
             self.label_curfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_curfqdns[resfqdn], font=self.lFont, width=lwidth, relief=SUNKEN)
             self.label_curfqdn[resfqdn].grid(row=self.r1, column=2, sticky=N+S)
 
-            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=self.label_operation_mode_textcol[opmode], relief=SUNKEN)
+            self.label_operation_mode[resfqdn] = Label(self.list_frame, textvariable=self.lt_operation_mode[resfqdn], font=self.lFont, width=lwidth, fg=label_operation_mode_textcol[opmode], relief=SUNKEN)
             self.label_operation_mode[resfqdn].grid(row=self.r1, column=3, sticky=N+S)
 
-            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=lwidth, fg=self.label_status_textcol[status], relief=SUNKEN)
+            self.label_status[resfqdn] = Label(self.list_frame, textvariable=self.lt_Status[resfqdn], font=self.lFont, width=lwidth, fg=label_status_textcol[status], relief=SUNKEN)
             self.label_status[resfqdn].grid(row=self.r1, column=4, sticky=N+S)
 
-            self.label_curfqdn[resfqdn].config(fg=self.label_operation_mode_textcol[opmode])
-            self.label_status[resfqdn].config(fg=self.label_status_textcol[status])
-            self.label_operation_mode[resfqdn].config(fg=self.label_operation_mode_textcol[opmode])
+            self.label_curfqdn[resfqdn].config(fg=label_operation_mode_textcol[opmode])
+            self.label_status[resfqdn].config(fg=label_status_textcol[status])
+            self.label_operation_mode[resfqdn].config(fg=label_operation_mode_textcol[opmode])
 
             self.r1 +=1
 
