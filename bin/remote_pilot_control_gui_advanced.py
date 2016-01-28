@@ -455,7 +455,7 @@ class MainApp(Frame):
             self.r1 +=1
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
-        self.createOptionMENUS("init")
+        self.createOptionMENUS(option)
 
 
     # function for scrolled labels
@@ -535,14 +535,14 @@ class MainApp(Frame):
 
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
-        self.createOptionMENUS("update")
+        self.createOptionMENUS("")
 
     def updateStatus(self):
         print "updateStatus: "
         #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
         self.update_status_list()
         self.createStatusView("update")
-        self.createOptionMENUS("update")
+        #self.createOptionMENUS("update")
 
     def createOptionMENUS(self,opt):
         self.r1 = 0
@@ -551,10 +551,6 @@ class MainApp(Frame):
 
         for resfqdn in self.resource_fqdns_all:
 
-            #if opt == "update":
-                #if self.om.has_key(resfqdn):
-                #    self.om[resfqdn].destroy()
-                #    #print "detroy om[%s]" % resfqdn
             if self.resource_status[resfqdn] == "ready":
                 #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
                 self.target_fqdn_option_list = self.getSelectedTargetFqdnOptionList()
