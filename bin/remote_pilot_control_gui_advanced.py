@@ -318,19 +318,6 @@ class MainApp(Frame):
         Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
         Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
 
-        # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
-
-        # self.canvas_frame = Frame(root, bg="grey")
-        # self.canvas_frame.grid(row=5, column=0)
-        # self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
-        # self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
-        # self.vsb.pack(side="right", fill="y")
-        # self.list_frame = Frame(self.canvas, bg="grey")
-        # self.list_frame.grid(row=0, column=0)
-        # self.canvas.configure(yscrollcommand=self.vsb.set)
-        #
-        # self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
-        # self.canvas.pack(side="left",fill="both", expand=True)
 
         self.buildMenu(root)
 
@@ -346,40 +333,49 @@ class MainApp(Frame):
         self.label_curfqdn = {}
         self.label_status = {}
         self.label_operation_mode = {}
+
+        self.checkbutton_resource_dns = {}
+        self.checkbutton_target_dns   = {}
+
         self.om = {}
 
         self.new_target_config_list   = []
 
-        self.createStatusView("init")
+        # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
+        self.loadLists()
+        self.createStatusView(self.resource_fqdns_all)
 
-        # checboxes to choose domains
-        self.checkbutton_frame = Frame(root, bg="grey")
-        self.checkbutton_frame.grid(row=5, column=1)
+        # CHECK BUTTON FRAME :checboxes to choose domains
 
+        self.domain_selector_frame = Frame(root, bg="grey")
+        self.domain_selector_frame.grid(row=5, column=1)
+
+        self.domainSelector(self.domain_selector_frame, "create", "all")
+
+    def domainSelector(self,frame,action,type):
         # Resource Domains
-        Label(self.checkbutton_frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
-        for dn in self.target_dns_all:
-            self.checkbutton_target_dns = Checkbutton(master=self.checkbutton_frame,font=self.lFont,text=dn)
-            self.checkbutton_target_dns.pack(side="top", fill=X)
+        if type == "target" or type == "all":
+            self.select_target_label = Label(frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
+            for dn in self.target_dns_all:
+                self.checkbutton_target_dns[dn] = Checkbutton(master=self.domain_selector_frame, font=self.lFont, text=dn)
+                self.checkbutton_target_dns[dn].pack(side="top", fill=X)
+        if type == "resource" or type == "all":
+            # Target Domains
+            self.select_resource_label = Label(frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
+            for dn in self.resource_dns_all:
+                self.checkbutton_resource_dns[dn] = Checkbutton(master=self.domain_selector_frame, font=self.lFont, text=dn)
+                self.checkbutton_resource_dns[dn].pack(side="top", fill=X)
 
-        # Target Domains
-        Label(self.checkbutton_frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
-        for dn in self.resource_dns_all:
-            self.checkbutton_resource_dns = Checkbutton(master=self.checkbutton_frame,font=self.lFont,text=dn)
-            self.checkbutton_resource_dns.pack(side="top", fill=X)
 
-
-        # self.target_dns_all
-
-    def createStatusView(self,option):
+    def createStatusView(self, resfqdns_selected):
 
         # LIST SCROLL AREA FRAME (IN CANVAS)
 
-        if option == "update":
-            self.vsb.destroy()
-            self.list_frame.destroy()
-            self.canvas.destroy()
-            self.canvas_frame.destroy()
+        # delete possibly previuosly created objects
+        if hasattr(self,'vsb'): self.vsb.destroy()
+        if hasattr(self,'list_frame'): self.list_frame.destroy()
+        if hasattr(self,'canvas'): self.canvas.destroy()
+        if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
 
         self.canvas_frame = Frame(root, bg="grey")
         self.canvas_frame.grid(row=5, column=0)
@@ -392,21 +388,10 @@ class MainApp(Frame):
         self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
         self.canvas.pack(side="left",fill="both", expand=True)
 
-        self.loadLists()
+        #self.loadLists()
         self.r1 = 0
 
-        #print "self.resource_fqdns_all(new):", self.resource_fqdns_all
-        # TODO: BUG: additional resource fqdn entrys read from updated list will not produce new (visible) Labels
-        # TODO       when status is updated
-        # TODO       The initial number of entrys (from start) seems to be the maximum !?? (maybe a canvas problem ?)
-
-        #delete old labels
-        for resfqdn in self.label_resfqdn.keys(): self.label_resfqdn[resfqdn].destroy()
-        for resfqdn in self.label_curfqdn.keys(): self.label_curfqdn[resfqdn].destroy()
-        for resfqdn in self.label_operation_mode.keys(): self.label_operation_mode[resfqdn].destroy()
-        for resfqdn in self.label_status.keys(): self.label_status[resfqdn].destroy()
-
-        for resfqdn in self.resource_fqdns_all:
+        for resfqdn in resfqdns_selected:
             curfqdn = self.current_fqdn[resfqdn]
             opmode  = self.nsc_status[resfqdn]
             status = self.resource_status[resfqdn]
@@ -425,7 +410,6 @@ class MainApp(Frame):
             self.lt_Status[resfqdn].set(label_status_text_trans[status])
             self.lt_operation_mode[resfqdn].set(label_operation_mode_text_trans[opmode])
 
-
             # mark labels depemding on domain of resfqdn
 
             self.dn = ".".join( (resfqdn.split("."))[1:])
@@ -434,8 +418,12 @@ class MainApp(Frame):
             else:
                 resfqdn_lbgcol = "white"
 
-            # TODO: debug output, see above! #  print "create Label: self.label_resfqdn[%s]" % resfqdn # debug output
-
+            # delete old labels
+            if self.label_resfqdn.has_key(resfqdn): self.label_resfqdn[resfqdn].destroy()
+            if self.label_curfqdn.has_key(resfqdn): self.label_curfqdn[resfqdn].destroy()
+            if self.label_operation_mode.has_key(resfqdn): self.label_operation_mode[resfqdn].destroy()
+            if self.label_status.has_key(resfqdn): self.label_status[resfqdn].destroy()
+            # create lables
             self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=lwidth,  relief=GROOVE, bg=resfqdn_lbgcol)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
 
@@ -455,7 +443,7 @@ class MainApp(Frame):
             self.r1 +=1
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
-        self.createOptionMENUS(option)
+        self.createOptionMENUS(self.resource_fqdns_all)
 
 
     # function for scrolled labels
@@ -535,21 +523,21 @@ class MainApp(Frame):
 
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
-        self.createOptionMENUS("")
+        self.createOptionMENUS(self.resource_fqdns_all)
 
     def updateStatus(self):
         print "updateStatus: "
         #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
         self.update_status_list()
-        self.createStatusView("update")
-        #self.createOptionMENUS("update")
+        self.loadLists()
+        self.createStatusView(self.resource_fqdns_all)
 
-    def createOptionMENUS(self,opt):
+    def createOptionMENUS(self, resfqdns_selected):
         self.r1 = 0
         # delete old option menus
         for resfqdn in self.om.keys(): self.om[resfqdn].destroy()
 
-        for resfqdn in self.resource_fqdns_all:
+        for resfqdn in resfqdns_selected:
 
             if self.resource_status[resfqdn] == "ready":
                 #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
@@ -564,8 +552,8 @@ class MainApp(Frame):
                 self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
 
 
-            if opt == "init":
-                self.lt_newfqdn[resfqdn].set("no change")
+            #if opt == "init":
+            self.lt_newfqdn[resfqdn].set("no change")
             self.r1 +=1
 
     def createTargetConfigListFromOptionMENU(self):
@@ -577,13 +565,20 @@ class MainApp(Frame):
         print 'resfqdn\tnewfqdn\tenable_option\n-----------------------------------'
 
         for resfqdn in self.resource_fqdns_all:
-            newfqdn = self.lt_newfqdn[resfqdn].get()
-            if newfqdn == "no change" or self.resource_status[resfqdn] != "ready":
-                newfqdn = self.current_fqdn[resfqdn]
-                enable_option = ""
+            if  self.lt_newfqdn.has_key(resfqdn):
+                newfqdn = self.lt_newfqdn[resfqdn].get()
+                if newfqdn == "no change" or self.resource_status[resfqdn] != "ready":
+                    newfqdn = self.current_fqdn[resfqdn]
+                    enable_option = ""
+                else:
+                    enable_option = "enable_reconfiguration"
+                    self.target_change_requests += 1
             else:
-                enable_option = "enable_reconfiguration"
-                self.target_change_requests += 1
+                if self.current_fqdn.has_key(resfqdn):
+                    newfqdn = self.current_fqdn[resfqdn]
+                else:
+                    newfqdn = "unknown"
+
 
             print '%s\t%s\t%s' % (resfqdn, newfqdn,enable_option )
             self.new_target_config_list.append((resfqdn,newfqdn,enable_option))
@@ -629,6 +624,7 @@ class MainApp(Frame):
                 self.resource_status[resfqdn] = self.nsc_status[resfqdn]
             self.resource_fqdns_from_nsc_status_list.append(resfqdn)
 
+        # read resource fqdn list with macs
 
         for resfqdn,mac in self.resource_nsc_list:  # list of lists from file (ALL resource NSC"s !)
             self.resource_mac = mac                 # store MAC addresses for later use .....
@@ -700,7 +696,7 @@ class MainApp(Frame):
         print "\nStarting reconfiguration of PSPs ....\n"
         self.reconfigure_nscs()
         self.bt_Start_Reconfiguration.config(state=DISABLED)
-        self.createOptionMENUS("init")
+        self.createOptionMENUS(self.resource_fqdns_all)
         #self.output = runShell("dir")
         #print self.output
 
