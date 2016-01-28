@@ -349,9 +349,46 @@ class MainApp(Frame):
 
         self.domain_selector_frame = Frame(root, bg="grey")
         self.domain_selector_frame.grid(row=5, column=1)
-        self.domainSelector(self.domain_selector_frame, "create", "all")
 
-    def domainSelector(self,frame,action,type):
+        self.domaintSelectBox()
+
+    #     self.domainCheckBoxSelector(self.domain_selector_frame, "create", "all")
+
+    def domaintSelectBox(self):
+        listvar = {}
+        listbox_head_label = {}
+        self.listbox = {}
+
+        listvar["resource"] = StringVar()
+        listvar["target"] = StringVar()
+
+        listvar["resource"].set(" ".join(self.dns_all["resource"]))
+        listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+        listbox_head_label["resource"].pack(fill=X)
+        self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
+        self.listbox["resource"].pack(side="top", fill=X)
+        select_resource_button = Button(self.domain_selector_frame,text="Choices", command=self.select_resource_domains)
+
+        listvar["target"].set(" ".join(self.dns_all["target"]))
+        listbox_head_label["target"] = Label(self.domain_selector_frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+        listbox_head_label["target"].pack(fill=X)
+        self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
+        self.listbox["target"].pack(side="top", fill=X)
+
+    ## HIER GHETS WEITER !!!
+
+    def select_resource_domains(self):
+        reslist = list()
+        selection = self.listbox["resource"].curselection()
+        for i in selection:
+            entrada = self.listbox["resource"].get(i)
+            reslist.append(entrada)
+        for val in reslist:
+            print(val)
+
+
+
+    def domainCheckBoxSelector(self, frame, action, type):
         # Resource Domains
         if type == "target" or type == "all":
             self.select_target_label = Label(frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
