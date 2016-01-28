@@ -375,7 +375,7 @@ class MainApp(Frame):
         self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
         self.listbox["target"].pack(side="top", fill=X)
 
-    ## HIER GHETS WEITER !!!
+    ## HIER GEHTS WEITER !!!
 
     def select_resource_domains(self):
         reslist = list()
