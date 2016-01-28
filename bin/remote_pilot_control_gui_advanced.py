@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-#TODO NEXT: create functions/widgets to get list of selected target domains which are showed in OptionMenu
+#DONE: create functions/widgets to get list of selected target domains which are showed in OptionMenu
 #TODO: show message (text or picture) on start/end of external scripts
 #DONE: recrate status area completely after reread resource nsc list
 #DONE: file not found error handling for status_list and target_config list
-#TODO: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
+#DONE: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
@@ -227,11 +227,6 @@ class redirectText(object):
         self.output.insert(END, string)
         self.output.see("end")
 
-# class   CheckboxSelectDomains(frame.row,column,all_entrys):
-#         def __init__(self):
-#             pass
-#         def get(self):
-#             pass
 
 class MainApp(Frame):
 
@@ -334,8 +329,11 @@ class MainApp(Frame):
         self.label_status = {}
         self.label_operation_mode = {}
 
-        self.checkbutton_resource_dns = {}
-        self.checkbutton_target_dns   = {}
+        self.selected_domains = {}
+        self.selected_domains["resource"] = []
+        self.selected_domains["target"] = []
+
+        self.listbox = {}
 
         self.om = {}
 
@@ -343,7 +341,6 @@ class MainApp(Frame):
 
         # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
         self.loadLists()
-        self.createStatusView(self.resource_fqdns_all)
 
         # CHECK BUTTON FRAME :checboxes to choose domains
 
@@ -351,59 +348,55 @@ class MainApp(Frame):
         self.domain_selector_frame.grid(row=5, column=1)
 
         self.domaintSelectBox()
+        self.createStatusView()
 
     #     self.domainCheckBoxSelector(self.domain_selector_frame, "create", "all")
 
     def domaintSelectBox(self):
         listvar = {}
         listbox_head_label = {}
-        self.listbox = {}
+        select_button = {}
+
 
         listvar["resource"] = StringVar()
         listvar["target"] = StringVar()
 
         listvar["resource"].set(" ".join(self.dns_all["resource"]))
         listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
-        listbox_head_label["resource"].pack(fill=X)
+        listbox_head_label["resource"].pack()
         self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
-        self.listbox["resource"].pack(side="top", fill=X)
-        select_resource_button = Button(self.domain_selector_frame,text="Choices", command=self.select_resource_domains)
+        self.listbox["resource"].pack(side="top")
+        select_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains)
+        select_button["resource"].pack()
 
         listvar["target"].set(" ".join(self.dns_all["target"]))
         listbox_head_label["target"] = Label(self.domain_selector_frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
-        listbox_head_label["target"].pack(fill=X)
+        listbox_head_label["target"].pack()
         self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
-        self.listbox["target"].pack(side="top", fill=X)
+        self.listbox["target"].pack(side="top")
+        select_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains)
+        select_button["target"].pack()
 
-    ## HIER GEHTS WEITER !!!
-
-    def select_resource_domains(self):
-        reslist = list()
+    def applySelectedResourceDomains(self):
+        dn_list = []
         selection = self.listbox["resource"].curselection()
         for i in selection:
-            entrada = self.listbox["resource"].get(i)
-            reslist.append(entrada)
-        for val in reslist:
-            print(val)
+            dn = self.listbox["resource"].get(i)
+            dn_list.append(dn)
+        self.selected_domains["resource"] =  dn_list
+        self.createStatusView()
+
+    def applySelectedTargetDommains(self):
+        dn_list = []
+        selection = self.listbox["target"].curselection()
+        for i in selection:
+            dn = self.listbox["target"].get(i)
+            dn_list.append(dn)
+        self.selected_domains["target"] =  dn_list
+        self.createStatusView()
 
 
-
-    def domainCheckBoxSelector(self, frame, action, type):
-        # Resource Domains
-        if type == "target" or type == "all":
-            self.select_target_label = Label(frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
-            for dn in self.dns_all["target"]:
-                self.checkbutton_target_dns[dn] = Checkbutton(master=self.domain_selector_frame, font=self.lFont, text=dn)
-                self.checkbutton_target_dns[dn].pack(side="top", fill=X)
-        if type == "resource" or type == "all":
-            # Target Domains
-            self.select_resource_label = Label(frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE).pack(fill=X)
-            for dn in self.dns_all["resource"]:
-                self.checkbutton_resource_dns[dn] = Checkbutton(master=self.domain_selector_frame, font=self.lFont, text=dn)
-                self.checkbutton_resource_dns[dn].pack(side="top", fill=X)
-
-
-    def createStatusView(self, resfqdns_selected):
+    def createStatusView(self):
 
         # LIST SCROLL AREA FRAME (IN CANVAS)
 
@@ -426,6 +419,8 @@ class MainApp(Frame):
 
         #self.loadLists()
         self.r1 = 0
+
+        resfqdns_selected = self.getSelectedFqdnOptionList("resource")
 
         for resfqdn in resfqdns_selected:
             curfqdn = self.current_fqdn[resfqdn]
@@ -479,7 +474,8 @@ class MainApp(Frame):
             self.r1 +=1
 
         self.frame.bind("<Configure>", self.onFrameConfigure)
-        self.createOptionMENUS(self.resource_fqdns_all)
+        #self.createOptionMENUS(self.resource_fqdns_all)
+        self.createOptionMENUS()
 
 
     # function for scrolled labels
@@ -559,20 +555,24 @@ class MainApp(Frame):
 
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
-        self.createOptionMENUS(self.resource_fqdns_all)
+        self.createOptionMENUS()
 
     def updateStatus(self):
         print "updateStatus: "
         #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
         self.update_status_list()
         self.loadLists()
-        self.createStatusView(self.resource_fqdns_all)
+        self.createStatusView()
 
-    def createOptionMENUS(self, resfqdns_selected):
+    def updateStatusView(self):
+        self.createStatusView()
+
+    def createOptionMENUS(self):
         self.r1 = 0
         # delete old option menus
         for resfqdn in self.om.keys(): self.om[resfqdn].destroy()
 
+        resfqdns_selected = self.getSelectedFqdnOptionList("resource")
         for resfqdn in resfqdns_selected:
 
             if self.resource_status[resfqdn] == "ready":
@@ -683,10 +683,9 @@ class MainApp(Frame):
         self.fqdns_from_dn["resource"] = self.getListOfFqdnsPerDomain(self.resource_fqdns_all)
         self.dns_all["resource"] = [dn for dn in self.fqdns_from_dn["resource"].keys()]
 
-
     def getSelectedFqdnOptionList(self, type):
         fqdn_list = []
-        selected_dns = self.getSelectedDomains(type)
+        selected_dns = self.selected_domains[type]
         if len(selected_dns) > 0:
             dn_list = selected_dns
         else:
@@ -699,20 +698,6 @@ class MainApp(Frame):
 
         return fqdn_list
 
-    def getSelectedDomains(self,type):
-        #TODO create checkbox widget with all target domains
-        #TODO and get list of selected
-        #return ["lx3.lgn.dfs.de"]  # test
-        dn_list = []
-
-        if type == "resource":
-            # do it
-            pass
-        elif type == "target":
-            # get it
-            dn_list = ["lx3.lgn.dfs.de"]
-            pass
-        return dn_list
 
     def getListOfFqdnsPerDomain(self,fqdn_list):
         fqdns_from_dn = defaultdict(list)
@@ -720,8 +705,6 @@ class MainApp(Frame):
             dn = '.'.join(fqdn.rsplit(".")[1:])
             fqdns_from_dn[dn].append(fqdn)
         return fqdns_from_dn
-
-
 
     def printTargetConfigList(self):
         print "\nTarget config list:\n"
@@ -746,7 +729,7 @@ class MainApp(Frame):
         print "\nStarting reconfiguration of PSPs ....\n"
         self.reconfigure_nscs()
         self.bt_Start_Reconfiguration.config(state=DISABLED)
-        self.createOptionMENUS(self.resource_fqdns_all)
+        self.createOptionMENUS()
         #self.output = runShell("dir")
         #print self.output
 
