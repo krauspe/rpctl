@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 #DONE: create functions/widgets to get list of selected target domains which are showed in OptionMenu
-#TODO: show message (text or picture) on start/end of external scripts
+#DONE: show message (text or picture) on start/end of external scripts
 #DONE: recrate status area completely after reread resource nsc list
 #DONE: file not found error handling for status_list and target_config list
 #DONE: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
