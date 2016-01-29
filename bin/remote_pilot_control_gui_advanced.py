@@ -31,8 +31,8 @@ Remote Piloting
 """
 # operation mode
 
-gui_mode = "simulate"
-#gui_mode = "productive"
+#gui_mode = "simulate"
+gui_mode = "productive"
 mode_comment = "as configured"
 
 # dynamic settings
@@ -540,16 +540,21 @@ class MainApp(Frame):
     # define functions for external shell scripts
 
     def deploy_configs(self):
-        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-    def update_status_list(self):
         self.setMessage("Deployment\nrunning ...")
+        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+        self.setMessage("default")
+    def update_status_list(self):
+        self.setMessage("Updating\nstatus ...")
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
         self.setMessage("default")
 
     def update_resource_nsc_list(self):
         self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
     def reconfigure_nscs(self):
+        self.setMessage("Reconfiguration\nrunning ...")
         self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
+        self.setMessage("default")
+
     def simulateExternalCommand(self):
         self.setMessage("Running\nexternal\ncommand ...")
         self.runShell(os.path.join(sim_bindir,"admin_simulate.sh"), run_shell_opt)
@@ -732,11 +737,9 @@ class MainApp(Frame):
 
     def startReconfiguration(self):
         print "\nStarting reconfiguration of PSPs ....\n"
-        self.setMessage("Reconfiguration\nrunning ...")
         self.bt_Start_Reconfiguration.config(state=DISABLED)
         self.reconfigure_nscs()
         self.createOptionMENUS()
-        self.setMessage("default")
 
         #self.output = runShell("dir")
         #print self.output
