@@ -45,11 +45,11 @@ ext_basedir = os.path.join(os.path.dirname(basedir),'tsctl2')
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
 logo_filename = 'dfs.gif'
-animated_gif_filename = 'airplane13.gif'
+default_animated_gif_filename = 'airplane13.gif'
 duration = 1
 # default NOT in animated_gif dir because this can change ...
 logo_file = os.path.join(imagedir, logo_filename)
-animated_gif_file = os.path.join(imagedir, animated_gif_filename)
+default_animated_gif_file = os.path.join(imagedir, default_animated_gif_filename)
 
 int_bindir  = os.path.join(basedir,"scripts")
 int_confdir = os.path.join(basedir,"config")
@@ -264,7 +264,7 @@ class MainApp(Frame):
 
         # show initial animated gif
         # changed function in LabelAnimated plays gif only once when duration is nagative
-        self.anim = self.showAnimatedGif(animated_gif_file,1,"forever",2,1,1)
+        self.anim = self.showAnimatedGif(default_animated_gif_file, 1, "forever", 2, 1, 1)
 
         # redirect stdout
         self.stdoutOrig = sys.stdout
@@ -542,13 +542,18 @@ class MainApp(Frame):
     def deploy_configs(self):
         self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
     def update_status_list(self):
+        self.setMessage("Deployment\nrunning ...")
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
+        self.setMessage("default")
+
     def update_resource_nsc_list(self):
         self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
     def reconfigure_nscs(self):
         self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)
     def simulateExternalCommand(self):
+        self.setMessage("Running\nexternal\ncommand ...")
         self.runShell(os.path.join(sim_bindir,"admin_simulate.sh"), run_shell_opt)
+        self.setMessage("default")
 
 
     # define other functions
@@ -727,9 +732,12 @@ class MainApp(Frame):
 
     def startReconfiguration(self):
         print "\nStarting reconfiguration of PSPs ....\n"
-        self.reconfigure_nscs()
+        self.setMessage("Reconfiguration\nrunning ...")
         self.bt_Start_Reconfiguration.config(state=DISABLED)
+        self.reconfigure_nscs()
         self.createOptionMENUS()
+        self.setMessage("default")
+
         #self.output = runShell("dir")
         #print self.output
 
@@ -763,6 +771,22 @@ class MainApp(Frame):
     def stopAnimation(self):
         self.anim.after_cancel(self.anim.cancel)
         self.anim.destroy()
+
+    # TODO:Quick'n dirty message. To be improved
+
+    def setMessage(self,msg):
+
+        if hasattr(self,"msg_label"): self.msg_label.destroy()
+        if hasattr(self,"anim"): self.anim.destroy()
+        if msg == "default":
+            self.anim.destroy()
+            self.anim = self.showAnimatedGif(default_animated_gif_file, 1, "forever", 2, 1, 1)
+        else:
+            if hasattr(self,"msg_label"): self.msg_label.destroy()
+            self.msg_label = Label(self.con_frame, text=msg, bg="yellow",font=self.lhFont, width=lhwidth )
+            self.msg_label.grid(row=1, column=1)
+
+
 
     def askOpenAnimatedGifFileM1(self):
         self.openAnimatedGifFile(1, 1, 1)
