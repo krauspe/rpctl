@@ -31,8 +31,8 @@ Remote Piloting
 """
 # operation mode
 
-#gui_mode = "simulate"
-gui_mode = "productive"
+gui_mode = "simulate"
+#gui_mode = "productive"
 mode_comment = "as configured"
 
 # dynamic settings
@@ -332,21 +332,25 @@ class MainApp(Frame):
         self.selected_domains = {}
         self.selected_domains["resource"] = []
         self.selected_domains["target"] = []
-
+        self.resource_fqdns_all = []
+        self.resource_fqdns_all_previous = []
+        self.resfqdns_selected = []
+        self.resfqdns_selected_previous = []
+        self.number_resource_fqdns_all_previous = 0
+        self.status_view_init = 0
         self.listbox = {}
-
         self.om = {}
-
         self.new_target_config_list   = []
 
         # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
-        self.loadLists()
+        #self.loadLists()
 
         # CHECK BUTTON FRAME :checboxes to choose domains
 
         self.domain_selector_frame = Frame(root, bg="grey")
         self.domain_selector_frame.grid(row=5, column=1)
 
+        self.loadLists()
         self.domaintSelectBox()
         self.createStatusView()
 
@@ -396,33 +400,53 @@ class MainApp(Frame):
         self.createStatusView()
 
 
+
     def createStatusView(self):
+        '''LIST SCROLL AREA FRAME (IN CANVAS)'''
 
-        # LIST SCROLL AREA FRAME (IN CANVAS)
+        self.resource_fqdns_all_previous = self.resource_fqdns_all[:] ## list copy !
+        self.number_resource_fqdns_all_previous = len(self.resource_fqdns_all_previous)
 
-        # delete possibly previuosly created objects
-        if hasattr(self,'vsb'): self.vsb.destroy()
-        if hasattr(self,'list_frame'): self.list_frame.destroy()
-        if hasattr(self,'canvas'): self.canvas.destroy()
-        if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
+        self.loadLists()
 
-        self.canvas_frame = Frame(root, bg="grey")
-        self.canvas_frame.grid(row=5, column=0)
-        self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
-        self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
-        self.vsb.pack(side="right", fill="y")
-        self.list_frame = Frame(self.canvas, bg="grey")
-        self.list_frame.grid(row=0, column=0)
-        self.canvas.configure(yscrollcommand=self.vsb.set)
-        self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
-        self.canvas.pack(side="left",fill="both", expand=True)
+        self.resfqdns_selected = self.getSelectedFqdnOptionList("resource")
+        number_resfqdns_selected = len(self.resfqdns_selected)
 
-        #self.loadLists()
+        # recreate outer items only when number of selected increased compared with previuos run
+
+        print "number_resource_fqdns_all_previous=", self.number_resource_fqdns_all_previous
+        print "number_resfqdns_selected=", number_resfqdns_selected
+
+        if number_resfqdns_selected > self.number_resource_fqdns_all_previous or self.status_view_init == 0 :  # anedern: muss > maximale initiale Anzahl am Programmstart sein
+            # delete possibly previuosly created objects
+            print "Recreate Status items"
+            if hasattr(self,'vsb'): self.vsb.destroy()
+            if hasattr(self,'list_frame'): self.list_frame.destroy()
+            if hasattr(self,'canvas'): self.canvas.destroy()
+            if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
+
+            self.canvas_frame = Frame(root, bg="grey")
+            self.canvas_frame.grid(row=5, column=0)
+            self.canvas = Canvas(self.canvas_frame, borderwidth=0, background="#ffffff")
+            self.vsb = Scrollbar(self.canvas_frame, orient="vertical", command=self.canvas.yview)
+            self.vsb.pack(side="right", fill="y")
+            self.list_frame = Frame(self.canvas, bg="grey")
+            self.list_frame.grid(row=0, column=0)
+            self.canvas.configure(yscrollcommand=self.vsb.set)
+            self.canvas.create_window((0,0),window=self.list_frame, anchor="nw",tags="self.list_frame")
+            self.canvas.pack(side="left",fill="both", expand=True)
+            self.status_view_init = 1
+            #self.loadLists()
         self.r1 = 0
+        #HIER
+        for resfqdn in self.resource_fqdns_all_previous:
+            if self.label_resfqdn.has_key(resfqdn): self.label_resfqdn[resfqdn].destroy()
+            if self.label_curfqdn.has_key(resfqdn): self.label_curfqdn[resfqdn].destroy()
+            if self.label_operation_mode.has_key(resfqdn): self.label_operation_mode[resfqdn].destroy()
+            if self.label_status.has_key(resfqdn): self.label_status[resfqdn].destroy()
 
-        resfqdns_selected = self.getSelectedFqdnOptionList("resource")
 
-        for resfqdn in resfqdns_selected:
+        for resfqdn in self.resfqdns_selected:
             curfqdn = self.current_fqdn[resfqdn]
             opmode  = self.nsc_status[resfqdn]
             status = self.resource_status[resfqdn]
@@ -571,11 +595,11 @@ class MainApp(Frame):
         print "updateStatus: "
         #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
         self.update_status_list()
-        self.loadLists()
+        #self.loadLists()
         self.createStatusView()
 
-    def updateStatusView(self):
-        self.createStatusView()
+    # def updateStatusView(self):
+    #     self.createStatusView()
 
     def createOptionMENUS(self):
         self.r1 = 0
