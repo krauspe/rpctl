@@ -22,10 +22,10 @@ import pprint
 from MyPILTools import LabelAnimated
 
 # Titles
-main_window_title = """ 2Step Remote Pilot Control Advanced 2.1 (branch) """
+main_window_title = """ 2Step Remote Pilot Control Advanced 2.2 (unregistered) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control Advanced 2.1 (branch) (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control Advanced 2.2 (unregistered) (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
@@ -366,7 +366,7 @@ class MainApp(Frame):
         listvar["target"] = StringVar()
 
         listvar["resource"].set(" ".join(self.dns_all["resource"]))
-        listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Select Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+        listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
         listbox_head_label["resource"].pack()
         self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
         self.listbox["resource"].pack(side="top")
@@ -374,7 +374,7 @@ class MainApp(Frame):
         select_button["resource"].pack()
 
         listvar["target"].set(" ".join(self.dns_all["target"]))
-        listbox_head_label["target"] = Label(self.domain_selector_frame, text="Select Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+        listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
         listbox_head_label["target"].pack()
         self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
         self.listbox["target"].pack(side="top")
@@ -414,12 +414,12 @@ class MainApp(Frame):
 
         # recreate outer items only when number of selected increased compared with previuos run
 
-        print "number_resource_fqdns_all_previous=", self.number_resource_fqdns_all_previous
-        print "number_resfqdns_selected=", number_resfqdns_selected
+        # print "number_resource_fqdns_all_previous=", self.number_resource_fqdns_all_previous
+        # print "number_resfqdns_selected=", number_resfqdns_selected
 
         if number_resfqdns_selected > self.number_resource_fqdns_all_previous or self.status_view_init == 0 :  # anedern: muss > maximale initiale Anzahl am Programmstart sein
             # delete possibly previuosly created objects
-            print "Recreate Status items"
+            #print "Recreate Status items"
             if hasattr(self,'vsb'): self.vsb.destroy()
             if hasattr(self,'list_frame'): self.list_frame.destroy()
             if hasattr(self,'canvas'): self.canvas.destroy()
@@ -437,8 +437,9 @@ class MainApp(Frame):
             self.canvas.pack(side="left",fill="both", expand=True)
             self.status_view_init = 1
             #self.loadLists()
+
         self.r1 = 0
-        #HIER
+
         for resfqdn in self.resource_fqdns_all_previous:
             if self.label_resfqdn.has_key(resfqdn): self.label_resfqdn[resfqdn].destroy()
             if self.label_curfqdn.has_key(resfqdn): self.label_curfqdn[resfqdn].destroy()
@@ -474,10 +475,10 @@ class MainApp(Frame):
                 resfqdn_lbgcol = "white"
 
             # delete old labels
-            if self.label_resfqdn.has_key(resfqdn): self.label_resfqdn[resfqdn].destroy()
-            if self.label_curfqdn.has_key(resfqdn): self.label_curfqdn[resfqdn].destroy()
-            if self.label_operation_mode.has_key(resfqdn): self.label_operation_mode[resfqdn].destroy()
-            if self.label_status.has_key(resfqdn): self.label_status[resfqdn].destroy()
+            # if self.label_resfqdn.has_key(resfqdn): self.label_resfqdn[resfqdn].destroy()
+            # if self.label_curfqdn.has_key(resfqdn): self.label_curfqdn[resfqdn].destroy()
+            # if self.label_operation_mode.has_key(resfqdn): self.label_operation_mode[resfqdn].destroy()
+            # if self.label_status.has_key(resfqdn): self.label_status[resfqdn].destroy()
             # create lables
             self.label_resfqdn[resfqdn] = Label(self.list_frame, textvariable=self.lt_resfqdns[resfqdn], font=self.lFont, width=lwidth,  relief=GROOVE, bg=resfqdn_lbgcol)
             self.label_resfqdn[resfqdn].grid(row=self.r1, column=0, sticky=N+S)
