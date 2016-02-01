@@ -22,10 +22,10 @@ import pprint
 from MyPILTools import LabelAnimated
 
 # Titles
-main_window_title = """ 2Step Remote Pilot Control Advanced 2.0 (branch) """
+main_window_title = """ 2Step Remote Pilot Control Advanced 2.1 (branch) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control Advanced 2.0 (branch) (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control Advanced 2.1 (branch) (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
