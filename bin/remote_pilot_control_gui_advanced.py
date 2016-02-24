@@ -22,10 +22,10 @@ import pprint
 from MyPILTools import LabelAnimated
 
 # Titles
-main_window_title = """ 2Step Remote Pilot Control Advanced 2.2 (unregistered) """
+main_window_title = """ 2Step Remote Pilot Control Advanced 2.3 (unregistered) """
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = """
-2Step Remote Pilot Control Advanced 2.2 (unregistered) (c) Peter Krauspe DFS 11/2015
+2Step Remote Pilot Control Advanced 2.3 (unregistered) (c) Peter Krauspe DFS 11/2015
 The expert tool for
 Remote Piloting
 """
@@ -518,6 +518,8 @@ class MainApp(Frame):
 
         self.text = ""
         self.err_text = ""
+        # run cmd in background
+        cmd += ' &'
 
         if opt == "fake":
             print "  running shell command:(FAKE !)"
