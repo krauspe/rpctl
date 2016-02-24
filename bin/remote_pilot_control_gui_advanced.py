@@ -590,7 +590,7 @@ class MainApp(Frame):
 
     def confirmRemotePSPChoices(self):
         self.createTargetConfigListFromOptionMENU()
-        self.createOptionMENUS()
+        #self.createOptionMENUS()
 
     def updateStatus(self):
         print "updateStatus: "
