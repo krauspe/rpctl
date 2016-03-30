@@ -357,7 +357,7 @@ class MainApp(Frame):
         self.domaintSelectBox()
         self.createStatusView()
 
-        #self.checkLicense()
+        self.checkLicense()
     #     self.domainCheckBoxSelector(self.domain_selector_frame, "create", "all")
 
     def domaintSelectBox(self):
@@ -861,8 +861,8 @@ class MainApp(Frame):
         # self.anim2 = LabelAnimated(self.frame_check, default_animated_gif_file, 1, "forever", 1)
         # self.anim2.grid(row=0, column=2)
 
-        self.lFont = tkFont.Font(family="Arial Black", size="12")
-        Label(self.frame_check, text="Evaluation period expired !", font=self.lFont, width=30, fg="black", bg="red").grid(row=0, column=1, sticky=W + E)
+        self.font_frame_check = tkFont.Font(family="Arial Black", size="12")
+        Label(self.frame_check, text="Evaluation period expired !", font=self.font_frame_check, width=30, fg="black", bg="red").grid(row=0, column=1, sticky=W + E)
         Button(self.frame_check, text="Buy license", fg="black", command=self.showGif1).grid(row=2, column=0, sticky=W + E)
         Button(self.frame_check, text="Ignore", fg="black", command=self.showGif1).grid(row=2, column=1, sticky=W + E)
         Button(self.frame_check, text="Enter License Key", fg="black", command=self.inputRegistrationKey).grid(row=2,column=2,sticky=W + E)
