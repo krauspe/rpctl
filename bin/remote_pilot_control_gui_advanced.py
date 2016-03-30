@@ -21,14 +21,15 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
+version = "2.3"
+
 # Titles
-main_window_title = """ 2Step Remote Pilot Control Advanced 2.3 (unregistered) """
+main_window_title = " 2Step Remote Pilot Control Advanced " + version + "(unregistered) "
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
-about = """
-2Step Remote Pilot Control Advanced 2.3 (unregistered) (c) Peter Krauspe DFS 11/2015
-The expert tool for
-Remote Piloting
-"""
+about = "2Step Remote Pilot Control Advanced " + version + "(unregistered) (c) Peter Krauspe DFS 11/2015\n\
+The expert tool for\n\
+Remote Piloting"
+
 # operation mode
 
 gui_mode = "simulate"
