@@ -16,15 +16,15 @@ from tkFileDialog import askopenfilename,askopenfile
 import tkFont
 import ScrolledText
 import subprocess as sub
-import os
+import os,time
 from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "2.3"
+version = "2.3.1"
 
 # Titles
-main_window_title = " 2Step Remote Pilot Control Advanced " + version + "(unregistered) "
+main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
 about = "2Step Remote Pilot Control Advanced " + version + "(unregistered) (c) Peter Krauspe DFS 11/2015\n\
 The expert tool for\n\
@@ -100,11 +100,11 @@ lbgcol = {
     "te1.lgn.dfs.de":"lightyellow",
 }
 
-# label width settings
-lhwidth = 17                                          # label header width
+# label_regkey width settings
+lhwidth = 17                                          # label_regkey header width
 lwidth = 21
 
-# label font settings
+# label_regkey font settings
 lhFont = {
     "family":"Arial Black",  # alternaive "Helvetica"
     "size":11,
@@ -124,7 +124,7 @@ opthFont = {
     "size":9,
 }
 
-# label colours and text translations
+# label_regkey colours and text translations
 
 label_status_text_trans =         {"ready" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
 label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "unknown" : "unknown", None: ""}
@@ -135,7 +135,7 @@ label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "
 
 if not os.path.exists(ext_basedir):
     gui_mode = "simulate"
-    mode_comment = "because %s doesn't exist !\n" % ext_basedir
+    mode_comment = "because %s doesn'reg_window exist !\n" % ext_basedir
 
 mode_comment = str(cfg[gui_mode]["descr"]) + '\n' + mode_comment
 bindir  = str(cfg[gui_mode]["bindir"])
@@ -176,7 +176,7 @@ def getFileAsList(file):
             print "WARNING: %s is empty or has no valid lines !!" % file
         return in_list
     else:
-        print "WARNING: %s doesn't exist !!" % file
+        print "WARNING: %s doesn'reg_window exist !!" % file
         return []
 
 def getFileAsListOfRow(file, row):
@@ -187,7 +187,7 @@ def getFileAsListOfRow(file, row):
             print "WARNING: %s is empty or has no valid lines !!" % file
         return in_list
     else:
-        print "WARNING: %s doesn't exist !!" % file
+        print "WARNING: %s doesn'reg_window exist !!" % file
         return []
 
 # def getTargetConfigList(file):
@@ -241,12 +241,14 @@ class MainApp(Frame):
 
         # Font settings
 
-        self.lhFont = tkFont.Font(family=lhFont["family"], size=lhFont["size"])         # label header font
-        self.lFont = tkFont.Font(family=lFont["family"], size=lhFont["size"])           # label font
+        self.lhFont = tkFont.Font(family=lhFont["family"], size=lhFont["size"])         # label_regkey header font
+        self.lFont = tkFont.Font(family=lFont["family"], size=lhFont["size"])           # label_regkey font
         self.optFont = tkFont.Font(family=optFont["family"], size=optFont["size"])      # option menu font
         self.opthFont = tkFont.Font(family=opthFont["family"], size=opthFont["size"])   # option menu header font
 
         #Frame.__init__(self, master=None,*args, **kwargs)
+
+
         Frame.__init__(self, root)
 
 
@@ -355,6 +357,7 @@ class MainApp(Frame):
         self.domaintSelectBox()
         self.createStatusView()
 
+        #self.checkLicense()
     #     self.domainCheckBoxSelector(self.domain_selector_frame, "create", "all")
 
     def domaintSelectBox(self):
@@ -844,31 +847,72 @@ class MainApp(Frame):
         self.anim.grid(row=row,column=column)
         return self.anim
 
+    # --- GAGS BEGIN ---)
+
+    def checkLicense(self):
+        self.window_check = Toplevel(self)
+        self.window_check.wm_title("2Step Remote Pilot Control License Check")
+        self.frame_check = Frame(self.window_check)
+        self.frame_check.grid(row=0, column=1)
+
+        self.logo = PhotoImage(file=logo_file)
+        Label(self.frame_check, image=self.logo).grid(row=0, column=0, sticky="E")
+
+        # self.anim2 = LabelAnimated(self.frame_check, default_animated_gif_file, 1, "forever", 1)
+        # self.anim2.grid(row=0, column=2)
+
+        self.lFont = tkFont.Font(family="Arial Black", size="12")
+        Label(self.frame_check, text="Evaluation period expired !", font=self.lFont, width=30, fg="black", bg="red").grid(row=0, column=1, sticky=W + E)
+        Button(self.frame_check, text="Buy license", fg="black", command=self.showGif1).grid(row=2, column=0, sticky=W + E)
+        Button(self.frame_check, text="Ignore", fg="black", command=self.showGif1).grid(row=2, column=1, sticky=W + E)
+        Button(self.frame_check, text="Enter License Key", fg="black", command=self.inputRegistrationKey).grid(row=2,column=2,sticky=W + E)
+        Button(self.frame_check, text="QUIT", fg="black", command=self.window_check.destroy).grid(row=2, column=3, sticky=W + E)
+
 
     def inputRegistrationKey(self):
         '''inputRegistrationKey'''
-        print("Open inputRegistrationKey Dialog")
-        # t = Toplevel(self)
-        # t.wm_title("Register")
-        # l = Label(t, text="Type in your registration keys").pack()
-        #
-        #
-        # self.entrytext = StringVar()
-        # Entry(self.root, textvariable=self.entrytext).pack()
-        #
-        # self.buttontext = StringVar()
-        # self.buttontext.set("Check")
-        # Button(self.root, textvariable=self.buttontext, command=self.clicked1).pack()
-        #
-        # self.label = Label(self.root, text="")
-        # self.label.pack()
 
 
-    # def clicked1(self):
-    #     self.input = self.entrytext.get()
-    #     self.label.configure(text=self.input)
-    #     print "Print: ", self.input
+        self.font_label_regkey = tkFont.Font(family="Arial Black", size="10")
 
+        self.reg_window = Toplevel(self)
+        self.reg_window.wm_title("Register")
+
+        Label(self.reg_window, text="Type in your registration key").pack()
+
+        self.entrytext = StringVar()
+        Entry(self.reg_window, textvariable=self.entrytext).pack()
+
+        self.buttontext = StringVar()
+        self.buttontext.set("Check")
+        Button(self.reg_window, textvariable=self.buttontext, command=self.clicked1).pack()
+
+        self.label_regkey = Label(self.reg_window, text="", font=self.font_label_regkey)
+        self.label_regkey.pack()
+
+
+    def showGif1(self):
+        self.stopAnimation()
+        animated_gif_subdir = "others"
+        animated_gif_filename = "Gravity-balls-ear-to-ear-crazy-animation.gif"
+        animated_gif_file = os.path.join(animdir, animated_gif_subdir, animated_gif_filename)
+        # self.anim = self.showAnimatedGif(animated_gif_file, 3, "forever", 2, 0, 2)
+        self.anim2 = LabelAnimated(self.frame_check, animated_gif_file, 1, "forever", 1)
+        self.anim2.grid(row=0, column=2)
+
+    def clicked1(self):
+        self.input = self.entrytext.get()
+        self.label_regkey_text = ""
+        if self.input == "1.4.2016":
+            self.label_regkey_text = "registration complete"
+        else:
+            self.label_regkey_text = "license key not valid !!"
+
+        self.label_regkey.configure(text=self.label_regkey_text)
+        time.sleep(3)
+        self.reg_window.destroy()
+        self.window_check.destroy()
+    # --- GAGS END ---
 
 
 if __name__ == "__main__":
