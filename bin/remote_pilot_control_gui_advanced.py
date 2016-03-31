@@ -16,7 +16,7 @@ from tkFileDialog import askopenfilename,askopenfile
 import tkFont
 import ScrolledText
 import subprocess as sub
-import os,time
+import os,time,datetime
 from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
@@ -248,10 +248,8 @@ class MainApp(Frame):
 
         #Frame.__init__(self, master=None,*args, **kwargs)
 
-
         Frame.__init__(self, root)
-
-
+        self.parent = root # get a reference to change atts of the root window (like title etc)
         self.frame = Frame(root)
         self.frame.grid(row=0,column=1)
 
@@ -357,8 +355,7 @@ class MainApp(Frame):
         self.domaintSelectBox()
         self.createStatusView()
 
-        #self.checkLicense()
-    #     self.domainCheckBoxSelector(self.domain_selector_frame, "create", "all")
+        self.checkLicense()
 
     def domaintSelectBox(self):
         listvar = {}
@@ -850,6 +847,14 @@ class MainApp(Frame):
     # --- GAGS BEGIN ---)
 
     def checkLicense(self):
+        self.licfile = os.path.join(confdir,"rpctl.lic")
+        now = datetime.datetime.now()
+        if os.path.isfile(self.licfile):
+            self.parent.title(main_window_title.replace("unregistered","registered"))
+            return
+        if now.day != 1 or now.month != 4 or os.path.isfile(self.licfile):
+            return
+
         self.window_check = Toplevel(self)
         self.window_check.wm_title("2Step Remote Pilot Control License Check")
         self.frame_check = Frame(self.window_check)
@@ -857,38 +862,33 @@ class MainApp(Frame):
 
         self.logo = PhotoImage(file=logo_file)
         Label(self.frame_check, image=self.logo).grid(row=0, column=0, sticky="E")
-
-        # self.anim2 = LabelAnimated(self.frame_check, default_animated_gif_file, 1, "forever", 1)
-        # self.anim2.grid(row=0, column=2)
-
-        self.lFont = tkFont.Font(family="Arial Black", size="12")
-        Label(self.frame_check, text="Evaluation period expired !", font=self.lFont, width=30, fg="black", bg="red").grid(row=0, column=1, sticky=W + E)
+        self.font_frame_check = tkFont.Font(family="Arial Black", size="12")
+        Label(self.frame_check, text="Evaluation period expired !", font=self.font_frame_check, width=30, fg="black", bg="red").grid(row=0, column=1, sticky=W + E)
         Button(self.frame_check, text="Buy license", fg="black", command=self.showGif1).grid(row=2, column=0, sticky=W + E)
         Button(self.frame_check, text="Ignore", fg="black", command=self.showGif1).grid(row=2, column=1, sticky=W + E)
         Button(self.frame_check, text="Enter License Key", fg="black", command=self.inputRegistrationKey).grid(row=2,column=2,sticky=W + E)
         Button(self.frame_check, text="QUIT", fg="black", command=self.window_check.destroy).grid(row=2, column=3, sticky=W + E)
 
+        # set window_check on top of root frame
+        self.window_check.transient(self.frame)
 
     def inputRegistrationKey(self):
         '''inputRegistrationKey'''
-
-
         self.font_label_regkey = tkFont.Font(family="Arial Black", size="10")
-
         self.reg_window = Toplevel(self)
         self.reg_window.wm_title("Register")
-
         Label(self.reg_window, text="Type in your registration key").pack()
-
         self.entrytext = StringVar()
         Entry(self.reg_window, textvariable=self.entrytext).pack()
-
         self.buttontext = StringVar()
         self.buttontext.set("Check")
         Button(self.reg_window, textvariable=self.buttontext, command=self.clicked1).pack()
-
         self.label_regkey = Label(self.reg_window, text="", font=self.font_label_regkey)
         self.label_regkey.pack()
+        # set reg_window on top of root frame
+        self.reg_window.transient(self.frame)
+        self.reg_window.wm_attributes("-topmost", 1)
+        self.reg_window.focus_force()
 
 
     def showGif1(self):
@@ -897,21 +897,32 @@ class MainApp(Frame):
         animated_gif_filename = "Gravity-balls-ear-to-ear-crazy-animation.gif"
         animated_gif_file = os.path.join(animdir, animated_gif_subdir, animated_gif_filename)
         # self.anim = self.showAnimatedGif(animated_gif_file, 3, "forever", 2, 0, 2)
-        self.anim2 = LabelAnimated(self.frame_check, animated_gif_file, 1, "forever", 1)
+        self.anim2 = LabelAnimated(self.frame_check, animated_gif_file, 1, "forever", 2)
         self.anim2.grid(row=0, column=2)
 
     def clicked1(self):
         self.input = self.entrytext.get()
         self.label_regkey_text = ""
-        if self.input == "1.4.2016":
+        if self.input == "aprilapril":
             self.label_regkey_text = "registration complete"
+            self.parent.title(main_window_title.replace("unregistered","registered"))
+            self.writeLicFile()
         else:
             self.label_regkey_text = "license key not valid !!"
 
         self.label_regkey.configure(text=self.label_regkey_text)
-        time.sleep(3)
+        #time.sleep(3)
         self.reg_window.destroy()
-        self.window_check.destroy()
+        try:
+            self.window_check.destroy()
+        except (NameError, AttributeError):
+            pass
+
+    def writeLicFile(self):
+         with open(self.licfile, 'a'):
+             pass
+
+
     # --- GAGS END ---
 
 
