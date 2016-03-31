@@ -22,7 +22,7 @@ class LabelAnimated(Label):
         except KeyError:
             self.delay = 100
 
-        print "LabelAnimated uses mode: ", mode, "\nduration: ", duration_factor, "delay: ", self.delay
+        #print "LabelAnimated uses mode: ", mode, "\nduration: ", duration_factor, "delay: ", self.delay
 
         if method == 2:
             self.frames = [ImageTk.PhotoImage(frame.convert('RGBA')) for frame in seq]
