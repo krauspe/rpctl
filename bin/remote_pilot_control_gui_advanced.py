@@ -85,6 +85,7 @@ cfg = {
             "descr": "Creating and using simulated internal lists"},
     }
 
+
 # Workaround until settings are read from a file
 
 # SETTINGS
@@ -136,6 +137,13 @@ label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "
 if not os.path.exists(ext_basedir):
     gui_mode = "simulate"
     mode_comment = "because %s doesn'reg_window exist !\n" % ext_basedir
+
+# force productive mode in productive environment with optional flag file
+flag_filename = "FORCE_GUI_PRODUCTION_MODE"
+
+if gui_mode != "productive" and os.path.isfile(os.path.join(ext_confdir,flag_filename)):
+    gui_mode = "productive"
+    mode_comment = "forced bei flagfile %s/%s !\n" % (ext_confdir,flag_filename)
 
 mode_comment = str(cfg[gui_mode]["descr"]) + '\n' + mode_comment
 bindir  = str(cfg[gui_mode]["bindir"])
@@ -844,7 +852,7 @@ class MainApp(Frame):
         self.anim.grid(row=row,column=column)
         return self.anim
 
-    # --- GAGS BEGIN ---)
+    # --- FUN STUFF BEGIN ---)
 
     def checkLicense(self):
         self.licfile = os.path.join(confdir,"rpctl.lic")
@@ -923,7 +931,7 @@ class MainApp(Frame):
              pass
 
 
-    # --- GAGS END ---
+    # --- FUN STUFF END ---
 
 
 if __name__ == "__main__":
