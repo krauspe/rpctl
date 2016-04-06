@@ -887,7 +887,8 @@ class MainApp(Frame):
         self.reg_window.wm_title("Register")
         Label(self.reg_window, text="Type in your registration key").pack()
         self.entrytext = StringVar()
-        Entry(self.reg_window, textvariable=self.entrytext).pack()
+        self.entry = Entry(self.reg_window, textvariable=self.entrytext)
+        self.entry.pack()
         self.buttontext = StringVar()
         self.buttontext.set("Check")
         Button(self.reg_window, textvariable=self.buttontext, command=self.clicked1).pack()
@@ -896,7 +897,7 @@ class MainApp(Frame):
         # set reg_window on top of root frame
         self.reg_window.transient(self.frame)
         self.reg_window.wm_attributes("-topmost", 1)
-        self.reg_window.focus_force()
+        self.entry.focus_force()
 
 
     def showGif1(self):
