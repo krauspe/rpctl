@@ -225,7 +225,7 @@ class Player(Tk.Frame):
             tyme = 0
         dbl = tyme * 0.001
         self.timeslider_last_val = ("%.0f" % dbl) + ".0"
-        # don't want to programatically change slider while user is messing with it.
+        # don'reg_window want to programatically change slider while user is messing with it.
         # wait 2 seconds after user lets go of slider
         if time.time() > (self.timeslider_last_update + 2.0):
             self.timeslider.set(dbl)
@@ -238,7 +238,7 @@ class Player(Tk.Frame):
         if self.timeslider_last_val != sval:
             # this is a hack. The timer updates the time slider.
             # This change causes this rtn (the 'slider has changed' rtn) to be invoked.
-            # I can't tell the difference between when the user has manually moved the slider and when
+            # I can'reg_window tell the difference between when the user has manually moved the slider and when
             # the timer changed the slider. But when the user moves the slider tkinter only notifies
             # this rtn about once per second and when the slider has quit moving.
             # Also, the tkinter notification value has no fractional seconds.
@@ -247,7 +247,7 @@ class Player(Tk.Frame):
             # we know that this notification is due to the timer changing the slider.
             # otherwise the notification is due to the user changing the slider.
             # if the user is changing the slider then I have the timer routine wait for at least
-            # 2 seconds before it starts updating the slider again (so the timer doesn't start fighting with the
+            # 2 seconds before it starts updating the slider again (so the timer doesn'reg_window start fighting with the
             # user)
             self.timeslider_last_update = time.time()
             mval = "%.0f" % (nval * 1000)

@@ -76,7 +76,7 @@ cfg = {
 
 if not os.path.exists(ext_basedir):
     mode = "simulate"
-    mode_comment = "because %s doesn't exist !\n" % ext_basedir
+    mode_comment = "because %s doesn'reg_window exist !\n" % ext_basedir
 
 mode_comment = str(cfg[mode]["descr"]) + '\n' + mode_comment
 bindir  = str(cfg[mode]["bindir"])
@@ -164,11 +164,11 @@ class MainApp(Frame):
         self.label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey"}
 
         # Font settings
-        self.lhwidth = 17                                           # label header width
-        self.lwidth = 21                                            # label width
-        self.lhFont = tkFont.Font(family="Arial Black", size=11)    # label header font
-        #self.lFont = tkFont.Font(family="Helvetica", size=10)      # label font
-        self.lFont = tkFont.Font(family="Arial", size=10)           # label font
+        self.lhwidth = 17                                           # label_regkey header width
+        self.lwidth = 21                                            # label_regkey width
+        self.lhFont = tkFont.Font(family="Arial Black", size=11)    # label_regkey header font
+        #self.lFont = tkFont.Font(family="Helvetica", size=10)      # label_regkey font
+        self.lFont = tkFont.Font(family="Arial", size=10)           # label_regkey font
         self.optFont = tkFont.Font(family="Arial", size=9)          # option menu font
         self.opthFont = tkFont.Font(family="Arial Black", size=9)   # option menu header font
 
@@ -193,7 +193,7 @@ class MainApp(Frame):
         self.console.grid(row=1, column=0)
 
         #self.anim = None
-        #self.anim = self.showAnimatedGif(animated_gif_file,duration,2,1,1)
+        #self.anim = self.showAnimatedGif(default_animated_gif_file,duration,2,1,1)
 
         # show initial animated gif
         # changed function in LabelAnimated plays gif only once when duration is nagative
@@ -584,9 +584,9 @@ class MainApp(Frame):
     def inputRegistrationKey(self):
         '''inputRegistrationKey'''
         print("Open inputRegistrationKey Dialog")
-        # t = Toplevel(self)
-        # t.wm_title("Register")
-        # l = Label(t, text="Type in your registration keys").pack()
+        # reg_window = Toplevel(self)
+        # reg_window.wm_title("Register")
+        # l = Label(reg_window, text="Type in your registration keys").pack()
         #
         #
         # self.entrytext = StringVar()
@@ -596,13 +596,13 @@ class MainApp(Frame):
         # self.buttontext.set("Check")
         # Button(self.root, textvariable=self.buttontext, command=self.clicked1).pack()
         #
-        # self.label = Label(self.root, text="")
-        # self.label.pack()
+        # self.label_regkey = Label(self.root, text="")
+        # self.label_regkey.pack()
 
 
     # def clicked1(self):
     #     self.input = self.entrytext.get()
-    #     self.label.configure(text=self.input)
+    #     self.label_regkey.configure(text=self.input)
     #     print "Print: ", self.input
 
 

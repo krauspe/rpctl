@@ -96,7 +96,7 @@ echo "\n<< Reconfigure Resource NSC's >>\n"
 # ensure existence of target_config_list 
 
 if [[ ! -f $target_config_list_file ]]; then
-  echo "\n  $target_config_list_file doesn't exist. exiting !\n"
+  echo "\n  $target_config_list_file doesn'reg_window exist. exiting !\n"
   exit 1
 fi
 

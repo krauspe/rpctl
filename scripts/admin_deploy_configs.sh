@@ -47,7 +47,7 @@ if [[ $# < 2 ]]; then
    echo "   eg: $(basename $0) deploy:keys      psp1-s1.ak3.lgn.dfs.de  # as above, but only ssh public"
    echo "   eg: $(basename $0) deploy:config    psp1-s1.ak3.lgn.dfs.de  # as above, but only tsctl2 and network config"
    echo "   eg: $(basename $0) deploy:scripts   psp1-s1.ak3.lgn.dfs.de  # as above, but only scripts"
-   echo "   eg: $(basename $0) all|config|scripts|keys   all   # make everything due to action keyword but don't deploy to NSCs (PSPs) !!"
+   echo "   eg: $(basename $0) all|config|scripts|keys   all   # make everything due to action keyword but don'reg_window deploy to NSCs (PSPs) !!"
    exit 1
 fi
 
@@ -134,7 +134,7 @@ if [[ $arg2 != "all" ]]; then
         echo "Existence and reachability of $target is not checked at this point ! "
         echo "------------------------------------------------"
       else
-        echo "can't reach $resource_domain_server, exiting"
+        echo "can'reg_window reach $resource_domain_server, exiting"
         exit 1
       fi  
     else

@@ -552,7 +552,7 @@ class Controls(Frame):
             attrs.append ( "italic" )
         #-- 5 --
         return " ".join ( attrs )
-# - - -   C o n t r o l s . g e t F o n t
+# - - -   C o n reg_window r o l s . g e reg_window F o n reg_window
 
     def getFont ( self ):
         """Return the current tkFont.Font instance.

@@ -73,7 +73,7 @@ class Color:
                 return a positive number
               else -> return 0 ]
     """
-# - - -   C o l o r . _ _ i n i t _ _
+# - - -   C o l o r . _ _ i n i reg_window _ _
 
     def __init__ ( self, red, green, blue ):
         """Constructor for Color
@@ -92,7 +92,7 @@ class Color:
 
         #-- 3 --
         self.b  =  self.__standardize ( blue )
-# - - -   C o l o r . _ _ s t a n d a r d i z e
+# - - -   C o l o r . _ _ s reg_window a n d a r d i z e
 
     def __standardize ( self, rawValue ):
         """Standardize representation of a color component.
@@ -116,7 +116,7 @@ class Color:
         else:
             raise ValueError, ( "Color component %s "
                 "not int or float." % rawValue )
-# - - -   C o l o r . _ _ s t r _ _
+# - - -   C o l o r . _ _ s reg_window r _ _
 
     def __str__ ( self ):
         """Convert self to an X color name.
@@ -158,7 +158,7 @@ class ColorModel:
            [ n is a float in [0.0, 1.0] ->
                return int(n*MAX_PARAM) ]
     """
-# - - -   C o l o r M o d e l . _ _ i n i t _ _
+# - - -   C o l o r M o d e l . _ _ i n i reg_window _ _
 
     def __init__ ( self, modelName, labelList ):
         """Constructor for ColorModel."""
@@ -185,7 +185,7 @@ class ColorModel:
            return result
 
     normalize  =  staticmethod ( normalize )
-# - - -   C o l o r M o d e l . d i s c r e t i z e
+# - - -   C o l o r M o d e l . d i s c r e reg_window i z e
 
 #   @staticmethod
     def discretize ( n ):
@@ -204,7 +204,7 @@ class ColorModel:
 class HSVModel(ColorModel):
     """Represents the hue-saturation-value color model.
     """
-# - - -   H S V M o d e l . _ _ i n i t _ _
+# - - -   H S V M o d e l . _ _ i n i reg_window _ _
 
     def __init__ ( self ):
         ColorModel.__init__ ( self, "HSV",
@@ -280,7 +280,7 @@ class HSVModel(ColorModel):
 class RGBModel(ColorModel):
     """Represents the red-green-blue color model.
     """
-# - - -   R G B M o d e l . _ _ i n i t _ _
+# - - -   R G B M o d e l . _ _ i n i reg_window _ _
 
     def __init__ ( self ):
         """Constructor for RGBModel."""
@@ -304,7 +304,7 @@ class RGBModel(ColorModel):
 class CMYModel(ColorModel):
     """Represents the cyan-yellow-magenta color model.
     """
-# - - -   C M Y M o d e l . _ _ i n i t _ _
+# - - -   C M Y M o d e l . _ _ i n i reg_window _ _
 
     def __init__ ( self ):
         """Constructor for CMYModel."""
@@ -330,7 +330,7 @@ class CMYModel(ColorModel):
         yellow   =  MAX_PARAM - color.b
         return (cyan, magenta, yellow)
 
-# - - - - -   c l a s s   A p p l i c a t i o n
+# - - - - -   c l a s s   A p p l i c a reg_window i o n
 
 class Application(Frame):
     """Contains the entire application.
@@ -349,7 +349,7 @@ class Application(Frame):
       1 | .__namePicker | .__adjuster | .__swatch |
         +---------------+-------------+-----------+
     """
-# - - -   A p p l i c a t i o n . _ _ i n i t _ _
+# - - -   A p p l i c a reg_window i o n . _ _ i n i reg_window _ _
 
     def __init__ ( self ):
         """Constructor for Application.
@@ -361,7 +361,7 @@ class Application(Frame):
         #-- 2 --
         # [ self  :=  self with all widgets created and gridded ]
         self.__createWidgets()
-# - - -   A p p l i c a t i o n . _ _ c r e a t e W i d g e t s
+# - - -   A p p l i c a reg_window i o n . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all widgets.
@@ -391,7 +391,7 @@ class Application(Frame):
         self.__swatch  =  Swatch ( self, self.__adjuster.bgColor(),
                                    self.__adjuster.textColor() )
         self.__swatch.grid ( row=1, column=2, sticky=N )
-# - - -   A p p l i c a t i o n . _ _ n a m e H a n d l e r
+# - - -   A p p l i c a reg_window i o n . _ _ n a m e H a n d l e r
 
     def __nameHandler ( self, newColor ):
         """Handler for the NamePicker widget.
@@ -400,7 +400,7 @@ class Application(Frame):
               self  :=  self with its Adjuster displaying newColor ]
         """
         self.__adjuster.set ( newColor )
-# - - -   A p p l i c a t i o n . _ _ a d j u s t H a n d l e r
+# - - -   A p p l i c a reg_window i o n . _ _ a d j u s reg_window H a n d l e r
 
     def __adjustHandler ( self, isText, newColor ):
         """Handler for the Adjuster widget.
@@ -433,7 +433,7 @@ class MenuBar(Frame):
        0 | .__helpButton | .__quitButton |
          +---------------+---------------+
     """
-# - - -   M e n u B a r . _ _ i n i t _ _
+# - - -   M e n u B a r . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent ):
         """Constructor for MenuBar"""
@@ -451,7 +451,7 @@ class MenuBar(Frame):
         self.__quitButton  =  Button ( self, text='Quit',
             font=BUTTON_FONT, command=self.quit )
         self.__quitButton.grid ( row=0, column=1 )
-# - - -   M e n u B a r . _ _ c r e a t e H e l p
+# - - -   M e n u B a r . _ _ c r e a reg_window e H e l p
 
     def __createHelp ( self ):
         """Create the help menubutton and its cascade.
@@ -543,10 +543,10 @@ class MenuBar(Frame):
         """Help for the color pick list
         """
         self.__dialog ( "Help: Picking a standard color name",
-            "Under the label 'Or click on a name:' you will see a "
+            "Under the label_regkey 'Or click on a name:' you will see a "
             "list of all the standard color names.  Click on the color "
             "name to select that color." )
-# - - -   M e n u B a r . _ _ c a s c a d e A d j u s t e r
+# - - -   M e n u B a r . _ _ c a s c a d e A d j u s reg_window e r
 
     def __cascadeAdjuster ( self, menu ):
         """Add the 'adjust' choice and cascade to the menu.
@@ -581,7 +581,7 @@ class MenuBar(Frame):
 
         select.add_command ( label='Using the color sliders',
             command=self.__helpSliders )
-# - - -   M e n u B a r . _ _ h e l p R e a d o u t
+# - - -   M e n u B a r . _ _ h e l p R e a d o u reg_window
 
     def __helpReadout ( self ):
         """Help for selecting bg/text color
@@ -592,7 +592,7 @@ class MenuBar(Frame):
             "adjusting the three color sliders."
             "\n\t When 'Text color' is selected, you can select the "
             "color of the displayed text." )
-# - - -   M e n u B a r . _ _ h e l p M o d e l S e l e c t o r
+# - - -   M e n u B a r . _ _ h e l p M o d e l S e l e c reg_window o r
 
     def __helpModelSelector ( self ):
         """Help for selecting a color model.
@@ -674,7 +674,7 @@ class MenuBar(Frame):
         #-- 3 --
         # [ select  :=  select with a cascade added for font help ]
         self.__cascadeFonts ( select )
-# - - -   M e n u B a r . _ _ h e l p S w a t c h
+# - - -   M e n u B a r . _ _ h e l p S w a reg_window c h
 
     def __helpSwatch ( self ):
         """Help for the color swatch.
@@ -684,7 +684,7 @@ class MenuBar(Frame):
             "currently selected background color, with some text in "
             "your currently selected font displayed using the "
             "current text (foreground) color." )
-# - - -   M e n u B a r . _ _ c a s c a d e F o n t s
+# - - -   M e n u B a r . _ _ c a s c a d e F o n reg_window s
 
     def __cascadeFonts ( self, menu ):
         """Add the font help cascade.
@@ -712,7 +712,7 @@ class MenuBar(Frame):
         #-- 4 --
         select.add_command ( command=self.__helpFontStyle,
             label="Changing font weight and slant" )
-# - - -   M e n u B a r . _ _ h e l p F o n t F a m i l y
+# - - -   M e n u B a r . _ _ h e l p F o n reg_window F a m i l y
 
     def __helpFontFamily ( self ):
         """Help for font family selection.
@@ -722,7 +722,7 @@ class MenuBar(Frame):
             "list containing the names of all the locally installed "
             "font families.  Click on any of these names to select "
             "that family." )
-# - - -   M e n u B a r . _ _ h e l p F o n t S i z e
+# - - -   M e n u B a r . _ _ h e l p F o n reg_window S i z e
 
     def __helpFontSize ( self ):
         """Help for changing font size.
@@ -734,7 +734,7 @@ class MenuBar(Frame):
             "specify a size in pixels.  After changing the size, "
             "either press the Enter key or click on the 'Set size' "
             "button. " )
-# - - -   M e n u B a r . _ _ h e l p F o n t S t y l e
+# - - -   M e n u B a r . _ _ h e l p F o n reg_window S reg_window y l e
 
     def __helpFontStyle ( self ):
         """Popup for changing font weight and slant.
@@ -744,7 +744,7 @@ class MenuBar(Frame):
             "click the 'Bold' button."
             "\n\tTo change from normal to italic type or back to "
             "normal, click the 'Italic' button." )
-# - - -   M e n u B a r . _ _ h e l p I m p o r t i n g
+# - - -   M e n u B a r . _ _ h e l p I m p o r reg_window i n g
 
     def __helpImporting ( self ):
         """Pop-up help for importing color names.
@@ -756,7 +756,7 @@ class MenuBar(Frame):
             "\n\tYou can also use the hexadecimal form of the color "
             "name that appears under #RRGGBB for either the background "
             "or text (foreground) color." )
-# - - -   M e n u B a r . _ _ h e l p A u t h o r
+# - - -   M e n u B a r . _ _ h e l p A u reg_window h o r
 
     def __helpAuthor ( self ):
         """Pop-up for author credit.
@@ -810,7 +810,7 @@ class NamePicker(Frame):
           [ a StringVar control variable for self.__entry ]
     """
     NAME_WIDTH  =  20
-# - - -   N a m e P i c k e r . _ _ i n i t _ _
+# - - -   N a m e P i c k e r . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, callback=None ):
         """Constructor for the NamePicker compound widget.
@@ -830,13 +830,13 @@ class NamePicker(Frame):
 
         #-- 4 --
         self.__callback  =  callback
-# - - -   N a m e P i c k e r . _ _ c r e a t e W i d g e t s
+# - - -   N a m e P i c k e r . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create all widgets."""
 
         #-- 1 --
-        # [ self  :=  self with a new Label to label the color
+        # [ self  :=  self with a new Label to label_regkey the color
         #             name entry field
         #   self.__entryLabel  :=  that Label ]
         self.__entryLabel  =  Label ( self,
@@ -872,7 +872,7 @@ class NamePicker(Frame):
         self.__pickList  =  PickList ( self, self.__pickListHandler )
         rowx  +=  1
         self.__pickList.grid ( row=rowx, column=0, sticky=W )
-# - - -   N a m e P i c k e r . _ _ e n t r y H a n d l e r
+# - - -   N a m e P i c k e r . _ _ e n reg_window r y H a n d l e r
 
     def __entryHandler ( self, event ):
         """Handle the Enter key in the color name field.
@@ -897,7 +897,7 @@ class NamePicker(Frame):
         #     pop up a Dialog informing the user that the
         #     color name is not valid ]
         self.__setByName ( colorName )
-# - - -   N a m e P i c k e r . _ _ s e t B y N a m e
+# - - -   N a m e P i c k e r . _ _ s e reg_window B y N a m e
 
     def __setByName ( self, colorName ):
         """Convert a color name to RGB values as a Color instance.
@@ -935,7 +935,7 @@ class NamePicker(Frame):
         #   else -> I ]
         if  self.__callback is not None:
             self.__callback ( Color ( *rgb ) )
-# - - -   N a m e P i c k e r . _ _ p i c k L i s t H a n d l e r
+# - - -   N a m e P i c k e r . _ _ p i c k L i s reg_window H a n d l e r
 
     def __pickListHandler ( self, color ):
         """Handler for self.__pickList.
@@ -943,7 +943,7 @@ class NamePicker(Frame):
         if  self.__callback is not None:
             self.__callback ( color )
 
-# - - - - -   c l a s s   P i c k L i s t
+# - - - - -   c l a s s   P i c k L i s reg_window
 
 class PickList(Frame):
     """Compound widget for the color pick list.
@@ -1267,7 +1267,7 @@ class PickList(Frame):
       '\x00\x00\x8BDarkBlue',           '\x00\x8B\x8BDarkCyan',
       '\x8B\x00\x8BDarkMagenta',        '\x8B\x00\x00DarkRed',
       '\x90\xEE\x90LightGreen' ]
-# - - -   P i c k L i s t . l o o k u p N a m e
+# - - -   P i c k L i s reg_window . l o o k u p N a m e
 
     def lookupName ( self, colorName ):
         """Look up a color name.
@@ -1286,7 +1286,7 @@ class PickList(Frame):
             return  color
         except KeyError:
             return None
-# - - -   P i c k L i s t . _ _ i n i t _ _
+# - - -   P i c k L i s reg_window . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, callback=None ):
         """Constructor for the color name PickList."""
@@ -1318,7 +1318,7 @@ class PickList(Frame):
         self.__addColors()
         #-- 5 --
         self.__callback   =  callback
-# - - -   P i c k L i s t . _ _ a d d C o l o r s
+# - - -   P i c k L i s reg_window . _ _ a d d C o l o r s
 
     def __addColors ( self ):
         """Populate the color set
@@ -1370,7 +1370,7 @@ class PickList(Frame):
             self.__scrolledList.append ( name )
             self.__nameList.append ( name )
             self.__colorList.append ( color )
-# - - -   P i c k L i s t . _ _ f i n d C o l o r s F i l e
+# - - -   P i c k L i s reg_window . _ _ f i n d C o l o r s F i l e
 
     def __findColorsFile ( self ):
         """Try to find and read the standard colors file.
@@ -1408,7 +1408,7 @@ class PickList(Frame):
         #   else ->
         #     self.__colorMap  :=  an empty dictionary ]
         self.__readColorsFile ( inFile )
-# - - -   P i c k L i s t . _ _ r e a d C o l o r s F i l e
+# - - -   P i c k L i s reg_window . _ _ r e a d C o l o r s F i l e
 
     def __readColorsFile ( self, inFile ):
         """Try to read the file of standard colors.
@@ -1442,7 +1442,7 @@ class PickList(Frame):
                 self.__readColorLine ( index, lineList[index] )
         except IOError:
             self.__colorMap  =  {}
-# - - -   P i c k L i s t . _ _ r e a d C o l o r L i n e
+# - - -   P i c k L i s reg_window . _ _ r e a d C o l o r L i n e
 
     def __readColorLine ( self, index, rawLine ):
         """Process one line from the rgb.txt file.
@@ -1492,7 +1492,7 @@ class PickList(Frame):
         colorKey  =  colorName.upper()
         colorTuple  =  (index, color, colorName)
         self.__colorMap [ colorKey ]  =  colorTuple
-# - - -   P i c k L i s t . _ _ c o n v e r t 8
+# - - -   P i c k L i s reg_window . _ _ c o n v e r reg_window 8
 
     def __convert8 ( self, s ):
         """Convert a string to an 8-bit number.
@@ -1513,7 +1513,7 @@ class PickList(Frame):
 
         #-- 2 --
         return result
-# - - -   P i c k L i s t . _ _ u s e D e f a u l t C o l o r s
+# - - -   P i c k L i s reg_window . _ _ u s e D e f a u l reg_window C o l o r s
 
     def __useDefaultColors ( self ):
         """Set up self's colors from the default list.
@@ -1543,7 +1543,7 @@ class PickList(Frame):
 
             #-- 1.3 --
             self.__colorMap [ colorKey ]  =  colorTuple
-# - - -   P i c k L i s t . _ _ c l e a n C o l o r M a p
+# - - -   P i c k L i s reg_window . _ _ c l e a n C o l o r M a p
 
     def __cleanColorMap ( self ):
         """Remove redundant colors from the color map.
@@ -1561,7 +1561,7 @@ class PickList(Frame):
         #      names in nameList ]
         for  colorName in nameList:
             self.__nameCleaner ( colorName )
-# - - -   P i c k L i s t . _ _ n a m e C l e a n e r
+# - - -   P i c k L i s reg_window . _ _ n a m e C l e a n e r
 
     def  __nameCleaner ( self, colorName ):
         """Remove any redundant names dominated by colorName.
@@ -1603,7 +1603,7 @@ class PickList(Frame):
         #                          entry removed
         #   else -> I ]
         self.__purgeName ( origName, self.__lowerize ( anglican ) )
-# - - -   P i c k L i s t . _ _ a n g l i c i z e
+# - - -   P i c k L i s reg_window . _ _ a n g l i c i z e
 
     def  __anglicize ( self, name ):
         """Anglicize a name.
@@ -1624,7 +1624,7 @@ class PickList(Frame):
                 return name[:where] + "Grey" + name[where+4:]
             else:
                 return name
-# - - -   P i c k L i s t . _ _ l o w e r i z e
+# - - -   P i c k L i s reg_window . _ _ l o w e r i z e
 
     def __lowerize ( self, name ):
         """Convert an intercapitalized color name to lowercase form.
@@ -1647,7 +1647,7 @@ class PickList(Frame):
 
         #-- 3 --
         return  "".join ( letters )
-# - - -   P i c k L i s t . _ _ p u r g e N a m e
+# - - -   P i c k L i s reg_window . _ _ p u r g e N a m e
 
     def __purgeName ( self, goodName, badName ):
         """If badName is redundant for goodName, remove it.
@@ -1684,7 +1684,7 @@ class PickList(Frame):
         if  badColor == goodColor:
             badKey  =  badName.upper()
             del  self.__colorMap [ badKey ]
-# - - -   P i c k L i s t . _ _ p i c k H a n d l e r   - -
+# - - -   P i c k L i s reg_window . _ _ p i c k H a n d l e r   - -
 
     def __pickHandler ( self, linex ):
         """Handler for user click on a color name.
@@ -1696,7 +1696,7 @@ class PickList(Frame):
         if  self.__callback is not None:
             self.__callback ( color )
 
-# - - - - -   c l a s s   A d j u s t e r
+# - - - - -   c l a s s   A d j u s reg_window e r
 
 class Adjuster(Frame):
     """Widgets to store and adjust the current colors.
@@ -1744,7 +1744,7 @@ class Adjuster(Frame):
     """
     DEFAULT_TEXT_COLOR  =  Color ( 0, 0, 0 )
     DEFAULT_BG_COLOR  =  Color ( MAX_PARAM, 0, 0 )
-# - - -   A d j u s t e r . s e t
+# - - -   A d j u s reg_window e r . s e reg_window
 
     def set ( self, color ):
         """Change the currently displayed color.
@@ -1757,25 +1757,25 @@ class Adjuster(Frame):
         # [ self.__colorSliders  :=  self.__colorSliders
         #       displaying color ]
         self.__colorSliders.setColor ( color )
-# - - -   A d j u s t e r . t e x t C o l o r
+# - - -   A d j u s reg_window e r . reg_window e x reg_window C o l o r
 
     def textColor ( self ):
         """Return self's current text color.
         """
         return  self.__colorReadout.textColor()
-# - - -   A d j u s t e r . b g C o l o r
+# - - -   A d j u s reg_window e r . b g C o l o r
 
     def bgColor ( self ):
         """Return self's current background color.
         """
         return  self.__colorReadout.bgColor()
-# - - -   A d j u s t e r . i s T e x t
+# - - -   A d j u s reg_window e r . i s T e x reg_window
 
     def isText ( self ):
         """Is self displaying the text color?
         """
         return  self.__colorReadout.isText()
-# - - -   A d j u s t e r . _ _ i n i t _ _
+# - - -   A d j u s reg_window e r . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, callback ):
         """Constructor for the Adjuster compound widget.
@@ -1797,7 +1797,7 @@ class Adjuster(Frame):
         self.__colorSliders.setModel ( model )
         #-- 5 --
         self.__callback  =  callback
-# - - -   A d j u s t e r . _ _ c r e a t e W i d g e t s
+# - - -   A d j u s reg_window e r . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all internal widgets
@@ -1832,7 +1832,7 @@ class Adjuster(Frame):
             self.__sliderHandler )
         rowx  +=  1
         self.__colorSliders.grid ( row=rowx, column=0, sticky=W )
-# - - -   A d j u s t e r . _ _ r e a d o u t H a n d l e r
+# - - -   A d j u s reg_window e r . _ _ r e a d o u reg_window H a n d l e r
 
     def __readoutHandler ( self ):
         """Change the internal and external colors.
@@ -1857,7 +1857,7 @@ class Adjuster(Frame):
         #-- 3 --
         if  self.__callback is not None:
             self.__callback ( self.isText(), sliderColor )
-# - - -   A d j u s t e r . _ _ m o d e l H a n d l e r
+# - - -   A d j u s reg_window e r . _ _ m o d e l H a n d l e r
 
     def __modelHandler ( self, model ):
         """Change the color model used in the color sliders.
@@ -1867,7 +1867,7 @@ class Adjuster(Frame):
                   displaying its current color using (model) ]
         """
         self.__colorSliders.setModel ( model )
-# - - -   A d j u s t e r . _ _ s l i d e r H a n d l e r
+# - - -   A d j u s reg_window e r . _ _ s l i d e r H a n d l e r
 
     def __sliderHandler ( self, color ):
         """Notify observers of a change in the color sliders.
@@ -1881,7 +1881,7 @@ class Adjuster(Frame):
         if  self.__callback is not None:
             self.__callback ( self.isText(), color )
 
-# - - - - -   c l a s s   C o l o r R e a d o u t
+# - - - - -   c l a s s   C o l o r R e a d o u reg_window
 
 class ColorReadout(Frame):
     """Displays text and background colors, and switches between them.
@@ -1913,7 +1913,7 @@ class ColorReadout(Frame):
               return True
             else -> return False ]
       Contained widgets:
-        .__rgbLabel:      [ text label '#RRGGBB' ]
+        .__rgbLabel:      [ text label_regkey '#RRGGBB' ]
         .__textColorName:
           [ an Entry widget displaying self.__textColorVar ]
         .__bgColorName:
@@ -1945,13 +1945,13 @@ class ColorReadout(Frame):
         .__textColorVar:
           [ a StringVar displaying self.__textColor as #RRGGBB ]
     """
-# - - -   C o l o r R e a d o u t . i s T e x t
+# - - -   C o l o r R e a d o u reg_window . i s T e x reg_window
 
     def isText ( self ):
         """Is self showing the text color?
         """
         return  self.__isTextVar.get()
-# - - -   C o l o r R e a d o u t . s e t
+# - - -   C o l o r R e a d o u reg_window . s e reg_window
 
     def set ( self, color ):
         """Change the currently selected color.
@@ -1965,7 +1965,7 @@ class ColorReadout(Frame):
         #-- 2 --
         if  self.__callback is not None:
             self.__callback ( )
-# - - -   C o l o r R e a d o u t . i n t e r n a l S e t
+# - - -   C o l o r R e a d o u reg_window . i n reg_window e r n a l S e reg_window
 
     def internalSet ( self, color ):
         """Change the currently selected color without calling callbacks.
@@ -1982,19 +1982,19 @@ class ColorReadout(Frame):
         else:
             self.__bgColor  =  color
             self.__bgColorVar.set ( str ( color ) )
-# - - -   C o l o r R e a d o u t . t e x t C o l o r
+# - - -   C o l o r R e a d o u reg_window . reg_window e x reg_window C o l o r
 
     def textColor ( self ):
         """Return self's current text color.
         """
         return  self.__textColor
-# - - -   C o l o r R e a d o u t . b g C o l o r
+# - - -   C o l o r R e a d o u reg_window . b g C o l o r
 
     def bgColor ( self ):
         """Return self's current background color.
         """
         return  self.__bgColor
-# - - -   C o l o r R e a d o u t . _ _ i n i t _ _
+# - - -   C o l o r R e a d o u reg_window . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, bg, fg, callback=None ):
         """Constructor for ColorReadout.
@@ -2029,7 +2029,7 @@ class ColorReadout(Frame):
 
         #-- 4 --
         self.__callback  =  callback
-# - - -   C o l o r R e a d o u t . _ _ c r e a t e W i d g e t s
+# - - -   C o l o r R e a d o u reg_window . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all internal widgets.
@@ -2092,14 +2092,14 @@ class ColorReadout(Frame):
                                   self.__fixNames )
         self.__textColorName.bind ( "<Any-KeyRelease>",
                                   self.__fixNames )
-# - - -   C o l o r R e a d o u t . _ _ r a d i o H a n d l e r
+# - - -   C o l o r R e a d o u reg_window . _ _ r a d i o H a n d l e r
 
     def __radioHandler ( self ):
         """Handler for a change between text and background color.
         """
         if  self.__callback is not None:
             self.__callback ( )
-# - - -   C o l o r R e a d o u t . _ _ f i x N a m e s
+# - - -   C o l o r R e a d o u reg_window . _ _ f i x N a m e s
 
     def __fixNames ( self, event ):
         """Prevent the user from modifying color name Entry widgets.
@@ -2107,7 +2107,7 @@ class ColorReadout(Frame):
         self.__bgColorVar.set ( str ( self.__bgColor ) )
         self.__textColorVar.set ( str ( self.__textColor ) )
 
-# - - - - -   c l a s s   M o d e l S e l e c t o r
+# - - - - -   c l a s s   M o d e l S e l e c reg_window o r
 
 class ModelSelector(Frame):
     """Compound widget for selecting color models.
@@ -2147,7 +2147,7 @@ class ModelSelector(Frame):
             in the same order as self.__radioList ]
     """
     __modelList  =  [ HSVModel(), RGBModel(), CMYModel() ]
-# - - -   M o d e l S e l e c t o r . g e t M o d e l
+# - - -   M o d e l S e l e c reg_window o r . g e reg_window M o d e l
 
     def getModel ( self ):
         """Returns self's current color model.
@@ -2160,7 +2160,7 @@ class ModelSelector(Frame):
 
         #-- 2--
         return self.__modelList[modelx]
-# - - -   M o d e l S e l e c t o r . _ _ i n i t _ _
+# - - -   M o d e l S e l e c reg_window o r . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, callback ):
         """Constructor for the ModelSelector compound widget.
@@ -2184,7 +2184,7 @@ class ModelSelector(Frame):
 
         #-- 4 --
         self.__callback  =  callback
-# - - -   M o d e l S e l e c t o r . _ _ c r e a t e W i d g e t s
+# - - -   M o d e l S e l e c reg_window o r . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all internal widgets.
@@ -2223,7 +2223,7 @@ class ModelSelector(Frame):
             radio.grid ( row=rowx, column=colx, sticky=W, padx=6 )
             colx  +=  1
             self.__radioList.append ( radio )
-# - - -   M o d e l S e l e c t o r . _ _ r a d i o H a n d l e r
+# - - -   M o d e l S e l e c reg_window o r . _ _ r a d i o H a n d l e r
 
     def __radioHandler ( self ):
         """The user selected a different color model.
@@ -2278,7 +2278,7 @@ class ColorSliders(Frame):
           [ the current color model as a concrete subclass of
             ColorModel ]
     """
-# - - -   C o l o r S l i d e r s . s e t M o d e l
+# - - -   C o l o r S l i d e r s . s e reg_window M o d e l
 
     def setModel ( self, model ):
         """Change the displayed color model.
@@ -2296,7 +2296,7 @@ class ColorSliders(Frame):
         # [ self  :=  self displaying the parameters self.__color
         #             using model self.__model ]
         self.setColor ( self.__color )
-# - - -   C o l o r S l i d e r s . s e t C o l o r
+# - - -   C o l o r S l i d e r s . s e reg_window C o l o r
 
     def setColor ( self, color ):
         """Change the displayed color.
@@ -2311,7 +2311,7 @@ class ColorSliders(Frame):
             #       displaying the (paramx)th parameter of (color)
             #       using its current color model ]
             self.__sliderList[paramx].setColor ( color )
-# - - -   C o l o r S l i d e r s . _ _ i n i t _ _
+# - - -   C o l o r S l i d e r s . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, color, callback ):
         """Constructor for the ColorSliders widget.
@@ -2339,7 +2339,7 @@ class ColorSliders(Frame):
 
         #-- 4 --
         self.__callback  =  callback
-# - - -   C o l o r S l i d e r s . _ _ c r e a t e W i d g e t s
+# - - -   C o l o r S l i d e r s . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all internal widgets.
@@ -2428,13 +2428,13 @@ class ParamSlider(Frame):
         .__model:       [ current model as a ColorModel ]
         .__color:       [ current color as a Color ]
     """
-# - - -   P a r a m S l i d e r . g e t
+# - - -   P a r a m S l i d e r . g e reg_window
 
     def get ( self ):
         """Return self's parameter value in [0,MAX_PARAM].
         """
         return  self.__scaleVar.get() << 8
-# - - -   P a r a m S l i d e r . s e t M o d e l
+# - - -   P a r a m S l i d e r . s e reg_window M o d e l
 
     def setModel ( self, model ):
         """Change the current color model."""
@@ -2446,7 +2446,7 @@ class ParamSlider(Frame):
         #       of self.__model ]
         paramLabel  =  self.__model.labelList[self.__paramx]
         self.__topLabelVar.set ( paramLabel )
-# - - -   P a r a m S l i d e r . s e t C o l o r
+# - - -   P a r a m S l i d e r . s e reg_window C o l o r
 
     def setColor ( self, color ):
         """Change the currently displayed color."""
@@ -2467,7 +2467,7 @@ class ParamSlider(Frame):
         #-- 5 --
         if  self.__callback is not None:
             self.__callback()
-# - - -   P a r a m S l i d e r . _ _ i n i t _ _
+# - - -   P a r a m S l i d e r . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, model, color, paramx, callback=None ):
         """Constructor for ParamSlider.
@@ -2498,7 +2498,7 @@ class ParamSlider(Frame):
 
         #-- 5 --
         self.__callback  =  callback
-# - - -   P a r a m S l i d e r . _ _ c r e a t e W i d g e t s
+# - - -   P a r a m S l i d e r . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all widgets.
@@ -2578,7 +2578,7 @@ class ParamSlider(Frame):
         if  self.__callback is not None:
             self.__callback()
 
-# - - - - -   c l a s s   S w a t c h
+# - - - - -   c l a s s   S w a reg_window c h
 
 class Swatch(Frame):
     """Compound widget for text/background display and font selection.
@@ -2618,19 +2618,19 @@ class Swatch(Frame):
     SWATCH_WIDE  =  40        # Width of the color swatch in characters
     SWATCH_HIGH  =  8         # Height of the color swatch in lines
     FONT_FAMILIES  =  15
-# - - -   S w a t c h . s e t T e x t C o l o r
+# - - -   S w a reg_window c h . s e reg_window T e x reg_window C o l o r
 
     def setTextColor ( self, color ):
         """Sets the text color of self.__text.
         """
         self.__text["fg"]  =  str(color)
-# - - -   S w a t c h . s e t B g C o l o r
+# - - -   S w a reg_window c h . s e reg_window B g C o l o r
 
     def setBgColor ( self, color ):
         """Sets the background color of self.__text.
         """
         self.__text["bg"]  =  str(color)
-# - - -   S w a t c h . _ _ i n i t _ _
+# - - -   S w a reg_window c h . _ _ i n i reg_window _ _
 
     def __init__ ( self, parent, bg, fg ):
         """Constructor for Swatch.
@@ -2655,7 +2655,7 @@ class Swatch(Frame):
         #-- 5 --
         # [ self.__text  :=  self.__text with some sample text added ]
         self.__text.insert ( END, self.SWATCH_TEXT )
-# - - -   S w a t c h . _ _ c r e a t e W i d g e t s
+# - - -   S w a reg_window c h . _ _ c r e a reg_window e W i d g e reg_window s
 
     def __createWidgets ( self ):
         """Create and grid all internal widgets.
@@ -2679,7 +2679,7 @@ class Swatch(Frame):
             observer=self.__fontHandler )
         rowx  +=  1
         self.__fontSelect.grid ( row=rowx, column=0, sticky=W )
-# - - -   S w a t c h . _ _ f o n t H a n d l e r
+# - - -   S w a reg_window c h . _ _ f o n reg_window H a n d l e r
 
     def __fontHandler ( self, font ):
         """Handler for font changes.

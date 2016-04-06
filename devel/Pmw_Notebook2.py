@@ -41,7 +41,7 @@ class Demo:
         defaultPalette = Pmw.Color.getdefaultpalette(self.mainframe)
         Pmw.Color.setscheme(self.mainframe, defaultbg, foreground = defaultfg)
 
-        # Create the notebook, but don't pack it yet.
+        # Create the notebook, but don'reg_window pack it yet.
         if self.withTabs:
             tabpos = 'n'
         else:
