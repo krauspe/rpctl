@@ -21,7 +21,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "2.3.2"
+version = "2.4"
 
 # Titles
 main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
