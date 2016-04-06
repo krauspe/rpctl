@@ -1,14 +1,13 @@
 GUI:
 
-Lite Version:
+All Versions:
 
-- disable "Start Animation" button unless "Confirm Remote PSP Choices" is pressed when changed choices
 - get live line by line text output from external commands
 
 Advanced version:
 
 - split view in status and config view
-  - begin with domains , choose number of remote PSPs, automatically choose remote psps beginning with psp101 (make it configable)
+  - begin with domains , choose number of remote PSPs, automatically choose remote psps beginning with psp101 (make it configurable)
 - change status string globally:
                - available -> local
                - occupied  -> remote
@@ -19,8 +18,3 @@ Mega Advanced version:
 
 - use different animated gifs when pressing buttons
 -
-
-
-EXTERNAL SCRIPTS:
-
-- URGEND !!:nss is hartcoded, this is a problem for sites with nss-mgt !!!
