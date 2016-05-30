@@ -7,7 +7,9 @@
 #DONE: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
 #TODO: Control resource nsc availiblity:
 #TODO         idea 1 : create edit window to diable/enable resource nsc's
-#TODO:        idead2 : intergrate in main window (maybe messes up source code)
+#TODO                  Status: - Window with quit button created
+
+#TODO:        idea 2 : intergrate in main window (maybe messes up source code)
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
@@ -319,7 +321,9 @@ class MainApp(Frame):
         self.header_frame = Frame(root, bg="grey")
         self.header_frame.grid(row=4, column=0)
 
-        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=0)
+        # sieht scheisse aus, weil zu breit, ggfs verlegen in con_and_button_frame (zb statt update resource psp list: row=2, column=1),
+        Button(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2",command=self.manage_resource_nscs).grid(row=0, column=0)
+        #Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=0)
         Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightyellow", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
         Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=2,sticky=W+E)
         Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
@@ -367,6 +371,20 @@ class MainApp(Frame):
         self.createStatusView()
 
         self.checkLicense()
+
+    def manage_resource_nscs(self):
+        print("manage resource nscs")
+
+        self.window_manage_resource_nscs = Toplevel(self)
+        self.window_manage_resource_nscs.wm_title("Manage Resource NSCs")
+        self.frame_manage_resource_nscs = Frame(self.window_manage_resource_nscs)
+        self.frame_manage_resource_nscs.grid(row=0, column=0)
+
+        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="QUIT",width=60, fg="black", command=self.window_manage_resource_nscs.destroy)
+        button_manage_resource_nscs.grid(row=0, column=0)
+
+        # set window_check on top of root frame
+        self.window_manage_resource_nscs.transient(self.frame)
 
     def domaintSelectBox(self):
         listvar = {}
