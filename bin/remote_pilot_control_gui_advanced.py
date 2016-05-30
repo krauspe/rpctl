@@ -5,6 +5,9 @@
 #DONE: recrate status area completely after reread resource nsc list
 #DONE: file not found error handling for status_list and target_config list
 #DONE: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
+#TODO: Control resource nsc availiblity:
+#TODO         idea 1 : create edit window to diable/enable resource nsc's
+#TODO:        idead2 : intergrate in main window (maybe messes up source code)
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
@@ -21,7 +24,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "2.4"
+version = "3.0"
 
 # Titles
 main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
