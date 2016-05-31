@@ -14,6 +14,8 @@
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
 #TODO: maybe create a function for switching modes(simulate <-> production)
+# Changes:
+# 31.05.2016: moved production mode flagfile to int_confdir
 
 
 from Tkinter import *
@@ -121,6 +123,11 @@ lFont = {
     "size":10,
 }
 
+lFont_disabled = {
+    "family":"Arial",  # alternaive "Helvetica"
+    "size":10,
+}
+
 optFont = {
     "family":"Arial",
     "size":10,
@@ -146,7 +153,7 @@ if not os.path.exists(ext_basedir):
 # force productive mode in productive environment with optional flag file
 flag_filename = "FORCE_GUI_PRODUCTION_MODE"
 
-if gui_mode != "productive" and os.path.isfile(os.path.join(ext_confdir,flag_filename)):
+if gui_mode != "productive" and os.path.isfile(os.path.join(int_confdir,flag_filename)):
     gui_mode = "productive"
     mode_comment = "forced bei flagfile %s/%s !\n" % (ext_confdir,flag_filename)
 
@@ -192,6 +199,18 @@ def getFileAsList(file):
         print "WARNING: %s doesn'reg_window exist !!" % file
         return []
 
+def getRawFileAsList(file):
+    #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
+    if os.path.exists(file):
+        in_list = [line.rstrip('\n').split() for line in open(file)]
+        if len(in_list) < 0:
+            print "WARNING: %s is empty or has no valid lines !!" % file
+        return in_list
+    else:
+        print "WARNING: %s doesn'reg_window exist !!" % file
+        return []
+
+
 def getFileAsListOfRow(file, row):
     #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
     if os.path.exists(file):
@@ -202,6 +221,7 @@ def getFileAsListOfRow(file, row):
     else:
         print "WARNING: %s doesn'reg_window exist !!" % file
         return []
+
 
 # def getTargetConfigList(file):
 #     '''https://docs.python.org/2/library/itertools.html
@@ -220,7 +240,7 @@ def saveListAsFile(list,filepath):
         line = ''
         for element in tup:
             line += ' ' + element
-        f.write(line + '\n')
+        f.write(line.lstrip(' ') + '\n')
     f.close()
     #print "type(line) = %s\n" % type(line)
 
@@ -256,6 +276,7 @@ class MainApp(Frame):
 
         self.lhFont = tkFont.Font(family=lhFont["family"], size=lhFont["size"])         # label_regkey header font
         self.lFont = tkFont.Font(family=lFont["family"], size=lhFont["size"])           # label_regkey font
+        self.lFont_italic = tkFont.Font(family=lFont["family"], size=lhFont["size"],slant=tkFont.ITALIC )           # label_regkey font italic
         self.optFont = tkFont.Font(family=optFont["family"], size=optFont["size"])      # option menu font
         self.opthFont = tkFont.Font(family=opthFont["family"], size=opthFont["size"])   # option menu header font
 
@@ -296,7 +317,7 @@ class MainApp(Frame):
         self.con_and_button_frame.grid(row=1, column=1, sticky=W+E+N+S)
 
         Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.update_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
         ##Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
@@ -335,6 +356,9 @@ class MainApp(Frame):
         # LIST | OptionMenu
 
         self.lt_resfqdns = {}
+        self.lt_resfqdns_raw = {}
+        self.check_buttons = {}
+        self.check_button_val = {}
         self.lt_curfqdns = {}
         self.lt_Status   = {}
         self.lt_operation_mode = {}
@@ -344,6 +368,7 @@ class MainApp(Frame):
         self.label_curfqdn = {}
         self.label_status = {}
         self.label_operation_mode = {}
+        self.label_resfqdn_edit = {}
 
         self.selected_domains = {}
         self.selected_domains["resource"] = []
@@ -367,11 +392,14 @@ class MainApp(Frame):
         self.domain_selector_frame.grid(row=5, column=1)
 
         self.loadLists()
-        self.domaintSelectBox()
+        self.domainSelectBox()
         self.createStatusView()
 
         self.checkLicense()
 
+
+    # WORK
+    # TODO Bug: when reanable fqdns createStatusView is messed up !!
     def manage_resource_nscs(self):
         print("manage resource nscs")
 
@@ -380,13 +408,78 @@ class MainApp(Frame):
         self.frame_manage_resource_nscs = Frame(self.window_manage_resource_nscs)
         self.frame_manage_resource_nscs.grid(row=0, column=0)
 
-        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="QUIT",width=60, fg="black", command=self.window_manage_resource_nscs.destroy)
-        button_manage_resource_nscs.grid(row=0, column=0)
+        r1 = 0
+        #for resfqdn in self.resource_fqdns_all:
+        for resfqdn, mac in self.resource_nsc_raw_list:
+            resfqdn = resfqdn.lstrip('#')
+            self.dn = ".".join( (resfqdn.split("."))[1:])
+
+            if lbgcol.has_key(self.dn):
+                resfqdn_lbgcol = lbgcol[self.dn]
+            else:
+                resfqdn_lbgcol = "white"
+
+            self.check_button_val[resfqdn] = IntVar()
+            self.check_button_val[resfqdn].set(0)
+
+            if self.resource_enabled[resfqdn] == "enabled":
+                status_font = self.lFont
+
+            else:
+                status_font = self.lFont_italic
+                resfqdn_lbgcol = "tomato"
+                self.check_button_val[resfqdn].set(1)
+
+
+            self.lt_resfqdns_raw[resfqdn] = StringVar()
+            self.lt_resfqdns_raw[resfqdn].set(resfqdn)
+
+
+            self.label_resfqdn_edit[resfqdn] = Label(self.frame_manage_resource_nscs, textvariable=self.lt_resfqdns_raw[resfqdn],font=status_font, width=lwidth, relief=GROOVE, bg=resfqdn_lbgcol)
+            self.label_resfqdn_edit[resfqdn].grid(row=r1, column=0)
+
+
+            self.check_buttons[resfqdn] = Checkbutton(self.frame_manage_resource_nscs,text="Disabled", variable=self.check_button_val[resfqdn])
+            self.check_buttons[resfqdn].grid(row=r1, column=1, sticky=N + S)
+
+            r1 += 1
+
+        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Apply", width=40, fg="black", command=self.applyResourceNscEnableConfig)
+        button_manage_resource_nscs.grid(row=r1, column=0)
+
+        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Cancel",width=40, fg="black", command=self.window_manage_resource_nscs.destroy)
+        button_manage_resource_nscs.grid(row=r1+1, column=0)
+
 
         # set window_check on top of root frame
         self.window_manage_resource_nscs.transient(self.frame)
 
-    def domaintSelectBox(self):
+
+
+    #TODO: write new resource_nsc_list_file
+
+    def applyResourceNscEnableConfig(self):
+        new_resource_nsc_raw_list = []
+        resfqdn_entry = ""
+        for resfqdn, mac in self.resource_nsc_raw_list:
+            resfqdn = resfqdn.lstrip('#')
+            resfqdn_entry = resfqdn
+
+            if self.check_button_val[resfqdn].get() == 1:
+                self.resource_enabled[resfqdn] = "disabled"
+                resfqdn_entry = '#'+ resfqdn
+            else:
+                self.resource_enabled[resfqdn] = "enabled"
+            print resfqdn, "is", self.resource_enabled[resfqdn]
+
+            new_resource_nsc_raw_list.append([resfqdn_entry.lstrip(' '),mac])
+
+        saveListAsFile(new_resource_nsc_raw_list, resource_nsc_list_file)
+        self.createStatusView()
+        self.window_manage_resource_nscs.destroy()
+
+
+    def domainSelectBox(self):
         listvar = {}
         listbox_head_label = {}
         select_button = {}
@@ -605,7 +698,7 @@ class MainApp(Frame):
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
         self.setMessage("default")
 
-    def update_resource_nsc_list(self):
+    def create_resource_nsc_list(self):
         self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
     def reconfigure_nscs(self):
         self.setMessage("Reconfiguration\nrunning ...")
@@ -698,11 +791,13 @@ class MainApp(Frame):
 
     # LOAD AND GENERATE LIST FUNCTIONS
 
+    # LOADLISTS
+
     def loadLists(self):
         print "Loading Lists ..."
         self.nsc_status_list = getFileAsList(nsc_status_list_file)
-        self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
-        self.resource_nsc_list_dict = dict(self.resource_nsc_list)
+        #self.resource_nsc_list = getFileAsList(resource_nsc_list_file)
+        self.resource_nsc_raw_list = getRawFileAsList(resource_nsc_list_file)
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.target_config_list = getFileAsList(target_config_list_file)
 
@@ -710,7 +805,7 @@ class MainApp(Frame):
         self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
 
         self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
-        self.resource_mac = {}
+        #self.resource_mac = {}
         self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
         self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
         self.resource_fqdns_from_nsc_status_list = [] # all resource fqdns contained in nsc_status_list
@@ -727,10 +822,24 @@ class MainApp(Frame):
                 self.resource_status[resfqdn] = self.nsc_status[resfqdn]
             self.resource_fqdns_from_nsc_status_list.append(resfqdn)
 
-        # read resource fqdn list with macs
+        # get enabled/disabled resouce fqdns
 
+        self.resource_nsc_list = []
+        self.resource_enabled = {}
+
+        for resfqdn,mac in self.resource_nsc_raw_list:
+            if resfqdn.startswith('#'):
+                resfqdn = resfqdn.lstrip('#')
+                self.resource_enabled[resfqdn] = "disabled"
+            else:
+                self.resource_enabled[resfqdn] = "enabled"
+                self.resource_nsc_list.append([resfqdn,mac])
+
+        #self.resource_nsc_list_dict = dict(self.resource_nsc_list)
+
+        # read resource fqdn list with macs
         for resfqdn,mac in self.resource_nsc_list:  # list of lists from file (ALL resource NSC"s !)
-            self.resource_mac = mac                 # store MAC addresses for later use .....
+            #self.resource_mac = mac                 # store MAC addresses for later use .....
             if not self.nsc_status.has_key(resfqdn):
                 self.resource_status[resfqdn] = 'unknown'
             if not self.current_fqdn.has_key(resfqdn):
