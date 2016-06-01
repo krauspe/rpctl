@@ -22,6 +22,7 @@ import tkFont
 import ScrolledText
 import subprocess as sub
 import os,time,datetime
+import re
 from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
@@ -194,18 +195,19 @@ def getFileAsList(file):
             print "WARNING: %s is empty or has no valid lines !!" % file
         return in_list
     else:
-        print "WARNING: %s doesn'reg_window exist !!" % file
+        print "WARNING: %s doesn't existt !!" % file
         return []
 
 def getRawFileAsList(file):
     #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
     if os.path.exists(file):
+        #TODO:  re.sub('foo','bar', line.rstrip()) einsetzen und so umbauen dass '^#\w+" zu '^#' wird
         in_list = [line.rstrip('\n').split() for line in open(file)]
         if len(in_list) < 0:
             print "WARNING: %s is empty or has no valid lines !!" % file
         return in_list
     else:
-        print "WARNING: %s doesn'reg_window exist !!" % file
+        print "WARNING: %s doesn't exist !!" % file
         return []
 
 
@@ -217,7 +219,7 @@ def getFileAsListOfRow(file, row):
             print "WARNING: %s is empty or has no valid lines !!" % file
         return in_list
     else:
-        print "WARNING: %s doesn'reg_window exist !!" % file
+        print "WARNING: %s doesn't exist !!" % file
         return []
 
 
@@ -471,7 +473,6 @@ class MainApp(Frame):
         saveListAsFile(new_resource_nsc_raw_list, resource_nsc_list_file)
         self.createStatusView()
         self.window_manage_resource_nscs.destroy()
-
 
     def domainSelectBox(self):
         listvar = {}
