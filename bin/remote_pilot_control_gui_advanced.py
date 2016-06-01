@@ -6,10 +6,8 @@
 #DONE: file not found error handling for status_list and target_config list
 #DONE: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
 #TODO: Control resource nsc availiblity:
-#TODO         idea 1 : create edit window to diable/enable resource nsc's
-#TODO                  Status: - Window with quit button created
-
-#TODO:        idea 2 : intergrate in main window (maybe messes up source code)
+#TODO         idea : create edit window to diable/enable resource nsc's
+#TODO         Status: works
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
@@ -317,7 +315,8 @@ class MainApp(Frame):
         self.con_and_button_frame.grid(row=1, column=1, sticky=W+E+N+S)
 
         Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
+        #Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
+        Button(self.con_and_button_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).grid(row=2, column=1, sticky=W + E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
         ##Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
@@ -342,9 +341,9 @@ class MainApp(Frame):
         self.header_frame = Frame(root, bg="grey")
         self.header_frame.grid(row=4, column=0)
 
-        # sieht scheisse aus, weil zu breit, ggfs verlegen in con_and_button_frame (zb statt update resource psp list: row=2, column=1),
-        Button(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2",command=self.manage_resource_nscs).grid(row=0, column=0)
-        #Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=0)
+        ## sieht scheisse aus, weil zu breit, ggfs verlegen in con_and_button_frame (zb statt update resource psp list: row=2, column=1),
+        # Button(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2",command=self.manage_resource_nscs).grid(row=0, column=0)
+        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=0)
         Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightyellow", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
         Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=2,sticky=W+E)
         Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
@@ -379,6 +378,7 @@ class MainApp(Frame):
         self.resfqdns_selected_previous = []
         self.number_resource_fqdns_all_previous = 0
         self.status_view_init = 0
+        self.domain_select_box_init = 0
         self.listbox = {}
         self.om = {}
         self.new_target_config_list   = []
@@ -398,8 +398,6 @@ class MainApp(Frame):
         self.checkLicense()
 
 
-    # WORK
-    # TODO Bug: when reanable fqdns createStatusView is messed up !!
     def manage_resource_nscs(self):
         print("manage resource nscs")
 
@@ -409,7 +407,7 @@ class MainApp(Frame):
         self.frame_manage_resource_nscs.grid(row=0, column=0)
 
         r1 = 0
-        #for resfqdn in self.resource_fqdns_all:
+
         for resfqdn, mac in self.resource_nsc_raw_list:
             resfqdn = resfqdn.lstrip('#')
             self.dn = ".".join( (resfqdn.split("."))[1:])
@@ -454,10 +452,6 @@ class MainApp(Frame):
         # set window_check on top of root frame
         self.window_manage_resource_nscs.transient(self.frame)
 
-
-
-    #TODO: write new resource_nsc_list_file
-
     def applyResourceNscEnableConfig(self):
         new_resource_nsc_raw_list = []
         resfqdn_entry = ""
@@ -484,25 +478,34 @@ class MainApp(Frame):
         listbox_head_label = {}
         select_button = {}
 
+        if self.domain_select_box_init == 0:
+            listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+            listbox_head_label["resource"].pack()
+            # self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
+            # self.listbox["resource"].pack(side="top")
+            self.listbox["resource"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
+            self.listbox["resource"].pack(side="top")
+            select_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains)
+            select_button["resource"].pack()
 
-        listvar["resource"] = StringVar()
-        listvar["target"] = StringVar()
+            listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+            listbox_head_label["target"].pack()
+            # self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
+            # self.listbox["target"].pack(side="top")
+            self.listbox["target"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
+            self.listbox["target"].pack(side="top")
+            select_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains)
+            select_button["target"].pack()
 
-        listvar["resource"].set(" ".join(self.dns_all["resource"]))
-        listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
-        listbox_head_label["resource"].pack()
-        self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
-        self.listbox["resource"].pack(side="top")
-        select_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains)
-        select_button["resource"].pack()
+            self.domain_select_box_init = 1
 
-        listvar["target"].set(" ".join(self.dns_all["target"]))
-        listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
-        listbox_head_label["target"].pack()
-        self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
-        self.listbox["target"].pack(side="top")
-        select_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains)
-        select_button["target"].pack()
+        self.listbox["resource"].delete(0,END)
+        for item in self.dns_all["resource"]:
+            self.listbox["resource"].insert(END,item)
+
+        self.listbox["target"].delete(0, END)
+        for item in self.dns_all["target"]:
+            self.listbox["target"].insert(END, item)
 
     def applySelectedResourceDomains(self):
         dn_list = []
@@ -532,21 +535,28 @@ class MainApp(Frame):
 
         self.loadLists()
 
+
         self.resfqdns_selected = self.getSelectedFqdnOptionList("resource")
         number_resfqdns_selected = len(self.resfqdns_selected)
 
-        # recreate outer items only when number of selected increased compared with previuos run
+        print "\nnumber_resource_fqdns_all_previous=",self.number_resource_fqdns_all_previous
+        print "number_resfqdns_selected=",number_resfqdns_selected
 
-        # print "number_resource_fqdns_all_previous=", self.number_resource_fqdns_all_previous
-        # print "number_resfqdns_selected=", number_resfqdns_selected
+        ## recreate outer items only when number of selected increased compared with previuos run
 
-        if number_resfqdns_selected > self.number_resource_fqdns_all_previous or self.status_view_init == 0 :  # anedern: muss > maximale initiale Anzahl am Programmstart sein
-            # delete possibly previuosly created objects
-            #print "Recreate Status items"
-            if hasattr(self,'vsb'): self.vsb.destroy()
-            if hasattr(self,'list_frame'): self.list_frame.destroy()
-            if hasattr(self,'canvas'): self.canvas.destroy()
-            if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
+        ## print "number_resource_fqdns_all_previous=", self.number_resource_fqdns_all_previous
+        ## print "number_resfqdns_selected=", number_resfqdns_selected
+
+        ## if number_resfqdns_selected > self.number_resource_fqdns_all_previous or self.status_view_init == 0 :  # anedern: muss > maximale initiale Anzahl am Programmstart sein
+
+        if self.status_view_init == 0:
+
+                # delete possibly previuosly created objects
+            print "Recreate Status items"
+            # if hasattr(self,'vsb'): self.vsb.destroy()
+            # if hasattr(self,'list_frame'): self.list_frame.destroy()
+            # if hasattr(self,'canvas'): self.canvas.destroy()
+            # if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
 
             self.canvas_frame = Frame(root, bg="grey")
             self.canvas_frame.grid(row=5, column=0)
@@ -624,6 +634,7 @@ class MainApp(Frame):
         self.frame.bind("<Configure>", self.onFrameConfigure)
         #self.createOptionMENUS(self.resource_fqdns_all)
         self.createOptionMENUS()
+        self.domainSelectBox()
 
 
     # function for scrolled labels
