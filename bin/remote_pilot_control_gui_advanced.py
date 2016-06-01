@@ -26,7 +26,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "3.0"
+version = "3.1 beta"
 
 # Titles
 main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
@@ -547,16 +547,15 @@ class MainApp(Frame):
         ## print "number_resource_fqdns_all_previous=", self.number_resource_fqdns_all_previous
         ## print "number_resfqdns_selected=", number_resfqdns_selected
 
-        ## if number_resfqdns_selected > self.number_resource_fqdns_all_previous or self.status_view_init == 0 :  # anedern: muss > maximale initiale Anzahl am Programmstart sein
+        # if self.status_view_init == 0:
 
-        if self.status_view_init == 0:
-
-                # delete possibly previuosly created objects
+        if number_resfqdns_selected > self.number_resource_fqdns_all_previous or self.status_view_init == 0 :  # anedern: muss > maximale initiale Anzahl am Programmstart sein
+            # delete possibly previuosly created objects
             print "Recreate Status items"
-            # if hasattr(self,'vsb'): self.vsb.destroy()
-            # if hasattr(self,'list_frame'): self.list_frame.destroy()
-            # if hasattr(self,'canvas'): self.canvas.destroy()
-            # if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
+            if hasattr(self,'vsb'): self.vsb.destroy()
+            if hasattr(self,'list_frame'): self.list_frame.destroy()
+            if hasattr(self,'canvas'): self.canvas.destroy()
+            if hasattr(self,'canvas_frame'): self.canvas_frame.destroy()
 
             self.canvas_frame = Frame(root, bg="grey")
             self.canvas_frame.grid(row=5, column=0)
