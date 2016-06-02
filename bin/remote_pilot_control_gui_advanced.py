@@ -313,12 +313,12 @@ class MainApp(Frame):
 
         # BUTTONS
         n=0
-        self.con_and_button_frame = Frame(root, bg="lightgrey")
+        self.con_and_button_frame = Frame(root)
         self.con_and_button_frame.grid(row=1, column=1, sticky=W+E+N+S)
 
-        Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs).grid(row=1, column=1, sticky=W+E)
-        #Button(self.con_and_button_frame, text="Update Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
-        Button(self.con_and_button_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).grid(row=2, column=1, sticky=W + E)
+        Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs,state=DISABLED).grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Recreate Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
+        #Button(self.con_and_button_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).grid(row=2, column=1, sticky=W + E)
         Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
         ##Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
@@ -336,6 +336,7 @@ class MainApp(Frame):
 
         Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
         Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=14, column=1, sticky=W+E)
 
 
         # LIST HEADER FRAME
@@ -351,6 +352,10 @@ class MainApp(Frame):
         Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
         Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
 
+        # CHECK BUTTON FRAME :checboxes to choose domains
+
+        self.domain_selector_frame = Frame(root, bg="grey")
+        self.domain_selector_frame.grid(row=5, column=1)
 
         self.buildMenu(root)
 
@@ -388,10 +393,6 @@ class MainApp(Frame):
         # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
         #self.loadLists()
 
-        # CHECK BUTTON FRAME :checboxes to choose domains
-
-        self.domain_selector_frame = Frame(root, bg="grey")
-        self.domain_selector_frame.grid(row=5, column=1)
 
         self.loadLists()
         self.domainSelectBox()
@@ -480,21 +481,31 @@ class MainApp(Frame):
         select_button = {}
 
         if self.domain_select_box_init == 0:
+            Label(self.domain_selector_frame,text="Resource Options",bg="lightgrey").pack(fill=X)
+            Label(self.domain_selector_frame).pack(fill=X)
+
+            Button(self.domain_selector_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).pack(fill=X)
+            Label(self.domain_selector_frame).pack(fill=X)
+            Label(self.domain_selector_frame,text="View Options",bg="lightgrey").pack(fill=X)
+            Label(self.domain_selector_frame).pack(fill=X)
+
             listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
             listbox_head_label["resource"].pack()
             # self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
             # self.listbox["resource"].pack(side="top")
             self.listbox["resource"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
-            self.listbox["resource"].pack(side="top")
+            self.listbox["resource"].pack()
             select_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains)
             select_button["resource"].pack()
+
+            Label(self.domain_selector_frame, bg="lightgrey").pack(fill=X)
 
             listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
             listbox_head_label["target"].pack()
             # self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
             # self.listbox["target"].pack(side="top")
             self.listbox["target"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
-            self.listbox["target"].pack(side="top")
+            self.listbox["target"].pack()
             select_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains)
             select_button["target"].pack()
 
