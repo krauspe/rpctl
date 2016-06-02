@@ -440,15 +440,15 @@ class MainApp(Frame):
 
 
             self.check_buttons[resfqdn] = Checkbutton(self.frame_manage_resource_nscs,text="Disabled", variable=self.check_button_val[resfqdn])
-            self.check_buttons[resfqdn].grid(row=r1, column=1, sticky=N + S)
+            self.check_buttons[resfqdn].grid(row=r1, column=1)
 
             r1 += 1
 
-        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Apply", width=40, fg="black", command=self.applyResourceNscEnableConfig)
-        button_manage_resource_nscs.grid(row=r1, column=0)
+        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Apply", fg="black", command=self.applyResourceNscEnableConfig)
+        button_manage_resource_nscs.grid(row=r1, column=0, sticky=E+W)
 
-        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Cancel",width=40, fg="black", command=self.window_manage_resource_nscs.destroy)
-        button_manage_resource_nscs.grid(row=r1+1, column=0)
+        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Cancel",fg="black", command=self.window_manage_resource_nscs.destroy)
+        button_manage_resource_nscs.grid(row=r1+1, column=0, sticky=E+W)
 
 
         # set window_check on top of root frame
