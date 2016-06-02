@@ -347,7 +347,7 @@ class MainApp(Frame):
         ## sieht scheisse aus, weil zu breit, ggfs verlegen in con_and_button_frame (zb statt update resource psp list: row=2, column=1),
         # Button(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2",command=self.manage_resource_nscs).grid(row=0, column=0)
         Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="lightgreen", relief=GROOVE).grid(row=0, column=0)
-        Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightseagreen", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
+        Label(self.header_frame, text="Remote FQDN Selection", font=self.opthFont, width=22, bg="lightseagreen", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
         Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=2,sticky=W+E)
         Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="rosybrown", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
         Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="khaki", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
