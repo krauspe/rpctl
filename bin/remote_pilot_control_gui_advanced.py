@@ -5,9 +5,10 @@
 #DONE: recrate status area completely after reread resource nsc list
 #DONE: file not found error handling for status_list and target_config list
 #DONE: chosse solution for long lists of resource psps as workaround until creation off different "views" see below..
-#TODO: Control resource nsc availiblity:
-#TODO         idea : create edit window to diable/enable resource nsc's
-#TODO         Status: works
+#DONE: Control resource nsc availiblity:
+#DONE         idea : create edit window to diable/enable resource nsc's
+#DONE         Status: works
+#TODO: make doamain selecttion like psp selection (use check buttons instead of listboxes)
 #TODO: create views (resource, remote, status...): possible solutins: tabs, windows, ..
 #TODO: improve simulation: admin_get_status_list.sh should create a simulated status with random errors
 #TODO:                     admin_reconfigure_nscs.sh should use the above get status script
