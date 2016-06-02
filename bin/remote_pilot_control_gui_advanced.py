@@ -27,7 +27,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "3.2 beta"
+version = "3.3 beta"
 
 # Titles
 main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
@@ -319,7 +319,7 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs,state=DISABLED).grid(row=1, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Recreate Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
         #Button(self.con_and_button_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).grid(row=2, column=1, sticky=W + E)
-        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus).grid(row=3, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus,bg="khaki").grid(row=3, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
         ##Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
@@ -328,7 +328,7 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=8, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=9, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices).grid(row=10, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices,bg="lightseagreen").grid(row=10, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
 
         self.bt_Start_Reconfiguration = Button(self.con_and_button_frame, text="Start Reconfiguration", command=self.startReconfiguration, state=DISABLED, activebackground="red")
@@ -346,11 +346,11 @@ class MainApp(Frame):
 
         ## sieht scheisse aus, weil zu breit, ggfs verlegen in con_and_button_frame (zb statt update resource psp list: row=2, column=1),
         # Button(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2",command=self.manage_resource_nscs).grid(row=0, column=0)
-        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=0)
-        Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightyellow", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
+        Label(self.header_frame, text="Resource %s " % subtype.upper(), font=self.lhFont, width=lhwidth, bg="lightgreen", relief=GROOVE).grid(row=0, column=0)
+        Label(self.header_frame, text="Choose Remote FQDN ", font=self.opthFont, width=22, bg="lightseagreen", relief=GROOVE).grid(row=0, column=1,sticky=W+E)
         Label(self.header_frame, text="Current FQDN ", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=2,sticky=W+E)
-        Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
-        Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="deepskyblue2", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
+        Label(self.header_frame, text="Operation Mode", font=self.lhFont, width=lhwidth, bg="rosybrown", relief=GROOVE).grid(row=0, column=3,sticky=W+E)
+        Label(self.header_frame, text="Status", font=self.lhFont, width=lhwidth, bg="khaki", relief=GROOVE).grid(row=0, column=4,sticky=W+E)
 
         # CHECK BUTTON FRAME :checboxes to choose domains
 
@@ -481,15 +481,15 @@ class MainApp(Frame):
         select_button = {}
 
         if self.domain_select_box_init == 0:
-            Label(self.domain_selector_frame,text="Resource Options",bg="lightgrey").pack(fill=X)
+            Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").pack(fill=X)
             Label(self.domain_selector_frame).pack(fill=X)
 
-            Button(self.domain_selector_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).pack(fill=X)
+            Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).pack(fill=X)
             Label(self.domain_selector_frame).pack(fill=X)
-            Label(self.domain_selector_frame,text="View Options",bg="lightgrey").pack(fill=X)
+            Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").pack(fill=X)
             Label(self.domain_selector_frame).pack(fill=X)
 
-            listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+            listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
             listbox_head_label["resource"].pack()
             # self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
             # self.listbox["resource"].pack(side="top")
@@ -500,7 +500,7 @@ class MainApp(Frame):
 
             Label(self.domain_selector_frame, bg="lightgrey").pack(fill=X)
 
-            listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightyellow", relief=GROOVE )
+            listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
             listbox_head_label["target"].pack()
             # self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
             # self.listbox["target"].pack(side="top")
