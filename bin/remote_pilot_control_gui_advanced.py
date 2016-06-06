@@ -15,7 +15,8 @@
 #TODO: maybe create a function for switching modes(simulate <-> production)
 # Changes:
 # 31.05.2016: moved production mode flagfile to int_confdir
-# 06.06.2016: max window size is now screen size. Should solve probelems with small screens
+# 06.06.2016: - max window size is now screen size. Should solve probelems with small screens
+#             - solved problem when clicking the X-Window-button: removed root.destroy() command in __main__
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -284,7 +285,6 @@ class MainApp(Frame):
         #Frame.__init__(self, master=None,*args, **kwargs)
 
         Frame.__init__(self, root)
-
 
         print "screenwidth ", root.winfo_screenwidth()
         print "screenheight ", root.winfo_screenheight()
@@ -1103,5 +1103,5 @@ if __name__ == "__main__":
     #main.grid(row=0,column=0)
     main.grid()
     root.mainloop()
-    root.destroy()
+    #root.destroy()
 
