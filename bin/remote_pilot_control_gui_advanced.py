@@ -15,7 +15,7 @@
 #TODO: maybe create a function for switching modes(simulate <-> production)
 # Changes:
 # 31.05.2016: moved production mode flagfile to int_confdir
-
+# 06.06.2016: max window size is now screen size. Should solve probelems with small screens
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -28,7 +28,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "3.3 beta"
+version = "3.4 beta"
 
 # Titles
 main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
@@ -284,9 +284,14 @@ class MainApp(Frame):
         #Frame.__init__(self, master=None,*args, **kwargs)
 
         Frame.__init__(self, root)
+        print "screenwidth ", root.winfo_screenwidth()
+        print "screenheight ", root.winfo_screenheight()
+        root.maxsize(width=root.winfo_screenwidth(),height=root.winfo_screenheight())
+
         self.parent = root # get a reference to change atts of the root window (like title etc)
         self.frame = Frame(root)
         self.frame.grid(row=0,column=1)
+
 
         self.logo = PhotoImage(file=logo_file)
         Label(self.frame, image=self.logo).grid(row=0,column=1,sticky="E")
@@ -295,6 +300,7 @@ class MainApp(Frame):
         # CONSOLE
         self.con_frame = Frame(root, bg="white")
         self.con_frame.grid(row=1, column=0)
+        #self.console = ScrolledText.ScrolledText(self.con_frame, bg="white", height=10)
         self.console = ScrolledText.ScrolledText(self.con_frame, bg="white")
         self.console.grid(row=1, column=0)
 
@@ -317,27 +323,27 @@ class MainApp(Frame):
         self.con_and_button_frame = Frame(root)
         self.con_and_button_frame.grid(row=1, column=1, sticky=W+E+N+S)
 
-        Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs,state=DISABLED).grid(row=1, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Recreate Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
+        #Button(self.con_and_button_frame, text="Deploy Configs", command=self.deploy_configs,state=DISABLED).grid(row=1, column=1, sticky=W+E)
+        #Button(self.con_and_button_frame, text="Recreate Resource PSP List", command=self.create_resource_nsc_list, state=DISABLED).grid(row=2, column=1, sticky=W + E)
         #Button(self.con_and_button_frame, text="Manage Resource PSP List", command=self.manage_resource_nscs).grid(row=2, column=1, sticky=W + E)
-        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus,bg="khaki").grid(row=3, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=4, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Remote Pilot Status", command=self.updateStatus,bg="khaki").grid(row=1, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Simulate External Command", command=self.simulateExternalCommand).grid(row=2, column=1, sticky=W+E)
         ##Label(self.con_and_button_frame,  text="").grid(row=4, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Remote PSP list", command=self.printRemoteNscList).grid(row=3, column=1, sticky=W+E)
 
-        Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=6, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=7, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=8, column=1, sticky=W+E)
-        Label(self.con_and_button_frame,  text="").grid(row=9, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices,bg="lightseagreen").grid(row=10, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=4, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=5, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=6, column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=7, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices,bg="lightseagreen").grid(row=8, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
 
         self.bt_Start_Reconfiguration = Button(self.con_and_button_frame, text="Start Reconfiguration", command=self.startReconfiguration, state=DISABLED, activebackground="red")
-        self.bt_Start_Reconfiguration.grid(row=11, column=1, sticky=W+E)
+        self.bt_Start_Reconfiguration.grid(row=9, column=1, sticky=W+E)
 
-        Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
-        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
-        Label(self.con_and_button_frame,  text="").grid(row=14, column=1, sticky=W+E)
+        #Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
+        #Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
+        #Label(self.con_and_button_frame,  text="").grid(row=14, column=1, sticky=W+E)
 
 
         # LIST HEADER FRAME
@@ -483,12 +489,12 @@ class MainApp(Frame):
 
         if self.domain_select_box_init == 0:
             Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").pack(fill=X)
-            Label(self.domain_selector_frame).pack(fill=X)
+            #Label(self.domain_selector_frame).pack(fill=X)
 
             Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).pack(fill=X)
-            Label(self.domain_selector_frame).pack(fill=X)
+            #Label(self.domain_selector_frame).pack(fill=X)
             Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").pack(fill=X)
-            Label(self.domain_selector_frame).pack(fill=X)
+            #Label(self.domain_selector_frame).pack(fill=X)
 
             listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
             listbox_head_label["resource"].pack()
@@ -1084,9 +1090,7 @@ class MainApp(Frame):
          with open(self.licfile, 'a'):
              pass
 
-
     # --- FUN STUFF END ---
-
 
 if __name__ == "__main__":
     root = Tk()
