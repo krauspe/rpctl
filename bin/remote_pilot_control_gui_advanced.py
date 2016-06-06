@@ -284,8 +284,11 @@ class MainApp(Frame):
         #Frame.__init__(self, master=None,*args, **kwargs)
 
         Frame.__init__(self, root)
+
+
         print "screenwidth ", root.winfo_screenwidth()
         print "screenheight ", root.winfo_screenheight()
+        # Limit root window size
         root.maxsize(width=root.winfo_screenwidth(),height=root.winfo_screenheight())
 
         self.parent = root # get a reference to change atts of the root window (like title etc)
