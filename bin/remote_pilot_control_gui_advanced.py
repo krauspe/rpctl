@@ -288,8 +288,11 @@ class MainApp(Frame):
 
         print "screenwidth ", root.winfo_screenwidth()
         print "screenheight ", root.winfo_screenheight()
+
+        self.max_app_width = root.winfo_screenwidth()
+        self.max_app_height = int(root.winfo_screenheight()*0.9)
         # Limit root window size
-        root.maxsize(width=root.winfo_screenwidth(),height=root.winfo_screenheight())
+        root.maxsize(width=self.max_app_width,height=self.max_app_height)
 
         self.parent = root # get a reference to change atts of the root window (like title etc)
         self.frame = Frame(root)
@@ -432,7 +435,7 @@ class MainApp(Frame):
         self.button_resource_frame = Frame(self.window_manage_resource_nscs)
         self.button_resource_frame.grid(row=1, column=0, pady=5)
 
-
+        self.window_manage_resource_nscs.maxsize(width=self.max_app_width, height=self.max_app_height)
         #self.frame_manage_resource_nscs = Frame(self.window_manage_resource_nscs)
         #self.frame_manage_resource_nscs.grid(row=0, column=0)
 
