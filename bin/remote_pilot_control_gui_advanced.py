@@ -416,8 +416,25 @@ class MainApp(Frame):
 
         self.window_manage_resource_nscs = Toplevel(self)
         self.window_manage_resource_nscs.wm_title("Manage Resource NSCs")
-        self.frame_manage_resource_nscs = Frame(self.window_manage_resource_nscs)
+
+
+        self.canvas_resource_frame = Frame(self.window_manage_resource_nscs, bg="grey")
+        self.canvas_resource_frame.grid(row=0, column=0)
+        self.canvas_resource = Canvas(self.canvas_resource_frame, borderwidth=0, background="#ffffff")
+        self.vsb_resource = Scrollbar(self.canvas_resource_frame, orient="vertical", command=self.canvas_resource.yview)
+        self.vsb_resource.pack(side="right", fill="y")
+        self.frame_manage_resource_nscs = Frame(self.canvas_resource, bg="grey")
         self.frame_manage_resource_nscs.grid(row=0, column=0)
+        self.canvas_resource.configure(yscrollcommand=self.vsb_resource.set)
+        self.canvas_resource.create_window((0,0),window=self.frame_manage_resource_nscs, anchor="nw",tags="self.frame_manage_resource_nscs")
+        self.canvas_resource.pack(side="left",fill="both", expand=True)
+
+        self.button_resource_frame = Frame(self.window_manage_resource_nscs)
+        self.button_resource_frame.grid(row=1, column=0, pady=5)
+
+
+        #self.frame_manage_resource_nscs = Frame(self.window_manage_resource_nscs)
+        #self.frame_manage_resource_nscs.grid(row=0, column=0)
 
         r1 = 0
 
@@ -455,15 +472,24 @@ class MainApp(Frame):
 
             r1 += 1
 
-        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Apply", fg="black", command=self.applyResourceNscEnableConfig)
+        button_manage_resource_nscs = Button(self.button_resource_frame, text="Apply", fg="black", command=self.applyResourceNscEnableConfig)
         button_manage_resource_nscs.grid(row=r1, column=0, sticky=E+W)
 
-        button_manage_resource_nscs = Button(self.frame_manage_resource_nscs, text="Cancel",fg="black", command=self.window_manage_resource_nscs.destroy)
+        button_manage_resource_nscs = Button(self.button_resource_frame, text="Cancel",fg="black", command=self.window_manage_resource_nscs.destroy)
         button_manage_resource_nscs.grid(row=r1+1, column=0, sticky=E+W)
 
 
         # set window_check on top of root frame
         self.window_manage_resource_nscs.transient(self.frame)
+
+        self.canvas_resource_frame.bind("<Configure>", self.onResourceFrameConfigure)
+
+
+    # function for scrolled labels
+    def onResourceFrameConfigure(self, event):
+       '''Reset the scroll region to encompass the inner frame'''
+       self.canvas_resource.configure(scrollregion=self.canvas_resource.bbox("all"),width=248,height=650)
+
 
     def applyResourceNscEnableConfig(self):
         new_resource_nsc_raw_list = []
