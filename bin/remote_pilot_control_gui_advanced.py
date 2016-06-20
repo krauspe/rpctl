@@ -29,7 +29,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "3.4 beta"
+version = "3.5 beta"
 
 # Titles
 main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
@@ -347,8 +347,8 @@ class MainApp(Frame):
         self.bt_Start_Reconfiguration = Button(self.con_and_button_frame, text="Start Reconfiguration", command=self.startReconfiguration, state=DISABLED, activebackground="red")
         self.bt_Start_Reconfiguration.grid(row=9, column=1, sticky=W+E)
 
-        #Label(self.con_and_button_frame,  text="").grid(row=12, column=1, sticky=W+E)
-        #Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=13,column=1, sticky=W+E)
+        Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
+        Button(self.con_and_button_frame,text="QUIT", fg="red",command=self.frame.quit).grid(row=11,column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=14, column=1, sticky=W+E)
 
 
@@ -367,8 +367,8 @@ class MainApp(Frame):
 
         # CHECK BUTTON FRAME :checboxes to choose domains
 
-        self.domain_selector_frame = Frame(root, bg="grey")
-        self.domain_selector_frame.grid(row=5, column=1)
+        self.domain_selector_frame = Frame(root, bg="grey",relief=SUNKEN)
+        self.domain_selector_frame.grid(row=5, column=1,sticky="N")
 
         self.buildMenu(root)
 
@@ -520,49 +520,44 @@ class MainApp(Frame):
         select_button = {}
 
         if self.domain_select_box_init == 0:
-            Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").pack(fill=X)
-            #Label(self.domain_selector_frame).pack(fill=X)
-
+            Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").pack(fill=X,side="top")
             Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).pack(fill=X)
-            #Label(self.domain_selector_frame).pack(fill=X)
             Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").pack(fill=X)
-            #Label(self.domain_selector_frame).pack(fill=X)
 
             listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
-            listbox_head_label["resource"].pack()
-            # self.listbox["resource"] = Listbox(self.domain_selector_frame,listvariable=listvar["resource"], selectmode=MULTIPLE, font=self.lFont)
-            # self.listbox["resource"].pack(side="top")
+            listbox_head_label["resource"].pack(fill=X)
             self.listbox["resource"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
-            self.listbox["resource"].pack()
+            self.listbox["resource"].pack(fill=BOTH,expand=1)
+
             select_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains)
-            select_button["resource"].pack()
+            select_button["resource"].pack(fill=X)
 
             Label(self.domain_selector_frame, bg="lightgrey").pack(fill=X)
 
             listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
-            listbox_head_label["target"].pack()
-            # self.listbox["target"] = Listbox(self.domain_selector_frame,listvariable=listvar["target"], selectmode=MULTIPLE, font=self.lFont)
-            # self.listbox["target"].pack(side="top")
+            listbox_head_label["target"].pack(fill=X)
+
             self.listbox["target"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
-            self.listbox["target"].pack()
+            self.listbox["target"].pack(fill=X)
             select_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains)
-            select_button["target"].pack()
+            select_button["target"].pack(fill=X)
 
             self.domain_select_box_init = 1
 
         self.listbox["resource"].delete(0,END)
         for item in self.dns_all["resource"]:
-            self.listbox["resource"].insert(END,item)
+            self.listbox["resource"].insert(END,"  "+item) # added s2 spaces to allign text
 
         self.listbox["target"].delete(0, END)
         for item in self.dns_all["target"]:
-            self.listbox["target"].insert(END, item)
+            self.listbox["target"].insert(END,"  "+item) # added s2 spaces to allign text
 
     def applySelectedResourceDomains(self):
         dn_list = []
         selection = self.listbox["resource"].curselection()
         for i in selection:
             dn = self.listbox["resource"].get(i)
+            dn = dn.lstrip("  ") # remove 2 spaces (from aligning)
             dn_list.append(dn)
         self.selected_domains["resource"] =  dn_list
         self.createStatusView()
@@ -572,6 +567,7 @@ class MainApp(Frame):
         selection = self.listbox["target"].curselection()
         for i in selection:
             dn = self.listbox["target"].get(i)
+            dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
             dn_list.append(dn)
         self.selected_domains["target"] =  dn_list
         self.createStatusView()
@@ -690,7 +686,8 @@ class MainApp(Frame):
     # function for scrolled labels
     def onFrameConfigure(self, event):
        '''Reset the scroll region to encompass the inner frame'''
-       self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=650)
+       ##self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880,height=650)
+       self.canvas.configure(scrollregion=self.canvas.bbox("all"),width=880, height = int(self.max_app_height*.7))
 
     def runShell(self,cmd,opt):
         # http://www.cyberciti.biz/faq/python-execute-unix-linux-command-examples/
