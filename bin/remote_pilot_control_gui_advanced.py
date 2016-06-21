@@ -17,6 +17,9 @@
 # 31.05.2016: moved production mode flagfile to int_confdir
 # 06.06.2016: - max window size is now screen size. Should solve probelems with small screens
 #             - solved problem when clicking the X-Window-button: removed root.destroy() command in __main__
+# 21.06.2016  - solved problem with select domain listbox height !!
+#             - added new function domainSelectBox2 with check_buttons instaed of listboxes to replace domainSelectBox (with listbox)
+#               (not yet active because of problems with check_button text and get() function !!??
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
