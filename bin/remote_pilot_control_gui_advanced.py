@@ -367,8 +367,8 @@ class MainApp(Frame):
 
         # CHECK BUTTON FRAME :checboxes to choose domains
 
-        self.domain_selector_frame = Frame(root, bg="grey",relief=SUNKEN)
-        self.domain_selector_frame.grid(row=5, column=1,sticky="N")
+        # self.domain_selector_frame = Frame(root, bg="grey",relief=SUNKEN)
+        # self.domain_selector_frame.grid(row=5, column=1,sticky="N")
 
         self.buildMenu(root)
 
@@ -403,6 +403,34 @@ class MainApp(Frame):
         self.om = {}
         self.new_target_config_list   = []
 
+
+        self.doamin_box_head_label = {}
+        self.domain_apply_button = {}
+        self.doamin_box_head_label = {}
+        self.doamin_box_resource_text = {}
+        self.doamin_box_target_text   = {}
+
+        self.check_button_domain_box_resource_val = {}
+        self.check_button_domain_box_target_val = {}
+
+        self.check_buttons_domain_resource_box = {}
+        self.check_buttons_domain_target_box = {}
+
+        self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
+        self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
+
+        self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
+        #self.resource_mac = {}
+        self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
+        self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
+        self.resource_fqdns_from_nsc_status_list = [] # all resource fqdns contained in nsc_status_list
+        self.resource_fqdns_all = []                  # all available resource fqdns read from script generated list
+        self.resource_nsc_list = []
+        self.resource_enabled_status = {}
+
+        self.resource_dns_enabled_status = {}
+        self.target_dns_enabled_status = {}
+
         # LIST SCROLL AREA FRAME (IN CANVAS) -> moved to createStatusView
         #self.loadLists()
 
@@ -422,15 +450,15 @@ class MainApp(Frame):
 
 
         self.canvas_resource_frame = Frame(self.window_manage_resource_nscs, bg="grey")
-        self.canvas_resource_frame.grid(row=0, column=0)
+        self.canvas_resource_frame.grid(row=0, column=0, sticky=E)
         self.canvas_resource = Canvas(self.canvas_resource_frame, borderwidth=0, background="#ffffff")
         self.vsb_resource = Scrollbar(self.canvas_resource_frame, orient="vertical", command=self.canvas_resource.yview)
         self.vsb_resource.pack(side="right", fill="y")
         self.frame_manage_resource_nscs = Frame(self.canvas_resource, bg="grey")
         self.frame_manage_resource_nscs.grid(row=0, column=0)
         self.canvas_resource.configure(yscrollcommand=self.vsb_resource.set)
-        self.canvas_resource.create_window((0,0),window=self.frame_manage_resource_nscs, anchor="nw",tags="self.frame_manage_resource_nscs")
-        self.canvas_resource.pack(side="left",fill="both", expand=True)
+        self.canvas_resource.create_window((0,0),window=self.frame_manage_resource_nscs, anchor="n",tags="self.frame_manage_resource_nscs")
+        self.canvas_resource.pack(side="left",expand=False)
 
         self.button_resource_frame = Frame(self.window_manage_resource_nscs)
         self.button_resource_frame.grid(row=1, column=0, pady=5)
@@ -451,15 +479,15 @@ class MainApp(Frame):
                 resfqdn_lbgcol = "white"
 
             self.check_button_val[resfqdn] = IntVar()
-            self.check_button_val[resfqdn].set(0)
+            self.check_button_val[resfqdn].set(1)
 
-            if self.resource_enabled[resfqdn] == "enabled":
+            if self.resource_enabled_status[resfqdn] == "enabled":
                 status_font = self.lFont
 
             else:
                 status_font = self.lFont_italic
                 resfqdn_lbgcol = "tomato"
-                self.check_button_val[resfqdn].set(1)
+                self.check_button_val[resfqdn].set(0)
 
 
             self.lt_resfqdns_raw[resfqdn] = StringVar()
@@ -470,8 +498,8 @@ class MainApp(Frame):
             self.label_resfqdn_edit[resfqdn].grid(row=r1, column=0)
 
 
-            self.check_buttons[resfqdn] = Checkbutton(self.frame_manage_resource_nscs,text="Disabled", variable=self.check_button_val[resfqdn])
-            self.check_buttons[resfqdn].grid(row=r1, column=1)
+            self.check_buttons[resfqdn] = Checkbutton(self.frame_manage_resource_nscs,text="Enabled", variable=self.check_button_val[resfqdn])
+            self.check_buttons[resfqdn].grid(row=r1, column=1, sticky=W+E+N+S)
 
             r1 += 1
 
@@ -479,7 +507,7 @@ class MainApp(Frame):
         button_manage_resource_nscs.grid(row=r1, column=0, sticky=E+W)
 
         button_manage_resource_nscs = Button(self.button_resource_frame, text="Cancel",fg="black", command=self.window_manage_resource_nscs.destroy)
-        button_manage_resource_nscs.grid(row=r1+1, column=0, sticky=E+W)
+        button_manage_resource_nscs.grid(row=r1+1, column=0)
 
 
         # set window_check on top of root frame
@@ -491,22 +519,21 @@ class MainApp(Frame):
     # function for scrolled labels
     def onResourceFrameConfigure(self, event):
        '''Reset the scroll region to encompass the inner frame'''
-       self.canvas_resource.configure(scrollregion=self.canvas_resource.bbox("all"),width=248,height=650)
+       self.canvas_resource.configure(scrollregion=self.canvas_resource.bbox("all"),width=236,height=650)
 
 
     def applyResourceNscEnableConfig(self):
         new_resource_nsc_raw_list = []
-        resfqdn_entry = ""
         for resfqdn, mac in self.resource_nsc_raw_list:
             resfqdn = resfqdn.lstrip('#')
             resfqdn_entry = resfqdn
 
-            if self.check_button_val[resfqdn].get() == 1:
-                self.resource_enabled[resfqdn] = "disabled"
+            if self.check_button_val[resfqdn].get() == 0:
+                self.resource_enabled_status[resfqdn] = "disabled"
                 resfqdn_entry = '#'+ resfqdn
             else:
-                self.resource_enabled[resfqdn] = "enabled"
-            print resfqdn, "is", self.resource_enabled[resfqdn]
+                self.resource_enabled_status[resfqdn] = "enabled"
+            print resfqdn, "is", self.resource_enabled_status[resfqdn]
 
             new_resource_nsc_raw_list.append([resfqdn_entry.lstrip(' '),mac])
 
@@ -515,18 +542,23 @@ class MainApp(Frame):
         self.window_manage_resource_nscs.destroy()
 
     def domainSelectBox(self):
-        listvar = {}
         listbox_head_label = {}
         select_button = {}
 
+
+
         if self.domain_select_box_init == 0:
+
+            self.domain_selector_frame = Frame(root, bg="grey", relief=SUNKEN)
+            self.domain_selector_frame.grid(row=5, column=1, sticky="N")
+
             Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").pack(fill=X,side="top")
             Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).pack(fill=X)
             Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").pack(fill=X)
 
             listbox_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
             listbox_head_label["resource"].pack(fill=X)
-            self.listbox["resource"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
+            self.listbox["resource"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont, height=0)
             self.listbox["resource"].pack(fill=BOTH,expand=1)
 
             select_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains)
@@ -537,7 +569,7 @@ class MainApp(Frame):
             listbox_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
             listbox_head_label["target"].pack(fill=X)
 
-            self.listbox["target"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont)
+            self.listbox["target"] = Listbox(self.domain_selector_frame, selectmode=MULTIPLE, font=self.lFont, height=0)
             self.listbox["target"].pack(fill=X)
             select_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains)
             select_button["target"].pack(fill=X)
@@ -551,6 +583,89 @@ class MainApp(Frame):
         self.listbox["target"].delete(0, END)
         for item in self.dns_all["target"]:
             self.listbox["target"].insert(END,"  "+item) # added s2 spaces to allign text
+
+    def domainSelectBox2(self):
+        # self.check_buttons = {}
+
+        if hasattr(self, 'domain_selector_frame'): self.domain_selector_frame.destroy()
+        self.domain_selector_frame = Frame(root, bg="grey",relief=SUNKEN)
+        self.domain_selector_frame.grid(row=5, column=1,sticky="N")
+
+
+        r2 = 0
+        Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").grid(row=r2, column=0); r2 = r2 + 1
+        Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).grid(row=r2, column=0); r2 = r2 + 1
+        Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").grid(row=r2, column=0); r2 = r2 + 1
+
+        self.doamin_box_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
+        self.doamin_box_head_label["resource"].grid(row=r2, column=0); r2 = r2 + 1
+
+
+        for dn in self.dns_all["resource"]:
+            print "DEBUG: dn=",dn
+            self.doamin_box_resource_text[dn] = StringVar()
+            self.doamin_box_resource_text[dn].set(dn)
+            self.check_button_domain_box_resource_val[dn] = IntVar()
+            self.check_button_domain_box_resource_val[dn].set(1)
+
+            self.check_buttons_domain_resource_box[dn] = Checkbutton(self.domain_selector_frame,
+                                                        text=self.doamin_box_resource_text[dn],
+                                                        variable=self.check_button_domain_box_resource_val[dn])
+            self.check_buttons_domain_resource_box[dn].grid(row=r2, column=0)
+
+            r2 = r2 + 1
+
+        self.domain_apply_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains2)
+        self.domain_apply_button["resource"].grid(row=r2, column=0); r2 = r2 + 1
+
+        # Trenner
+        Label(self.domain_selector_frame, bg="lightgrey").grid(row=r2, column=0); r2 = r2 + 1
+
+        self.doamin_box_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
+        self.doamin_box_head_label["target"].grid(row=r2, column=0); r2 = r2 + 1
+
+        for dn in self.dns_all["target"]:
+            self.doamin_box_target_text[dn] = StringVar()
+            self.doamin_box_target_text[dn].set(dn)
+            self.check_button_domain_box_target_val[dn] = IntVar()
+            self.check_button_domain_box_target_val[dn].set(1)
+
+            self.check_buttons_domain_target_box[dn] = Checkbutton(self.domain_selector_frame,
+                                                        text=self.doamin_box_target_text[dn],
+                                                        variable=self.check_button_domain_box_target_val[dn])
+            self.check_buttons_domain_target_box[dn].grid(row=r2, column=0)
+
+            r2 = r2 + 1
+
+        self.domain_apply_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains2)
+        self.domain_apply_button["target"].grid(row=r2, column=0); r2 = r2 + 1
+
+
+
+    def applySelectedResourceDomains2(self):
+        dn = ""
+        dn_list = []
+        for dn in self.dns_all["resource"]:
+            if self.check_buttons_domain_resource_box[dn].get() == 1:
+                self.resource_dns_enabled_status[dn] = "enabled"
+                dn_list.append(dn)
+            else:
+                self.resource_dns_enabled_status[dn] = "disabled"
+                
+        self.selected_domains["resource"] =  dn_list
+        self.createStatusView()
+
+    def applySelectedTargetDommains2(self):
+        dn_list = []
+        for dn in self.dns_all["target"]:
+            if self.check_buttons_domain_target_box[dn].get() == 1:
+                self.target_dns_enabled_status[dn] = "enabled"
+                dn_list.append(dn)
+            else:
+                self.target_dns_enabled_status[dn] = "disabled"
+
+        self.selected_domains["target"] =  dn_list
+        self.createStatusView()
 
     def applySelectedResourceDomains(self):
         dn_list = []
@@ -571,6 +686,7 @@ class MainApp(Frame):
             dn_list.append(dn)
         self.selected_domains["target"] =  dn_list
         self.createStatusView()
+
 
 
 
@@ -859,15 +975,18 @@ class MainApp(Frame):
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.target_config_list = getFileAsList(target_config_list_file)
 
-        self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
-        self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
-
-        self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
-        #self.resource_mac = {}
-        self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
-        self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
-        self.resource_fqdns_from_nsc_status_list = [] # all resource fqdns contained in nsc_status_list
-        self.resource_fqdns_all = []                  # all available resource fqdns read from script generated list
+        # self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
+        # self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
+        #
+        # self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
+        # #self.resource_mac = {}
+        # self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
+        # self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
+        # self.resource_fqdns_from_nsc_status_list = [] # all resource fqdns contained in nsc_status_list
+        # self.resource_fqdns_all = []                  # all available resource fqdns read from script generated list
+        # self.resource_nsc_list = []
+        # self.resource_enabled_status = {}
+        # self.dns_enabled_status = {}
 
         # read originall nsc_status from shell script and translate to resource_status
 
@@ -882,15 +1001,13 @@ class MainApp(Frame):
 
         # get enabled/disabled resouce fqdns
 
-        self.resource_nsc_list = []
-        self.resource_enabled = {}
 
         for resfqdn,mac in self.resource_nsc_raw_list:
             if resfqdn.startswith('#'):
                 resfqdn = resfqdn.lstrip('#')
-                self.resource_enabled[resfqdn] = "disabled"
+                self.resource_enabled_status[resfqdn] = "disabled"
             else:
-                self.resource_enabled[resfqdn] = "enabled"
+                self.resource_enabled_status[resfqdn] = "enabled"
                 self.resource_nsc_list.append([resfqdn,mac])
 
         #self.resource_nsc_list_dict = dict(self.resource_nsc_list)
