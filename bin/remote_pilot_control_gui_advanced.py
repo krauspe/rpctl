@@ -975,16 +975,16 @@ class MainApp(Frame):
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.target_config_list = getFileAsList(target_config_list_file)
 
-        # self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
-        # self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
+        self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
+        self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
         #
         # self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
-        # #self.resource_mac = {}
+        ##self.resource_mac = {}
         # self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
         # self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
         # self.resource_fqdns_from_nsc_status_list = [] # all resource fqdns contained in nsc_status_list
-        # self.resource_fqdns_all = []                  # all available resource fqdns read from script generated list
-        # self.resource_nsc_list = []
+        self.resource_fqdns_all = []                  # all available resource fqdns read from script generated list
+        self.resource_nsc_list = []
         # self.resource_enabled_status = {}
         # self.dns_enabled_status = {}
 
