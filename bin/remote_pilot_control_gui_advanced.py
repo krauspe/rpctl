@@ -587,25 +587,25 @@ class MainApp(Frame):
         for item in self.dns_all["target"]:
             self.listbox["target"].insert(END,"  "+item) # added s2 spaces to allign text
 
-        def applySelectedResourceDomains(self):
-            dn_list = []
-            selection = self.listbox["resource"].curselection()
-            for i in selection:
-                dn = self.listbox["resource"].get(i)
-                dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
-                dn_list.append(dn)
-            self.selected_domains["resource"] = dn_list
-            self.createStatusView()
+    def applySelectedResourceDomains(self):
+        dn_list = []
+        selection = self.listbox["resource"].curselection()
+        for i in selection:
+            dn = self.listbox["resource"].get(i)
+            dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
+            dn_list.append(dn)
+        self.selected_domains["resource"] = dn_list
+        self.createStatusView()
 
-        def applySelectedTargetDommains(self):
-            dn_list = []
-            selection = self.listbox["target"].curselection()
-            for i in selection:
-                dn = self.listbox["target"].get(i)
-                dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
-                dn_list.append(dn)
-            self.selected_domains["target"] = dn_list
-            self.createStatusView()
+    def applySelectedTargetDommains(self):
+        dn_list = []
+        selection = self.listbox["target"].curselection()
+        for i in selection:
+            dn = self.listbox["target"].get(i)
+            dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
+            dn_list.append(dn)
+        self.selected_domains["target"] = dn_list
+        self.createStatusView()
 
 
     ## alternavie version with check buttons instaed of listes (works not yet !!)
