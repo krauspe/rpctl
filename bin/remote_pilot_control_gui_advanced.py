@@ -18,8 +18,8 @@
 # 06.06.2016: - max window size is now screen size. Should solve probelems with small screens
 #             - solved problem when clicking the X-Window-button: removed root.destroy() command in __main__
 # 21.06.2016  - solved problem with select domain listbox height !!
-#             - added new function domainSelectBox2 with check_buttons instaed of listboxes to replace domainSelectBox (with listbox)
-#               (not yet active because of problems with check_button text and get() function !!??
+#             - added new functions domainSelectBox2, applySelectedTargetDommains2, applySelectedTargetDommains2,  with check_buttons instaed of listboxes to replace domainSelectBox (with listbox)
+#               (NOT YET ACTIVE yet active because of problems with check_button text and get() function !!??
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -587,110 +587,109 @@ class MainApp(Frame):
         for item in self.dns_all["target"]:
             self.listbox["target"].insert(END,"  "+item) # added s2 spaces to allign text
 
-    def domainSelectBox2(self):
-        # self.check_buttons = {}
-
-        if hasattr(self, 'domain_selector_frame'): self.domain_selector_frame.destroy()
-        self.domain_selector_frame = Frame(root, bg="grey",relief=SUNKEN)
-        self.domain_selector_frame.grid(row=5, column=1,sticky="N")
-
-
-        r2 = 0
-        Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").grid(row=r2, column=0); r2 = r2 + 1
-        Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).grid(row=r2, column=0); r2 = r2 + 1
-        Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").grid(row=r2, column=0); r2 = r2 + 1
-
-        self.doamin_box_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
-        self.doamin_box_head_label["resource"].grid(row=r2, column=0); r2 = r2 + 1
-
-
-        for dn in self.dns_all["resource"]:
-            print "DEBUG: dn=",dn
-            self.doamin_box_resource_text[dn] = StringVar()
-            self.doamin_box_resource_text[dn].set(dn)
-            self.check_button_domain_box_resource_val[dn] = IntVar()
-            self.check_button_domain_box_resource_val[dn].set(1)
-
-            self.check_buttons_domain_resource_box[dn] = Checkbutton(self.domain_selector_frame,
-                                                        text=self.doamin_box_resource_text[dn],
-                                                        variable=self.check_button_domain_box_resource_val[dn])
-            self.check_buttons_domain_resource_box[dn].grid(row=r2, column=0)
-
-            r2 = r2 + 1
-
-        self.domain_apply_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains2)
-        self.domain_apply_button["resource"].grid(row=r2, column=0); r2 = r2 + 1
-
-        # Trenner
-        Label(self.domain_selector_frame, bg="lightgrey").grid(row=r2, column=0); r2 = r2 + 1
-
-        self.doamin_box_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
-        self.doamin_box_head_label["target"].grid(row=r2, column=0); r2 = r2 + 1
-
-        for dn in self.dns_all["target"]:
-            self.doamin_box_target_text[dn] = StringVar()
-            self.doamin_box_target_text[dn].set(dn)
-            self.check_button_domain_box_target_val[dn] = IntVar()
-            self.check_button_domain_box_target_val[dn].set(1)
-
-            self.check_buttons_domain_target_box[dn] = Checkbutton(self.domain_selector_frame,
-                                                        text=self.doamin_box_target_text[dn],
-                                                        variable=self.check_button_domain_box_target_val[dn])
-            self.check_buttons_domain_target_box[dn].grid(row=r2, column=0)
-
-            r2 = r2 + 1
-
-        self.domain_apply_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains2)
-        self.domain_apply_button["target"].grid(row=r2, column=0); r2 = r2 + 1
-
-
-
-    def applySelectedResourceDomains2(self):
-        dn = ""
-        dn_list = []
-        for dn in self.dns_all["resource"]:
-            if self.check_buttons_domain_resource_box[dn].get() == 1:
-                self.resource_dns_enabled_status[dn] = "enabled"
+        def applySelectedResourceDomains(self):
+            dn_list = []
+            selection = self.listbox["resource"].curselection()
+            for i in selection:
+                dn = self.listbox["resource"].get(i)
+                dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
                 dn_list.append(dn)
-            else:
-                self.resource_dns_enabled_status[dn] = "disabled"
-                
-        self.selected_domains["resource"] =  dn_list
-        self.createStatusView()
+            self.selected_domains["resource"] = dn_list
+            self.createStatusView()
 
-    def applySelectedTargetDommains2(self):
-        dn_list = []
-        for dn in self.dns_all["target"]:
-            if self.check_buttons_domain_target_box[dn].get() == 1:
-                self.target_dns_enabled_status[dn] = "enabled"
+        def applySelectedTargetDommains(self):
+            dn_list = []
+            selection = self.listbox["target"].curselection()
+            for i in selection:
+                dn = self.listbox["target"].get(i)
+                dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
                 dn_list.append(dn)
-            else:
-                self.target_dns_enabled_status[dn] = "disabled"
-
-        self.selected_domains["target"] =  dn_list
-        self.createStatusView()
-
-    def applySelectedResourceDomains(self):
-        dn_list = []
-        selection = self.listbox["resource"].curselection()
-        for i in selection:
-            dn = self.listbox["resource"].get(i)
-            dn = dn.lstrip("  ") # remove 2 spaces (from aligning)
-            dn_list.append(dn)
-        self.selected_domains["resource"] =  dn_list
-        self.createStatusView()
-
-    def applySelectedTargetDommains(self):
-        dn_list = []
-        selection = self.listbox["target"].curselection()
-        for i in selection:
-            dn = self.listbox["target"].get(i)
-            dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
-            dn_list.append(dn)
-        self.selected_domains["target"] =  dn_list
-        self.createStatusView()
+            self.selected_domains["target"] = dn_list
+            self.createStatusView()
 
 
+    ## alternavie version with check buttons instaed of listes (works not yet !!)
+    # def domainSelectBox2(self):
+    #     # self.check_buttons = {}
+    #
+    #     if hasattr(self, 'domain_selector_frame'): self.domain_selector_frame.destroy()
+    #     self.domain_selector_frame = Frame(root, bg="grey",relief=SUNKEN)
+    #     self.domain_selector_frame.grid(row=5, column=1,sticky="N")
+    #
+    #
+    #     r2 = 0
+    #     Label(self.domain_selector_frame,text="Resource Options",bg="whitesmoke").grid(row=r2, column=0); r2 = r2 + 1
+    #     Button(self.domain_selector_frame, text="Manage Resource PSP List",bg="lightgreen", command=self.manage_resource_nscs).grid(row=r2, column=0); r2 = r2 + 1
+    #     Label(self.domain_selector_frame,text="View Options",bg="whitesmoke").grid(row=r2, column=0); r2 = r2 + 1
+    #
+    #     self.doamin_box_head_label["resource"] = Label(self.domain_selector_frame, text="Filter Resource Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
+    #     self.doamin_box_head_label["resource"].grid(row=r2, column=0); r2 = r2 + 1
+    #
+    #
+    #     for dn in self.dns_all["resource"]:
+    #         print "DEBUG: dn=",dn
+    #         self.doamin_box_resource_text[dn] = StringVar()
+    #         self.doamin_box_resource_text[dn].set(dn)
+    #         self.check_button_domain_box_resource_val[dn] = IntVar()
+    #         self.check_button_domain_box_resource_val[dn].set(1)
+    #
+    #         self.check_buttons_domain_resource_box[dn] = Checkbutton(self.domain_selector_frame,
+    #                                                     text=self.doamin_box_resource_text[dn],
+    #                                                     variable=self.check_button_domain_box_resource_val[dn])
+    #         self.check_buttons_domain_resource_box[dn].grid(row=r2, column=0)
+    #
+    #         r2 = r2 + 1
+    #
+    #     self.domain_apply_button["resource"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedResourceDomains2)
+    #     self.domain_apply_button["resource"].grid(row=r2, column=0); r2 = r2 + 1
+    #
+    #     # Trenner
+    #     Label(self.domain_selector_frame, bg="lightgrey").grid(row=r2, column=0); r2 = r2 + 1
+    #
+    #     self.doamin_box_head_label["target"] = Label(self.domain_selector_frame, text="Filter Target Domains",font=self.lhFont,bg="lightgreen", relief=GROOVE )
+    #     self.doamin_box_head_label["target"].grid(row=r2, column=0); r2 = r2 + 1
+    #
+    #     for dn in self.dns_all["target"]:
+    #         self.doamin_box_target_text[dn] = StringVar()
+    #         self.doamin_box_target_text[dn].set(dn)
+    #         self.check_button_domain_box_target_val[dn] = IntVar()
+    #         self.check_button_domain_box_target_val[dn].set(1)
+    #
+    #         self.check_buttons_domain_target_box[dn] = Checkbutton(self.domain_selector_frame,
+    #                                                     text=self.doamin_box_target_text[dn],
+    #                                                     variable=self.check_button_domain_box_target_val[dn])
+    #         self.check_buttons_domain_target_box[dn].grid(row=r2, column=0)
+    #
+    #         r2 = r2 + 1
+    #
+    #     self.domain_apply_button["target"] = Button(self.domain_selector_frame, text="apply", command=self.applySelectedTargetDommains2)
+    #     self.domain_apply_button["target"].grid(row=r2, column=0); r2 = r2 + 1
+
+
+    # def applySelectedResourceDomains2(self):
+    #     dn = ""
+    #     dn_list = []
+    #     for dn in self.dns_all["resource"]:
+    #         if self.check_buttons_domain_resource_box[dn].get() == 1:
+    #             self.resource_dns_enabled_status[dn] = "enabled"
+    #             dn_list.append(dn)
+    #         else:
+    #             self.resource_dns_enabled_status[dn] = "disabled"
+    #
+    #     self.selected_domains["resource"] =  dn_list
+    #     self.createStatusView()
+    #
+    # def applySelectedTargetDommains2(self):
+    #     dn_list = []
+    #     for dn in self.dns_all["target"]:
+    #         if self.check_buttons_domain_target_box[dn].get() == 1:
+    #             self.target_dns_enabled_status[dn] = "enabled"
+    #             dn_list.append(dn)
+    #         else:
+    #             self.target_dns_enabled_status[dn] = "disabled"
+    #
+    #     self.selected_domains["target"] =  dn_list
+    #     self.createStatusView()
 
 
     def createStatusView(self):
