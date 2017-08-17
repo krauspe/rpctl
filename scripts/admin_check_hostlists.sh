@@ -5,7 +5,7 @@
 #dbg=echo
 dbg=""
 dev=eth0
-basedir=/opt/dfs/tsctl2
+basedir=/opt/local/rpctl
 bindir=${basedir}/bin
 confdir=${basedir}/config
 vardir=${basedir}/var

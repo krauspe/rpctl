@@ -1,19 +1,23 @@
-#!/usr/bin/ksh
+#!/bin/ksh
 #
 # (c) Peter Krauspe 10/2015
 #
 # This script should run on admin machine
 # creates a list of all resource NSC's (resource_nsc.list) from each resource domain including  MAC adresses
 #
+# Simulation
+# funzt
+#
+
 # <2step>
-. /etc/2step/2step.vars
+#. /etc/2step/2step.vars
 #
 #dbg=echo
 dbg=""
 dev=eth0
 # ggfs spaeter aus config file
-basedir=basedir=/opt/local/rpctl
-bindir=${basedir}/bin
+basedir=/opt/local/rpctl
+bindir=${basedir}/binsim
 confdir=${basedir}/config
 vardir=${basedir}/var
 arg1=$1
@@ -24,29 +28,35 @@ resource_nsc_list_file=${vardir}/resource_nsc.list
 target_config_list_file=${vardir}/target_config.list
 remote_nsc_list_file=${vardir}/remote_nsc.list
 
+typeset -i n
+simulated_resource_nsc_count=10
+
 [[ -f $resource_nsc_list_file ]] && rm $resource_nsc_list_file
+
+# create faked mac addresses
+
+for i in $(seq -w 1 $simulated_resource_nsc_count)
+do
+  MAC[$i]="ab:cd:01:c2:d3:$i"
+done
 
 for resource_domain_server in $ResourceDomainServers
 do
    resource_dn=${resource_domain_server#*.}
-   RESOURCE_FQDNS=$(ssh $resource_domain_server 'cd /srv/inst/xchg/client/config; ls -d '$subtype'*')
-
    [[ -d ${vardir}/$resource_dn ]] || mkdir -p ${vardir}/$resource_dn
 
-
-   for resource_fqdn in $RESOURCE_FQDNS
+   for i in $(seq 1 $simulated_resource_nsc_count)
    do
-     resource_hn=${resource_fqdn%%.*}
-     resource_nsc_mac=$(ssh ${resource_domain_server} grep ^dm /srv/inst/xchg/client/config/${resource_fqdn}/2step.vars)
-     resource_nsc_mac=${resource_nsc_mac#dm=}
-     resource_nsc_mac=${resource_nsc_mac#\"}
-     resource_nsc_mac=${resource_nsc_mac%\"}
-     
-     #echo "$resource_fqdn: $resource_hn $resource_nsc_mac"
+     resource_nsc_mac=${MAC[$i]}
+     resource_fqdn=psp${i}-s1.${resource_dn}
+     #echo "$resource_fqdn $resource_nsc_mac" 
      echo "$resource_fqdn $resource_nsc_mac" >> $resource_nsc_list_file     
    done
-   #echo "----------------------------------"
+   echo "----------------------------------"
 done
+
+# DEBUG EXIT
+exit
 
 if [[ ! -f $target_config_list_file && $arg1 != "--no-target-config-list" ]]; then
   echo "No $target_config_list_file. "

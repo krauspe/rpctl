@@ -14,7 +14,7 @@ dbg=echo
 dbg=""
 dev=eth0
 # ggfs spaeter aus config file
-basedir=/opt/dfs/tsctl2
+basedir=basedir=/opt/local/rpctl
 bindir=${basedir}/bin
 confdir=${basedir}/config
 vardir=${basedir}/var

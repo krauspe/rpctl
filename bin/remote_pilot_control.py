@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# CENTOS Version (TODO: to be done)
+
 #DONE: create functions/widgets to get list of selected target domains which are showed in OptionMenu
 #DONE: show message (text or picture) on start/end of external scripts
 #DONE: recrate status area completely after reread resource nsc list
@@ -20,7 +22,17 @@
 # 21.06.2016  - solved problem with select domain listbox height !!
 #             - added new functions domainSelectBox2, applySelectedTargetDommains2, applySelectedTargetDommains2,  with check_buttons instaed of listboxes to replace domainSelectBox (with listbox)
 #               (NOT YET ACTIVE yet active because of problems with check_button text and get() function !!??
-# 17.08.2017  - disabled modes "internal" and "internal_bin" . This would conflict with CenTOS Version
+
+# 17.08.2017  - BEGIN porting to CentOS / SimOS
+#             - TASKS:
+#               - disable / delete unused Scripts/operation modes            : DONE
+#               - imported tsctl2-admin scripts in script dir and adapt or replace : ONGOING
+#               - develop simcontrol support for nsc reconfigure             : ONGOING...
+#               - generate remote_nsc_list and resource_nsc_list from hiera data
+#               - move tsctl3-nsc scripts to remote_adm package and possibly include in adm.py
+#               - reorganise deployment: update/distribute hiera data (?)
+#               - what about rpms to install/remove when switching
+#               -
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -36,9 +48,9 @@ from MyPILTools import LabelAnimated
 version = "3.7"
 
 # Titles
-main_window_title = " 2Step Remote Pilot Control Advanced " + version + " (unregistered) "
+main_window_title = " SimOS Remote Pilot Control (CentOS) " + version + " (unregistered) "
 #main_window_title = """ 2Step Remote Pilot Control Mega Advanced (unregistered) """
-about = "2Step Remote Pilot Control Advanced " + version + "(unregistered) (c) Peter Krauspe DFS 11/2015\n\
+about = "SimOS Remote Pilot Control (CentOS) " + version + "(unregistered) (c) Peter Krauspe DFS 8/2017\n\
 The expert tool for\n\
 Remote Piloting"
 
@@ -73,25 +85,17 @@ ext_confdir = os.path.join(ext_basedir,"config")
 ext_vardir  = os.path.join(ext_basedir, "var")
 
 sim_bindir  = os.path.join(basedir,"binsim")
+sim_centos_bindir  = os.path.join(basedir,"binsim_centos")
+
 
 cfg = {
     "productive":
-           {"bindir":ext_bindir,
-            "confdir":ext_confdir,
-            "vardir":ext_vardir,
+           {"bindir":int_bindir,
+            "confdir":int_confdir,
+            "vardir":int_vardir,
             "descr": "Production Mode"},
-    # "internal":
-    #        {"bindir":int_bindir,
-    #         "confdir":int_confdir,
-    #         "vardir":int_vardir,
-    #         "descr": "Using internal scripts and lists"},
-    # "internal_bin":
-    #        {"bindir":int_bindir,
-    #         "confdir":ext_confdir,
-    #         "vardir":ext_vardir,
-    #         "descr": "Using internal scripts and productive lists"},
     "simulate":
-           {"bindir":sim_bindir,
+           {"bindir":sim_centos_bindir,
             "confdir":int_confdir,
             "vardir":int_vardir,
             "descr": "Creating and using simulated internal lists"},
@@ -866,17 +870,21 @@ class MainApp(Frame):
 
     # define functions for external shell scripts
 
-    def deploy_configs(self):
-        self.setMessage("Deployment\nrunning ...")
-        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-        self.setMessage("default")
+    # cuurrently not used
+    # def deploy_configs(self):
+    #     self.setMessage("Deployment\nrunning ...")
+    #     self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+    #     self.setMessage("default")
+
     def update_status_list(self):
         self.setMessage("Updating\nstatus ...")
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
         self.setMessage("default")
 
-    def create_resource_nsc_list(self):
-        self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+    # cuurrently not used
+    # def create_resource_nsc_list(self):
+    #     self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+
     def reconfigure_nscs(self):
         self.setMessage("Reconfiguration\nrunning ...")
         self.runShell(os.path.join(bindir,"admin_reconfigure_nscs.sh"), run_shell_opt)

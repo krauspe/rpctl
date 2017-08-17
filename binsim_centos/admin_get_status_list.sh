@@ -1,4 +1,4 @@
-#!/usr/bin/ksh
+#!/bin/ksh
 #
 # (c) Peter Krauspe 10/2015
 #
@@ -6,29 +6,21 @@
 #
 # creates a status list (or a single entry) of resource_nsc / remote_nsc assignment and current status
 #
-# It reads the following files:
-#
-#   remote_nsc.list     # will be created from admin_deploy_configs.sh (manually bevor as preparation)
-#   resource_nsc.list   # will be created from admin_get_resource_nsc_list.sh if not vailable 
-#
-#
-## example nsc_status.list
-## resource_nsc           configured_nsc           status     # status=available|occupied|unreachable|nss_unreachable
-##-------------------------------------------------------------------------------------------------
-# psp1-s1.te1.lgn.dfs.de psp1-s1.te1.lgn.dfs.de   available       # running @home-domain, not assigned       
-# psp2-s1.te1.lgn.dfs.de psp103-s1.lx1.lgn.dfs.de occupied        # running assigned to remote domain lx1.lgn.dfs.de 
-# psp3-s1.te1.lgn.dfs.de unknown                  unreachable     # not network connection, try WOL on home domain and all remote doamins  
-# psp4-s1.te1.lgn.dfs.de unknown                  nss_unreachable # not network connection to nss of resource domain and not found on remote domains
+# Simulation
+# TODO all !!
 #
 # <2step>
-. /etc/2step/2step.vars
+#. /etc/2step/2step.vars
 #
+echo "simulate get status list ....(do nothing currently...)"
+exit
+
 #dbg=echo
 dbg=""
 dev=eth0
 # ggfs spaeter aus config file
-basedir=basedir=/opt/local/rpctl
-bindir=${basedir}/bin
+basedir=/opt/local/tsctl2
+bindir=${basedir}/binsim
 confdir=${basedir}/config
 vardir=${basedir}/var
 typeset resource_fqdn
@@ -45,8 +37,6 @@ typeset AllDomainServers=$(echo $RemoteDomainServers $ResourceDomainServers | se
 resource_nsc_list_file=${vardir}/resource_nsc.list
 nsc_status_list_file=${vardir}/nsc_status.list
 
-# HIER ist noch was faul !
-# diese Funktion muss die hartkodierten "nss.<dn>" statements erseten wenn nss-mgt statt nss auftritt !!!
 
 function get_domain_server_hn
 {
