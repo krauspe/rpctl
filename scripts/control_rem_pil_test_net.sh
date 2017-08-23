@@ -29,7 +29,7 @@ MODES4=dummy1
 MODES5=dummy2
 MODESdummy=dummy
 
-tsctl_basedir=basedir=/opt/local/rpctl
+tsctl_basedir=/opt/dfs/tsctl2
 tsctl_vardir=${tsctl_basedir}/var
 
 STATDIR=$tsctl_vardir

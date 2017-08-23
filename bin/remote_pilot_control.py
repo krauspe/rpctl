@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# CENTOS Version (TODO: to be done)
+# CENTOS + 2Step(SLES) Version (TODO: to be done)
 
 #DONE: create functions/widgets to get list of selected target domains which are showed in OptionMenu
 #DONE: show message (text or picture) on start/end of external scripts
@@ -29,9 +29,9 @@
 #               - imported tsctl2-admin scripts in script dir and adapt or replace : ONGOING
 #               - develop simcontrol support for nsc reconfigure             : ONGOING...
 #               - generate remote_nsc_list and resource_nsc_list from hiera data
-#               - move tsctl3-nsc scripts to remote_adm package and possibly include in adm.py
+#               - move tsctl2-nsc scripts to remote_adm package and possibly include in adm.py
 #               - reorganise deployment: update/distribute hiera data (?)
-#               - what about rpms to install/remove when switching
+#               - include rpms to install/remove when switching in puppet simcontrol::reconfigure
 #               -
 
 from Tkinter import *
@@ -64,7 +64,9 @@ mode_comment = "as configured"
 
 pydir =  os.path.dirname(os.path.abspath(__file__))
 basedir = os.path.dirname(pydir)
-ext_basedir = os.path.join(os.path.dirname(basedir),'tsctl2')
+# used only until full integration of shell scripts into python
+# ext_basedir = os.path.join(os.path.dirname(basedir),'tsctl2')
+ext_basedir = basedir
 
 
 imagedir = os.path.join(basedir, "images")
@@ -80,9 +82,11 @@ int_bindir  = os.path.join(basedir,"scripts")
 int_confdir = os.path.join(basedir,"config")
 int_vardir  = os.path.join(basedir, "var")
 
-ext_bindir  = os.path.join(ext_basedir,"bin")
-ext_confdir = os.path.join(ext_basedir,"config")
-ext_vardir  = os.path.join(ext_basedir, "var")
+# NOT used
+#ext_bindir  = os.path.join(ext_basedir,"bin") # internal scripts
+# ext_bindir  = os.path.join(ext_basedir,"scripts")
+# ext_confdir = os.path.join(ext_basedir,"config")
+# ext_vardir  = os.path.join(ext_basedir, "var")
 
 sim_bindir  = os.path.join(basedir,"binsim")
 sim_centos_bindir  = os.path.join(basedir,"binsim_centos")
@@ -155,16 +159,17 @@ label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "
 
 # derived settings
 
-if not os.path.exists(ext_basedir):
-    gui_mode = "simulate"
-    mode_comment = "because %s doesn'reg_window exist !\n" % ext_basedir
+# TODO: realize that this isn't longer possible because we don't use external scripts !!
+# if not os.path.exists(ext_basedir):
+#     gui_mode = "simulate"
+#     mode_comment = "because %s doesn'reg_window exist !\n" % ext_basedir
 
 # force productive mode in productive environment with optional flag file
 flag_filename = "FORCE_GUI_PRODUCTION_MODE"
 
 if gui_mode != "productive" and os.path.isfile(os.path.join(int_confdir,flag_filename)):
     gui_mode = "productive"
-    mode_comment = "forced bei flagfile %s/%s !\n" % (ext_confdir,flag_filename)
+    mode_comment = "forced bei flagfile %s/%s !\n" % (int_confdir,flag_filename)
 
 mode_comment = str(cfg[gui_mode]["descr"]) + '\n' + mode_comment
 bindir  = str(cfg[gui_mode]["bindir"])
@@ -870,20 +875,20 @@ class MainApp(Frame):
 
     # define functions for external shell scripts
 
-    # cuurrently not used
-    # def deploy_configs(self):
-    #     self.setMessage("Deployment\nrunning ...")
-    #     self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-    #     self.setMessage("default")
+    #TODO: should handle 'centos deployment' too , or run 2nd script !?
+    def deploy_configs(self):
+        self.setMessage("Deployment\nrunning ...")
+        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+        self.setMessage("default")
 
     def update_status_list(self):
         self.setMessage("Updating\nstatus ...")
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
         self.setMessage("default")
 
-    # cuurrently not used
-    # def create_resource_nsc_list(self):
-    #     self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+    #TODO: should find resource nsc' on centos too , or run 2nd script !?
+    def create_resource_nsc_list(self):
+        self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
 
     def reconfigure_nscs(self):
         self.setMessage("Reconfiguration\nrunning ...")

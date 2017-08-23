@@ -14,12 +14,13 @@ dbg=echo
 dbg=""
 dev=eth0
 # ggfs spaeter aus config file
-basedir=basedir=/opt/local/rpctl
+basedir=/opt/dfs/tsctl2
 bindir=${basedir}/bin
 confdir=${basedir}/config
 vardir=${basedir}/var
 
 source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
+[[ -f ${confdir}/remote_nsc.${dn}.cfg ]] && source ${confdir}/remote_nsc.${dn}.cfg # read domain specific cfg
 
 echo "<< Poweron all Resource NSC's >>"
 

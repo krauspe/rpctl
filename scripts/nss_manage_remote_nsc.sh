@@ -16,6 +16,12 @@
 # All 2step.vars files musst be collected from admin machine and distributed on any NSC in any Resource Domain
 # With theese files it is possible to configure every resource NSC from any Resource Domain to run in any Remote Domain 
 #
+# Changes:
+#
+# 14.01.2016: - added option "clean_hostlists"
+#             - improved output for option "list": lists resource_fqdn and mac for each remote_fqdn (from rnsc.all.hosts)
+#
+
 # <2step>
 . /etc/2step/2step.vars
 #
@@ -122,7 +128,7 @@ if (( $force_search == 1 )) ; then
   if [[ -n $REGISTERD_REMOTE_NSCS ]] ; then
     for remote_fqdn in $REMOTE_NSC_FQDNS_ALL
     do
-      echo $REGISTERD_REMOTE_NSCS | grep $remote_fqdn > /dev/null 2>&11
+      echo $REGISTERD_REMOTE_NSCS | grep $remote_fqdn > /dev/null 2>&1
       if (( $? > 0 )); then
         REMOTE_NSC_FQDNS="$REMOTE_NSC_FQDNS $remote_fqdn"
       fi
@@ -163,9 +169,7 @@ case $arg1 in
       remote_nsc_status=$(get_remote_nsc_status $remote_fqdn)
       resource_fqdn=${remote_nsc_status% *}
       status=${remote_nsc_status#* }
-      if [[ $status == "unreachable" ]]; then
-        clean_hostlists $remote_fqdn >2&
-      fi
+
       if [[ -n $arg2 ]] ;then
          if [[ $resource_fqdn == $arg2 ]]; then
            echo "$remote_fqdn $status"
@@ -177,18 +181,50 @@ case $arg1 in
     done 
     ;;
 
+  clean_hostlists)
+
+    found=0
+    if [[ -n $arg2 ]] ;then
+      remote_fqdn=$arg2
+      clean_hostlists $remote_fqdn >2&
+    else
+      for remote_fqdn in $REMOTE_NSC_FQDNS
+      do
+        echo "checking: $remote_fqdn"
+        remote_nsc_status=$(get_remote_nsc_status $remote_fqdn)
+        resource_fqdn=${remote_nsc_status% *}
+        status=${remote_nsc_status#* }
+  
+        if [[ $status == "unreachable" ]]; then
+          echo "removing $remote_fqdn from hostlists..."
+          clean_hostlists $remote_fqdn >2&
+        fi
+  
+      done 
+    fi
+    ;;
+
+
   list) 
 
-   for remote_fqdn in $REMOTE_NSC_FQDNS_ALL
-   do
-     echo $remote_fqdn
-   done
+   #for remote_fqdn in $REMOTE_NSC_FQDNS_ALL
+   #do
+   #  echo $remote_fqdn
+   #done
+
+   nsc_adm -q rnsc "resource_fqdn mac"
+
    ;;
 
   *)
-    echo "\nusage: $(basename $0) [ create_configs | status ]"
+    echo "\nusage: $(basename $0) [ create_configs | status | list | clean_hostlists] [<remote_fqdn>]|[<resource_fqdn>] [--force_search]"
     echo "    create_configs: create configs for remote nsc's (e.g. remote psp's)"
-    echo "            status: get status on remote nsc's\n"
+    echo "            status: without arguments: get status on remote nsc's"
+    echo "            status: with argument <resource_fqdn>: get status on remote nsc's"
+    echo "            list: list remote nsc's , with their mac and resource nsc's "
+    echo " clean_hostlists: without arguments: delete all remote_fqdns from hostslists whih are not reachable"
+    echo " clean_hostlists: with argument <remote_fqdn>: delete given remote_fqdn from hostlists"
+    echo " --force_search:  check all possible remote_fqdn's, not only those from rnsc.all.hosts\n"
    ;;
 
     

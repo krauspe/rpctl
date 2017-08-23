@@ -8,17 +8,22 @@
 # <2step>
 . /etc/2step/2step.vars
 #
+# Changes:
+#
+# 14.01.2016: sort output lists by hn
+
 #dbg=echo
 dbg=""
 dev=eth0
 # ggfs spaeter aus config file
-basedir=basedir=/opt/local/rpctl
+basedir=/opt/dfs/tsctl2
 bindir=${basedir}/bin
 confdir=${basedir}/config
 vardir=${basedir}/var
 arg1=$1
 
 source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
+[[ -f ${confdir}/remote_nsc.${dn}.cfg ]] && source ${confdir}/remote_nsc.${dn}.cfg # read domain specific cfg
 
 resource_nsc_list_file=${vardir}/resource_nsc.list
 target_config_list_file=${vardir}/target_config.list
@@ -29,7 +34,7 @@ remote_nsc_list_file=${vardir}/remote_nsc.list
 for resource_domain_server in $ResourceDomainServers
 do
    resource_dn=${resource_domain_server#*.}
-   RESOURCE_FQDNS=$(ssh $resource_domain_server 'cd /srv/inst/xchg/client/config; ls -d '$subtype'*')
+   RESOURCE_FQDNS=$(ssh $resource_domain_server 'cd /srv/inst/xchg/client/config; ls -d '$subtype'*' | sort -V)
 
    [[ -d ${vardir}/$resource_dn ]] || mkdir -p ${vardir}/$resource_dn
 
