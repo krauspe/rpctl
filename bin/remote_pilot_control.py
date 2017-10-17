@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/opt/local/anaconda2/bin/python
 
 # CENTOS + 2Step(SLES) Version (TODO: to be done)
 
@@ -33,6 +33,7 @@
 #               - reorganise deployment: update/distribute hiera data (?)
 #               - include rpms to install/remove when switching in puppet simcontrol::reconfigure
 #               -
+# 17.10.2017: - added OS type tp status label using nsc_ostype.list
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -56,8 +57,8 @@ Remote Piloting"
 
 # operation mode
 
-gui_mode = "simulate"
-#gui_mode = "productive"
+#gui_mode = "simulate"
+gui_mode = "productive"
 mode_comment = "as configured"
 
 # dynamic settings
@@ -66,8 +67,9 @@ pydir =  os.path.dirname(os.path.abspath(__file__))
 basedir = os.path.dirname(pydir)
 # used only until full integration of shell scripts into python
 # ext_basedir = os.path.join(os.path.dirname(basedir),'tsctl2')
-ext_basedir = basedir
 
+# remote_adm is symlink to /opt/local/remote_adm
+ext_basedir = os.path.join(basedir,'remote_adm','tsctl2')
 
 imagedir = os.path.join(basedir, "images")
 animdir = os.path.join(imagedir, "animated_gifs")
@@ -82,11 +84,11 @@ int_bindir  = os.path.join(basedir,"scripts")
 int_confdir = os.path.join(basedir,"config")
 int_vardir  = os.path.join(basedir, "var")
 
-# NOT used
-#ext_bindir  = os.path.join(ext_basedir,"bin") # internal scripts
-# ext_bindir  = os.path.join(ext_basedir,"scripts")
-# ext_confdir = os.path.join(ext_basedir,"config")
-# ext_vardir  = os.path.join(ext_basedir, "var")
+
+ext_bindir  = os.path.join(ext_basedir,"bin") # internal scripts
+#   ext_bindir  = os.path.join(ext_basedir,"scripts")
+ext_confdir = os.path.join(ext_basedir,"config")
+ext_vardir  = os.path.join(ext_basedir, "var")
 
 sim_bindir  = os.path.join(basedir,"binsim")
 sim_centos_bindir  = os.path.join(basedir,"binsim_centos")
@@ -94,9 +96,9 @@ sim_centos_bindir  = os.path.join(basedir,"binsim_centos")
 
 cfg = {
     "productive":
-           {"bindir":int_bindir,
-            "confdir":int_confdir,
-            "vardir":int_vardir,
+           {"bindir":ext_bindir,
+            "confdir":ext_confdir,
+            "vardir":ext_vardir,
             "descr": "Production Mode"},
     "simulate":
            {"bindir":sim_centos_bindir,
@@ -186,6 +188,7 @@ resource_nsc_list_file  = os.path.join(vardir,"resource_nsc.list")
 target_config_list_file = os.path.join(vardir,"target_config.list")
 remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
 nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
+nsc_ostype_list_file    = os.path.join(vardir,"nsc_ostype.list")
 
 #run_shell_opt = "fake"
 run_shell_opt = ""
@@ -433,6 +436,7 @@ class MainApp(Frame):
         self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
 
         self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
+        self.fqdn_ostype = defaultdict(str)      # dict for OS types of all (resource and target) fqdn's
         #self.resource_mac = {}
         self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
         self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
@@ -770,7 +774,12 @@ class MainApp(Frame):
 
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
-            self.lt_Status[resfqdn].set(label_status_text_trans[status])
+            label_add_ostype = ""
+            if self.fqdn_ostype.has_key(curfqdn): label_add_ostype = ' (' + self.fqdn_ostype[curfqdn] + ')'
+
+
+            self.lt_Status[resfqdn].set(label_status_text_trans[status] + label_add_ostype)
+            #self.lt_Status[resfqdn].set(label_status_text_trans[status]+' (' + self.fqdn_ostype[curfqdn] + ')' )
             self.lt_operation_mode[resfqdn].set(label_operation_mode_text_trans[opmode])
 
             # mark labels depemding on domain of resfqdn
@@ -990,6 +999,8 @@ class MainApp(Frame):
         self.resource_nsc_raw_list = getRawFileAsList(resource_nsc_list_file)
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.target_config_list = getFileAsList(target_config_list_file)
+        self.ostype_list = getFileAsList(nsc_ostype_list_file)
+
 
         self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
         self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
@@ -1036,6 +1047,11 @@ class MainApp(Frame):
             if not self.current_fqdn.has_key(resfqdn):
                 self.current_fqdn[resfqdn] = 'unknown'
             self.resource_fqdns_all.append(resfqdn)
+
+        # TODO: read ostype list (all resource fqdn's and target fqdn's
+
+        for fqdn, os_type in self.ostype_list:
+            self.fqdn_ostype[fqdn] = os_type
 
         #print "loadlists: should be UPTODATE:", self.resource_fqdns_all
 

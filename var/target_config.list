@@ -1,4 +1,4 @@
-psp1-s1.te1.lgn.dfs.de psp102-s1.lx3.lgn.dfs.de enable_reconfiguration
+psp1-s1.te1.lgn.dfs.de default enable_reconfiguration
 psp2-s1.te1.lgn.dfs.de psp102-s1.te1.lgn.dfs.de 
 psp3-s1.te1.lgn.dfs.de psp103-s1.te1.lgn.dfs.de 
 psp4-s1.te1.lgn.dfs.de psp4-s1.te1.lgn.dfs.de 
