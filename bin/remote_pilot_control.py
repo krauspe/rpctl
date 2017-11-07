@@ -154,10 +154,10 @@ opthFont = {
 
 # label_regkey colours and text translations
 
-label_status_text_trans =         {"ready" : "READY", "unreachable" : "UNREACHABLE !", "unknown" : "unknown", None: ""}
-label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "unknown" : "unknown", None: ""}
-label_status_textcol =            {"ready" : "dark green", "unreachable" : "red",  "unknown" : "black"}
-label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey",  "unknown" : "black",}
+label_status_text_trans =         {"ready" : "READY", "unreachable" : "UNREACHABLE !", "ssh-failed" : "SSH FAILED !", "unknown" : "unknown", None: ""}
+label_operation_mode_text_trans = {"available" : "LOCAL", "occupied" : "REMOTE", "unreachable" : "?", "ssh-failed" : "?", "unknown" : "unknown", None: ""}
+label_status_textcol =            {"ready" : "dark green", "unreachable" : "red", "ssh-failed" : "red",  "unknown" : "black"}
+label_operation_mode_textcol =    {"available" : "black", "occupied" : "blue", "unreachable" : "red", None: "lightgrey", "ssh-failed" : "red",  "unknown" : "black",}
 
 # derived settings
 
@@ -436,7 +436,7 @@ class MainApp(Frame):
         self.current_fqdn = defaultdict(lambda:'unknown')     # current fqdns as reead from script generated nsc_status_list
 
         self.resource_status = {}  # dict for interpreted nsc_status for use in all GUI functions !!
-        self.fqdn_ostype = defaultdict(str)      # dict for OS types of all (resource and target) fqdn's
+        self.ostype = defaultdict(str)      # dict for OS types of all (resource and target) fqdn's
         #self.resource_mac = {}
         self.resource_fqdns_from_dn = {} # all resource fqdns from given domain
         self.remote_fqdns_from_dn = {}   # all remote fqdns from given domain
@@ -774,8 +774,11 @@ class MainApp(Frame):
 
             self.lt_resfqdns[resfqdn].set(resfqdn)
             self.lt_curfqdns[resfqdn].set(curfqdn)
+
+            # show OS type only when curfqdn is not unknown
+            
             label_add_ostype = ""
-            if self.fqdn_ostype.has_key(curfqdn): label_add_ostype = ' (' + self.fqdn_ostype[curfqdn] + ')'
+            if self.ostype.has_key(curfqdn) and self.ostype[curfqdn] != "" : label_add_ostype = ' (' + self.ostype[curfqdn] + ')'
 
 
             self.lt_Status[resfqdn].set(label_status_text_trans[status] + label_add_ostype)
@@ -1050,8 +1053,13 @@ class MainApp(Frame):
 
         # TODO: read ostype list (all resource fqdn's and target fqdn's
 
-        for fqdn, os_type in self.ostype_list:
-            self.fqdn_ostype[fqdn] = os_type
+        #for fqdn, os_type in self.ostype_list:
+        for fqdn_ostype in self.ostype_list:
+            fqdn = fqdn_ostype[0]
+            try:
+                self.ostype[fqdn] = fqdn_ostype[1]
+            except:
+                self.ostype[fqdn] = ""
 
         #print "loadlists: should be UPTODATE:", self.resource_fqdns_all
 
