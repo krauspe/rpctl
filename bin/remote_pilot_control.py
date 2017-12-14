@@ -1,6 +1,6 @@
 #!/opt/local/anaconda2/bin/python
 
-# CENTOS + 2Step(SLES) Version (TODO: to be done)
+# Version for CENTOS / SLES mixed operation
 
 #DONE: create functions/widgets to get list of selected target domains which are showed in OptionMenu
 #DONE: show message (text or picture) on start/end of external scripts
@@ -46,7 +46,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "3.7"
+version = "3.8"
 
 # Titles
 main_window_title = " SimOS Remote Pilot Control (CentOS) " + version + " (unregistered) "
