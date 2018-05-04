@@ -934,7 +934,7 @@ class MainApp(Frame):
 
     def updateStatus(self):
         print "updateStatus: "
-        #print "CURRENTLY DISABLED run external script to update status at that state (force by pressing the button !!)"
+        #print "CURRENTLY DISABLED run external script to update status  at that state (force by pressing the button !!)"
         self.update_status_list()
         #self.loadLists()
         self.createStatusView()
@@ -953,6 +953,9 @@ class MainApp(Frame):
             if self.resource_status[resfqdn] == "ready":
                 #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
                 self.target_fqdn_option_list = self.getSelectedFqdnOptionList("target")
+                # TODO: remove target_fqdns which are already used (before reconfig)
+                # TODO: remove target_fqdns which require an OS which is not supported from resource_fqdn
+                # TODO: for above removels: read os caps of resfqdn from nsc_oscaps.list and compare with ostype of target_fqdn
                 self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
                 self.om[resfqdn].config(width=20, font=self.optFont)
                 self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
