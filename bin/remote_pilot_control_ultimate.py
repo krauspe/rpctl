@@ -365,7 +365,8 @@ class MainApp(Frame):
 
         Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=4, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=5, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=6, column=1, sticky=W+E)
+        # Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=6, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Remote FQDN List", command=self.createOptionMENUS).grid(row=6, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=7, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices,bg="lightseagreen").grid(row=8, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
@@ -636,7 +637,8 @@ class MainApp(Frame):
             dn = dn.lstrip("  ")  # remove 2 spaces (from aligning)
             dn_list.append(dn)
         self.selected_domains["target"] = dn_list
-        self.createStatusView()
+        # self.createStatusView() # not necessary at this point
+        self.createOptionMENUS()
 
 
     ## alternavie version with check buttons instaed of listes (works not yet !!)
@@ -978,6 +980,38 @@ class MainApp(Frame):
 
             #if opt == "init":
             self.lt_newfqdn[resfqdn].set("no change")
+            self.r1 +=1
+
+    def updateOptionMENUS(self):
+        self.r1 = 0
+        # delete old option menus
+        # for resfqdn in self.om.keys(): self.om[resfqdn].destroy()
+
+        resfqdns_selected = self.getSelectedFqdnOptionList("resource")
+        for resfqdn in resfqdns_selected:
+
+            if self.resource_status[resfqdn] == "ready":
+                #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
+
+                self.target_fqdn_option_list = self.getSelectedFqdnOptionList("target")
+                target_fqdn_option_list_cleaned = self.removeUsedRemoteFqdns(self.target_fqdn_option_list)
+                # print("fqdn_list_cleaned: {}".format(target_fqdn_option_list_cleaned))
+
+                # TODO: remove target_fqdns which require an OS which is not supported from resource_fqdn
+                # TODO: for above removels: read os caps of resfqdn from nsc_oscaps.list and compare with ostype of target_fqdn
+                # self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
+                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *target_fqdn_option_list_cleaned)
+                self.om[resfqdn].config(width=20, font=self.optFont)
+                self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
+            else:
+                self.lt_newfqdn[resfqdn].set("no change")
+                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn],"no change")
+                self.om[resfqdn].config(width=20, font=self.optFont, bg="grey", fg="grey")
+                self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
+
+
+            #if opt == "init":
+            # self.lt_newfqdn[resfqdn].set("no change") # wozu ? erstmal weg !
             self.r1 +=1
 
 
@@ -1327,7 +1361,6 @@ if __name__ == "__main__":
     main = MainApp(root)
     #main.grid(row=0,column=0)
     main.grid()
-    # main.createStatusView()  # TODO: find out where to put this !
     root.mainloop()
     #root.destroy()
 
