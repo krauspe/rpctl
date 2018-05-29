@@ -1158,10 +1158,10 @@ class MainApp(Frame):
         else:
             dn_list = self.dns_all[type]
 
-        for dn in dn_list:
-            fqdn_list += self.fqdns_from_dn[type][dn]
         if type == "target":
             fqdn_list += ["default", "no change"]
+        for dn in dn_list:
+            fqdn_list += self.fqdns_from_dn[type][dn]
 
         return fqdn_list
 
