@@ -34,6 +34,7 @@
 #               - include rpms to install/remove when switching in puppet simcontrol::reconfigure
 #               -
 # 17.10.2017: - added OS type tp status label using nsc_ostype.list
+# 29.05.2018: - function getSelectedFqdnOptionList: list starts with "default" and "no change" now
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
