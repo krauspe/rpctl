@@ -47,7 +47,7 @@ from collections import defaultdict
 import pprint
 from MyPILTools import LabelAnimated
 
-version = "3.8"
+version = "3.8.1"
 
 # Titles
 main_window_title = " SimOS Remote Pilot Control (CentOS) " + version + " (unregistered) "
