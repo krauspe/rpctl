@@ -34,10 +34,13 @@
 #               - include rpms to install/remove when switching in puppet simcontrol::reconfigure
 #               -
 # 17.10.2017: - added OS type tp status label using nsc_ostype.list
+# 29.05.2018: - function getSelectedFqdnOptionList: list starts with "default" and "no change" now
 #
 # current development:
 #    - check OS capability of each resource_fqdn and remove incompatible remote fqdns from selection list
 #    - remove used resource fqdns from list when selected
+#      first workaround works: press "Update Remote FQDN list" removes used entrys from lists
+#      But it should work immedialtely after each choosen remote fqdn
 
 from Tkinter import *
 from tkFileDialog import askopenfilename,askopenfile
@@ -199,6 +202,7 @@ target_config_list_file = os.path.join(vardir,"target_config.list")
 remote_nsc_list_file    = os.path.join(vardir,"remote_nsc.list")
 nsc_status_list_file    = os.path.join(vardir,"nsc_status.list")
 nsc_ostype_list_file    = os.path.join(vardir,"nsc_ostype.list")
+nsc_oscaps_list_file    = os.path.join(vardir,"nsc_oscaps.list")
 
 #run_shell_opt = "fake"
 run_shell_opt = ""
@@ -366,7 +370,7 @@ class MainApp(Frame):
         Button(self.con_and_button_frame, text="Print Status list", command=self.printNscStatusList).grid(row=4, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Print Resource PSP list", command=self.printResourceNscList).grid(row=5, column=1, sticky=W+E)
         # Button(self.con_and_button_frame, text="Stop Animation", command=self.stopAnimation).grid(row=6, column=1, sticky=W+E)
-        Button(self.con_and_button_frame, text="Update Remote FQDN List", command=self.createOptionMENUS).grid(row=6, column=1, sticky=W+E)
+        Button(self.con_and_button_frame, text="Update Remote FQDN List", command=self.updateOptionMENUS).grid(row=6, column=1, sticky=W+E)
         Label(self.con_and_button_frame,  text="").grid(row=7, column=1, sticky=W+E)
         Button(self.con_and_button_frame, text="Confirm Remote PSP Choices", command=self.confirmRemotePSPChoices,bg="lightseagreen").grid(row=8, column=1, sticky=W+E)
         #Label(self.con_and_button_frame,  text="").grid(row=10, column=1, sticky=W+E)
@@ -952,7 +956,7 @@ class MainApp(Frame):
         self.r1 = 0
         # delete old option menus
         for resfqdn in self.om.keys(): self.om[resfqdn].destroy()
-
+        # self.updateOptionMENUS()
         resfqdns_selected = self.getSelectedFqdnOptionList("resource")
         for resfqdn in resfqdns_selected:
 
@@ -964,9 +968,12 @@ class MainApp(Frame):
                 # target_fqdn_option_list_cleaned = self.target_fqdn_option_list
                 # print("fqdn_list_cleaned: {}".format(target_fqdn_option_list_cleaned))
 
-                # TODO: remove target_fqdns which are already used (before reconfig)
+                # TODO: remove target_fqdns which are already used (before reconfig): works, but only by pressing the button "Update Remote FQDN List"
                 # TODO: remove target_fqdns which require an OS which is not supported from resource_fqdn
-                # TODO: for above removels: read os caps of resfqdn from nsc_oscaps.list and compare with ostype of target_fqdn
+                #       TODO: create function wich reads nsc_ostype.list with lines like "psp17-s1.ak4.lgn.dfs.de CentOS,SLES"
+                #       TODO: create dict with fqdn as key and list of oscaps as value
+                #       TODO: check if ostype of target_fqdn is in list for that fqdn
+                # TODO: "updateOptionMENUS" should be replaced by this function with optional param "update"
                 # self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
                 self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *target_fqdn_option_list_cleaned)
                 self.om[resfqdn].config(width=20, font=self.optFont)
@@ -1011,7 +1018,7 @@ class MainApp(Frame):
 
 
             #if opt == "init":
-            # self.lt_newfqdn[resfqdn].set("no change") # wozu ? erstmal weg !
+            #self.lt_newfqdn[resfqdn].set("no change") # wozu ? erstmal weg !
             self.r1 +=1
 
 
