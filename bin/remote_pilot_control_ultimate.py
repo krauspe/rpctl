@@ -210,6 +210,7 @@ run_shell_opt = ""
 # todo: einlesen und auswerten
 #source ${confdir}/remote_nsc.cfg # providing:  subtype, ResourceDomainServers, RemoteDomainServers
 # app settings
+
 subtype = "psp"
 
 def newFile():
@@ -222,13 +223,25 @@ def About():
 def getFileAsList(file):
     #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
     if os.path.exists(file):
-        in_list = [line.rstrip('\n').split() for line in open(file) if not line.startswith('#')]
+        in_list = [line.rstrip('\n').split() for line in open(file) if not (line.startswith('#') or line.rstrip('\n').split() == [])]
+        #in_list = [line.rstrip('\n').split() for line in open(file) if not line.startswith('#')]
         if len(in_list) < 0:
             print "WARNING: %s is empty or has no valid lines !!" % file
         return in_list
     else:
         print "WARNING: %s doesn't existt !!" % file
         return []
+
+def getFileAsDictOfLists(file):
+    '''return dict from file with line format "index item1,item2, ..." '''
+    in_list = getFileAsList(file)
+    in_dict = defaultdict(list)
+    if len(in_list) < 0:
+        return None
+    else:
+        for index, value in in_list:
+            in_dict[index] = value.split(',')
+        return in_dict
 
 def getRawFileAsList(file):
     #return [tuple(line.rstrip('\n').split()) for line in open(file) if not line.startswith('#')]
@@ -910,20 +923,22 @@ class MainApp(Frame):
 
     # define functions for external shell scripts
 
-    #TODO: should handle 'centos deployment' too , or run 2nd script !?
-    def deploy_configs(self):
-        self.setMessage("Deployment\nrunning ...")
-        self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
-        self.setMessage("default")
+    # OBSOLETE
+    # #TODO: should handle 'centos deployment' too , or run 2nd script !?
+    # def deploy_configs(self):
+    #     self.setMessage("Deployment\nrunning ...")
+    #     self.runShell(os.path.join(bindir,"admin_deploy_configs.sh"), run_shell_opt)
+    #     self.setMessage("default")
 
     def update_status_list(self):
         self.setMessage("Updating\nstatus ...")
         self.runShell(os.path.join(bindir,"admin_get_status_list.sh"), run_shell_opt)
         self.setMessage("default")
 
-    #TODO: should find resource nsc' on centos too , or run 2nd script !?
-    def create_resource_nsc_list(self):
-        self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
+    # CURRENTLY NOT USED
+    # #TODO: should find resource nsc' on centos too , or run 2nd script !?
+    # def create_resource_nsc_list(self):
+    #     self.runShell(os.path.join(bindir,"admin_get_resource_nsc_list.sh"), run_shell_opt)
 
     def reconfigure_nscs(self):
         self.setMessage("Reconfiguration\nrunning ...")
@@ -953,6 +968,7 @@ class MainApp(Frame):
     #     self.createStatusView()
 
     def createOptionMENUS(self):
+        # TODO: "updateOptionMENUS" should be replaced by this function with optional param "update"
         self.r1 = 0
         # delete old option menus
         for resfqdn in self.om.keys(): self.om[resfqdn].destroy()
@@ -961,21 +977,11 @@ class MainApp(Frame):
         for resfqdn in resfqdns_selected:
 
             if self.resource_status[resfqdn] == "ready":
-                #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
-
                 self.target_fqdn_option_list = self.getSelectedFqdnOptionList("target")
                 target_fqdn_option_list_cleaned = self.removeUsedRemoteFqdns(self.target_fqdn_option_list)
-                # target_fqdn_option_list_cleaned = self.target_fqdn_option_list
-                # print("fqdn_list_cleaned: {}".format(target_fqdn_option_list_cleaned))
+                supported_fqdn_list = self.removeUnsupportedRemoteFqdns(target_fqdn_option_list_cleaned, resfqdn)
 
-                # TODO: remove target_fqdns which are already used (before reconfig): works, but only by pressing the button "Update Remote FQDN List"
-                # TODO: remove target_fqdns which require an OS which is not supported from resource_fqdn
-                #       TODO: create function wich reads nsc_ostype.list with lines like "psp17-s1.ak4.lgn.dfs.de CentOS,SLES"
-                #       TODO: create dict with fqdn as key and list of oscaps as value
-                #       TODO: check if ostype of target_fqdn is in list for that fqdn
-                # TODO: "updateOptionMENUS" should be replaced by this function with optional param "update"
-                # self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
-                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *target_fqdn_option_list_cleaned)
+                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *supported_fqdn_list)
                 self.om[resfqdn].config(width=20, font=self.optFont)
                 self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
             else:
@@ -983,7 +989,6 @@ class MainApp(Frame):
                 self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn],"no change")
                 self.om[resfqdn].config(width=20, font=self.optFont, bg="grey", fg="grey")
                 self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
-
 
             #if opt == "init":
             self.lt_newfqdn[resfqdn].set("no change")
@@ -998,16 +1003,11 @@ class MainApp(Frame):
         for resfqdn in resfqdns_selected:
 
             if self.resource_status[resfqdn] == "ready":
-                #print "status[%s]=%s  create" % (resfqdn, self.resource_status[resfqdn])
-
                 self.target_fqdn_option_list = self.getSelectedFqdnOptionList("target")
                 target_fqdn_option_list_cleaned = self.removeUsedRemoteFqdns(self.target_fqdn_option_list)
-                # print("fqdn_list_cleaned: {}".format(target_fqdn_option_list_cleaned))
+                supported_fqdn_list = self.removeUnsupportedRemoteFqdns(target_fqdn_option_list_cleaned, resfqdn)
 
-                # TODO: remove target_fqdns which require an OS which is not supported from resource_fqdn
-                # TODO: for above removels: read os caps of resfqdn from nsc_oscaps.list and compare with ostype of target_fqdn
-                # self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *self.target_fqdn_option_list)
-                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *target_fqdn_option_list_cleaned)
+                self.om[resfqdn] = OptionMenu(self.list_frame, self.lt_newfqdn[resfqdn], *supported_fqdn_list)
                 self.om[resfqdn].config(width=20, font=self.optFont)
                 self.om[resfqdn].grid(row=self.r1, column=1, sticky=S)
             else:
@@ -1023,19 +1023,28 @@ class MainApp(Frame):
 
 
     def removeUsedRemoteFqdns(self, target_fqdn_list):
-        print("removeUsedRemoteFqdns: start")
+        #print("removeUsedRemoteFqdns: start")
         unused_fqdn_list = target_fqdn_list
         for resfqdn in self.resource_fqdns_all:
-            print("   resfqdn: {}".format(resfqdn))
+            #print("   resfqdn: {}".format(resfqdn))
             if  self.lt_newfqdn.has_key(resfqdn):
                 newfqdn = self.lt_newfqdn[resfqdn].get()
-                print("   newfqdn: {}".format(newfqdn))
+                #print("   newfqdn: {}".format(newfqdn))
                 if newfqdn != 'default' and newfqdn != 'no change':
                     if newfqdn in unused_fqdn_list:
                         unused_fqdn_list.remove(newfqdn)
-                        print("cleaned {} from list".format(newfqdn))
-        print("removeUsedRemoteFqdns: end")
+                        #print("cleaned {} from list".format(newfqdn))
+        #print("removeUsedRemoteFqdns: end")
         return unused_fqdn_list
+
+    def removeUnsupportedRemoteFqdns(self, target_fqdn_list, resfqdn):
+        supported_fqdn_list = target_fqdn_list[:]
+        for targetfqdn in target_fqdn_list:
+            if self.ostype[targetfqdn] not in self.nsc_oscaps[resfqdn]:
+                supported_fqdn_list.remove(targetfqdn)
+        return supported_fqdn_list
+
+
 
     def createTargetConfigListFromOptionMENU(self):
         print "\nCreating NEW Target config list...\n"
@@ -1086,6 +1095,7 @@ class MainApp(Frame):
         self.remote_fqdns_all = getFileAsListOfRow(remote_nsc_list_file, 0)
         self.target_config_list = getFileAsList(target_config_list_file)
         self.ostype_list = getFileAsList(nsc_ostype_list_file)
+        self.nsc_oscaps = getFileAsDictOfLists(nsc_oscaps_list_file)
 
 
         self.nsc_status = defaultdict(lambda:'unknown')       # status as reead from script generated nsc_status_list
